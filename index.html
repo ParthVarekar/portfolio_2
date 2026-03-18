@@ -210,7 +210,16 @@
     <nav
         class="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50 mix-blend-difference pointer-events-none">
         <div class="font-bold tracking-widest text-sm uppercase">PARTH VAREKAR // MUMBAI</div>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-6 relative">
+            <!-- CTA Callout -->
+            <div class="absolute -left-20 top-10 pointer-events-none hidden md:block" id="workspace-callout">
+                <div class="flex flex-col items-center">
+                    <span class="font-mono text-[10px] text-accent uppercase tracking-tighter whitespace-nowrap mb-1 opacity-80">check me out!</span>
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="rotate-[120deg]">
+                        <path d="M5 5C5 5 25 5 30 25M30 25L22 22M30 25L33 17" stroke="#00F0FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
             <a href="workspace.html" class="pointer-events-auto font-mono text-xs text-accent hover:text-white transition-colors interactive" style="pointer-events:auto;">[ Workspace ]</a>
             <div class="font-mono text-xs text-accent" id="clock">00:00:00</div>
         </div>
