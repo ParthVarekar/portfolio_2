@@ -1,0 +1,69 @@
+[
+  {
+    "id": "escrow-architecture",
+    "title": "Engineering Trust: How I Built an Escrow System from Scratch",
+    "excerpt": "A deep dive into atomic transactions, PostgreSQL advisory locks, and the state machine that powers Reboxed's payment verification pipeline.",
+    "date": "2026-02-15",
+    "readTime": "8 min",
+    "tags": ["#systems", "#backend", "#postgresql"],
+    "type": "article",
+    "content": "Building a marketplace where strangers exchange money requires more than just a Stripe integration. It requires a trust protocol embedded into the database itself..."
+  },
+  {
+    "id": "local-llm-pipeline",
+    "title": "Running LLMs Locally: A Practical Performance Guide",
+    "excerpt": "Benchmarks, quantization strategies, and the real-world tradeoffs of deploying Mistral and Llama on consumer hardware.",
+    "date": "2026-01-28",
+    "readTime": "12 min",
+    "tags": ["#ai", "#performance", "#systems"],
+    "type": "article",
+    "content": "The promise of local LLMs is sovereignty over your data. The reality is navigating VRAM limits, choosing between GGUF and GPTQ quantization, and accepting that speed and quality sit on opposite ends of a slider..."
+  },
+  {
+    "id": "gsap-scroll-mastery",
+    "title": "GSAP ScrollTrigger: The Motion Design Playbook",
+    "excerpt": "How to build scroll-driven animations that feel cinematic without destroying your Lighthouse score.",
+    "date": "2025-12-10",
+    "readTime": "6 min",
+    "tags": ["#frontend", "#animation", "#performance"],
+    "type": "article",
+    "content": "ScrollTrigger changed how I think about web pages. Instead of static sections, every element becomes an actor in a scene, entering and exiting based on the user's scroll position..."
+  },
+  {
+    "id": "react-state-patterns",
+    "title": "State Management Patterns I Actually Use in Production",
+    "excerpt": "Forget Redux vs Zustand debates. Here are the patterns that survive contact with real users and real deadlines.",
+    "date": "2025-11-20",
+    "readTime": "9 min",
+    "tags": ["#frontend", "#react", "#systems"],
+    "type": "article",
+    "content": "Every state management article starts with a todo app. This one starts with a real problem: syncing optimistic UI updates with a WebSocket-driven backend while handling race conditions..."
+  },
+  {
+    "id": "qt-advisory-locks",
+    "title": "PostgreSQL advisory locks are underrated. Solved a double-spend race condition in Reboxed's escrow release by combining them with serializable isolation. 12ms latency cost for financial correctness — always worth it.",
+    "excerpt": "",
+    "date": "2026-03-10",
+    "readTime": "1 min",
+    "tags": ["#quick-take", "#postgresql", "#backend"],
+    "type": "quick-take"
+  },
+  {
+    "id": "qt-gguf-vs-gptq",
+    "title": "GGUF vs GPTQ for local inference: GGUF wins on CPU, GPTQ wins on GPU. If you have <8GB VRAM, use GGUF Q4_K_M. Above 12GB, GPTQ 4-bit with ExLlama is 2x faster. Tested on Mistral-7B.",
+    "excerpt": "",
+    "date": "2026-03-05",
+    "readTime": "1 min",
+    "tags": ["#quick-take", "#ai", "#performance"],
+    "type": "quick-take"
+  },
+  {
+    "id": "qt-jittered-backoff",
+    "title": "Stop using exponential backoff without jitter. Every reconnection storm I've debugged traces back to correlated retry timing. Add ±40% random jitter. It costs one line of code and saves hours of debugging.",
+    "excerpt": "",
+    "date": "2026-02-28",
+    "readTime": "1 min",
+    "tags": ["#quick-take", "#systems", "#backend"],
+    "type": "quick-take"
+  }
+]

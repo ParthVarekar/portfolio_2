@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parth Varekar // Virtual Workspace</title>
+    <meta name="description" content="Interactive developer portfolio — VS Code-themed workspace with terminal bridge, code explorer, and mini-games.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
+                    colors: {
+                        void: '#020202',
+                        accent: '#43BF6D',
+                        alert: '#FF5F56',
+                        surface: '#0d0d0d',
+                        elevated: '#1e1e1e',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Prism.js (Code Highlighting) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js" defer></script>
+
+    <!-- jQuery Terminal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/js/jquery.terminal.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/css/jquery.terminal.min.css" rel="stylesheet">
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="workspace/styles.css">
+</head>
+<body>
+    <div class="workspace-shell" id="app">
+        <!-- ═══ TITLE BAR ═══ -->
+        <header class="titlebar" role="banner">
+            <div class="titlebar-left">
+                <div class="titlebar-dots" aria-hidden="true">
+                    <a href="portfolio.html" class="titlebar-dot close" title="Back to Classic Portfolio"></a>
+                    <button class="titlebar-dot minimize" aria-label="Minimize"></button>
+                    <button class="titlebar-dot maximize" aria-label="Maximize"></button>
+                </div>
+                <span>PARTH VAREKAR</span>
+            </div>
+            <div class="titlebar-center">workspace — ~/portfolio</div>
+            <div class="titlebar-right">
+                <span id="clock-display">00:00:00</span>
+                <a href="portfolio.html" class="titlebar-nav">[ Classic View ]</a>
+            </div>
+        </header>
+
+        <!-- ═══ BODY ═══ -->
+        <div class="workspace-body">
+            <!-- ─── SIDEBAR ─── -->
+            <aside class="sidebar" role="navigation" aria-label="File Explorer" id="sidebar">
+                <div class="sidebar-header">Explorer</div>
+                <div id="file-tree" role="tree" aria-label="Project files"></div>
+            </aside>
+
+            <!-- ─── MAIN AREA ─── -->
+            <div class="main-area">
+                <!-- Tab Bar -->
+                <div class="tabbar" id="tabbar" role="tablist" aria-label="Open files"></div>
+
+                <!-- Content Area: Editor + Dashboard + Terminal -->
+                <div style="display:grid; grid-template-rows:1fr auto; overflow:hidden; min-height:0;">
+                    <!-- Editor / Dashboard -->
+                    <div id="content-area" style="overflow:auto; position:relative; min-height:0;">
+                        <!-- Welcome Dashboard (shown when no file is open) -->
+                        <div class="dashboard" id="dashboard">
+                            <!-- Bio Bento -->
+                            <div class="bento-grid" id="bento-bio" style="margin-bottom:var(--gap);">
+                                <div class="bento-card span-2">
+                                    <div class="bento-card-label">System.Identity</div>
+                                    <div class="bento-card-title">Parth Varekar</div>
+                                    <div class="bento-card-body">
+                                        AI Systems & Full-Stack Engineering. I build complete architectures — from local LLM pipelines to high-performance React interfaces. Execution over theory.<br><br>
+                                        <span style="color:var(--accent);">Mumbai, India</span> · 
+                                        <a href="mailto:parthvarekar27@gmail.com" style="color:var(--accent);">parthvarekar27@gmail.com</a> ·
+                                        <span style="color:var(--text-muted);">+91 7400082627</span>
+                                    </div>
+                                </div>
+                                <div class="bento-card">
+                                    <div class="bento-card-label">Quick Commands</div>
+                                    <div style="font-family:var(--font-mono); font-size:13px; line-height:2; color:var(--text-secondary);">
+                                        <div><span style="color:var(--accent);">$</span> ls <span style="color:var(--text-muted);">— list projects</span></div>
+                                        <div><span style="color:var(--accent);">$</span> cd reboxed <span style="color:var(--text-muted);">— explore</span></div>
+                                        <div><span style="color:var(--accent);">$</span> contact <span style="color:var(--text-muted);">— reach out</span></div>
+                                        <div><span style="color:var(--accent);">$</span> play hex <span style="color:var(--text-muted);">— mini-game</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Philosophy Bento (populated by ide.js) -->
+                            <div class="bento-grid" style="margin-bottom:var(--gap);">
+                                <div class="bento-card span-3" id="bento-philosophy"></div>
+                            </div>
+
+                            <!-- Skills Bento -->
+                            <div class="bento-grid" id="bento-skills" style="margin-bottom:var(--gap);">
+                                <div class="bento-card">
+                                    <div class="bento-card-label">AI & Voice Systems</div>
+                                    <div class="bento-card-body" style="font-family:var(--font-mono); font-size:12px; line-height:2;">
+                                        Local LLMs · Prompt Engineering<br>
+                                        Whisper (STT) · Edge TTS<br>
+                                        Data Extraction Pipelines
+                                    </div>
+                                </div>
+                                <div class="bento-card">
+                                    <div class="bento-card-label">Backend Infrastructure</div>
+                                    <div class="bento-card-body" style="font-family:var(--font-mono); font-size:12px; line-height:2;">
+                                        FastAPI · Python · PostgreSQL<br>
+                                        WebSockets · Atomic Transactions<br>
+                                        Docker · GitHub Actions
+                                    </div>
+                                </div>
+                                <div class="bento-card">
+                                    <div class="bento-card-label">Frontend & UX</div>
+                                    <div class="bento-card-body" style="font-family:var(--font-mono); font-size:12px; line-height:2;">
+                                        React · TypeScript · Tailwind<br>
+                                        GSAP · Framer Motion<br>
+                                        Three.js · React Three Fiber
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Projects Bento -->
+                            <h2 style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;">Deployed Architecture</h2>
+                            <div class="bento-grid" id="bento-projects" style="margin-bottom:var(--gap);"></div>
+
+                            <!-- Games Bento -->
+                            <h2 style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;">Cognitive Proof of Work</h2>
+                            <div class="bento-grid" id="bento-games" style="margin-bottom:var(--gap);">
+                                <div class="bento-card" style="cursor:pointer;" onclick="window.launchGame('hex')" role="button" tabindex="0" aria-label="Launch Hex Invaders">
+                                    <div class="bento-card-label" style="color:var(--alert);">Mini-Game</div>
+                                    <div class="bento-card-title">Hex Invaders</div>
+                                    <div class="bento-card-body">Shoot the alien matching the hex color code. Tests your color system mastery.</div>
+                                </div>
+                                <div class="bento-card" style="cursor:pointer;" onclick="window.launchGame('kern')" role="button" tabindex="0" aria-label="Launch Kern Type">
+                                    <div class="bento-card-label" style="color:var(--warn);">Mini-Game</div>
+                                    <div class="bento-card-title">Kern Type</div>
+                                    <div class="bento-card-body">Drag letters to fix kerning spacing. Tests your typographic intuition.</div>
+                                </div>
+                            </div>
+
+                            <!-- Systems Thinking Bento -->
+                            <h2 style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;">Systems Thinking</h2>
+                            <div class="bento-grid" style="margin-bottom:var(--gap);">
+                                <div class="bento-card span-2" style="cursor:pointer;" onclick="window.openSystemsVisualizer && window.openSystemsVisualizer()" role="button" tabindex="0" aria-label="Launch Systems Visualizer">
+                                    <div class="bento-card-label">Visualizer</div>
+                                    <div class="bento-card-title">LLM RAG Pipeline</div>
+                                    <div class="bento-card-body">Interactive SVG flow diagram of a Retrieval-Augmented Generation architecture. Click to explore each node.</div>
+                                    <div style="font-family:var(--font-mono); font-size:10px; color:var(--accent); margin-top:8px;">▶ LAUNCH VISUALIZER</div>
+                                </div>
+                                <div class="bento-card" style="cursor:pointer;" onclick="window.navigateToPath && window.navigateToPath('evolution.log')" role="button" tabindex="0" aria-label="View Evolution Log">
+                                    <div class="bento-card-label">Paradigm Shifts</div>
+                                    <div class="bento-card-title">evolution.log</div>
+                                    <div class="bento-card-body" style="font-family:var(--font-mono); font-size:11px; line-height:1.8;">
+                                        v1.0 → Imperative Logic<br>
+                                        v2.0 → Functional Purity<br>
+                                        v3.0 → Agentic Workflows ←
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CTA -->
+                            <div class="bento-grid" style="margin-bottom:var(--gap);">
+                                <div class="bento-card span-3" style="text-align:center; padding:clamp(24px, calc(40 * 1vw / 14.4), 48px);">
+                                    <div class="bento-card-label" style="color:var(--accent);">05 // Conversion Protocol</div>
+                                    <div class="bento-card-title" style="font-size:clamp(20px, calc(32 * 1vw / 14.4), 36px); margin-bottom:12px;">Initialize Collaboration.</div>
+                                    <div class="bento-card-body" style="max-width:500px; margin:0 auto 16px;">Request system access for high-scale projects. Optimized for high-concurrency environments.</div>
+                                    <a href="mailto:parthvarekar27@gmail.com" style="display:inline-block; font-family:var(--font-mono); font-size:12px; background:var(--accent); color:#000; padding:10px 24px; text-decoration:none; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Build With Me →</a>
+                                    <div style="display:flex; justify-content:center; gap:16px; margin-top:16px; font-family:var(--font-mono); font-size:11px;">
+                                        <a href="https://github.com/ParthVarekar" target="_blank" style="color:var(--text-muted); text-decoration:none;">[ GitHub ]</a>
+                                        <a href="https://www.linkedin.com/in/parth-varekar-601432344/" target="_blank" style="color:var(--text-muted); text-decoration:none;">[ LinkedIn ]</a>
+                                        <span style="color:var(--text-muted);">[ +91 7400082627 ]</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Blog Section -->
+                            <h2 style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;">System.Log // Blog</h2>
+                            <div class="blog-filter-bar" id="blog-filter-bar"></div>
+                            <div class="bento-grid" id="bento-blog"></div>
+                        </div>
+
+                        <!-- Editor (hidden by default, shown when a file is open) -->
+                        <div class="editor-pane" id="editor-pane" style="display:none;">
+                            <div class="editor-line-numbers" id="editor-line-numbers"></div>
+                            <div class="editor-content" id="editor-content" style="padding-left:60px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- ─── TERMINAL ─── -->
+                    <div class="terminal-container" id="terminal-container">
+                        <div class="terminal-resize-handle" id="terminal-resize-handle"></div>
+                        <div class="terminal-header">
+                            <div class="terminal-header-tabs">
+                                <button class="terminal-header-tab active" aria-label="Terminal tab">TERMINAL</button>
+                                <button class="terminal-header-tab" aria-label="Problems tab">PROBLEMS</button>
+                                <button class="terminal-header-tab" aria-label="Output tab">OUTPUT</button>
+                            </div>
+                            <span style="font-size:10px; color:var(--text-muted);">bash</span>
+                        </div>
+                        <div id="terminal" style="height:calc(100% - 28px);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ STATUS BAR ═══ -->
+        <footer class="statusbar" role="contentinfo">
+            <div class="statusbar-section">
+                <span>⚡ WORKSPACE</span>
+                <span id="status-branch">main</span>
+            </div>
+            <div class="statusbar-section">
+                <span id="status-file">Welcome</span>
+                <span>UTF-8</span>
+                <span id="status-time">System Online</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ═══ GAME OVERLAY ═══ -->
+    <div class="game-overlay" id="game-overlay" role="dialog" aria-modal="true" aria-label="Mini-Game">
+        <div class="game-canvas-wrapper" style="position:relative;">
+            <button class="game-close" id="game-close" aria-label="Close game">[ ESC ] CLOSE</button>
+            <div class="game-hud" id="game-hud">
+                <span id="game-title">Game</span>
+                <span id="game-score">Score: 0</span>
+            </div>
+            <canvas id="game-canvas" width="600" height="400"></canvas>
+        </div>
+    </div>
+
+    <!-- ═══ SYSTEMS VISUALIZER OVERLAY ═══ -->
+    <div class="game-overlay" id="systems-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Systems Visualizer">
+    </div>
+
+    <!-- ═══ SCRIPTS (order matters) ═══ -->
+    <script type="module" src="workspace/ide.js"></script>
+    <script type="module" src="workspace/terminal-bridge.js"></script>
+    <script type="module" src="workspace/blog.js"></script>
+    <script type="module" src="workspace/games/launcher.js"></script>
+    <script src="workspace/systems-visualizer.js"></script>
+
+    <!-- Clock -->
+    <script>
+        setInterval(() => {
+            const now = new Date();
+            const t = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST';
+            const el = document.getElementById('clock-display');
+            if (el) el.textContent = t;
+        }, 1000);
+    </script>
+</body>
+</html>

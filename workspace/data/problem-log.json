@@ -1,0 +1,32 @@
+[
+  {
+    "id": "escrow-race-condition",
+    "title": "Double-Spend Race Condition in Escrow Release",
+    "severity": "CRITICAL",
+    "project": "reboxed",
+    "problem": "Two concurrent HTTP requests could trigger duplicate fund releases when buyer and seller confirmed delivery simultaneously. PostgreSQL row-level locks weren't sufficient because the ORM was reading stale state between transaction boundaries.",
+    "approach": "Replaced optimistic locking with PostgreSQL advisory locks keyed to the escrow transaction ID. Wrapped the entire release flow in a serializable isolation level transaction. Added an idempotency key to the API endpoint to reject duplicate confirmations at the HTTP layer before hitting the database.",
+    "result": "Zero double-spend incidents post-deploy. P99 latency for release endpoint increased by 12ms (acceptable trade-off for financial correctness). Added a regression test that fires 50 concurrent release requests against the same escrow ID.",
+    "file_content": "-- Problem: Concurrent escrow releases cause double-spend\n-- Root Cause: ORM reads stale state between TX boundaries\n\n-- Fix: Advisory lock + serializable isolation\nBEGIN;\nSET TRANSACTION ISOLATION LEVEL SERIALIZABLE;\n\nSELECT pg_advisory_xact_lock(escrow_id);\n\nUPDATE escrow_transactions\n  SET status = 'RELEASED',\n      released_at = NOW()\n  WHERE id = $1\n    AND status = 'PENDING';  -- guard clause\n\n-- Idempotency: if status != PENDING, no rows affected\n-- Application checks affected_rows == 1 before proceeding\nCOMMIT;"
+  },
+  {
+    "id": "llm-context-overflow",
+    "title": "LLM Context Window Overflow in Data Extraction",
+    "severity": "HIGH",
+    "project": "ai-pipeline",
+    "problem": "Local Mistral-7B model was silently truncating input when processing large PDF documents, causing incomplete data extraction. The tokenizer was counting tokens differently than the model's actual context window, leading to off-by-200 token errors on documents over 6000 tokens.",
+    "approach": "Built a sliding-window chunking system with overlap. Each chunk is exactly 3800 tokens (leaving 200-token buffer for the system prompt and response). Chunks overlap by 15% to prevent entity splitting at boundaries. Added a post-processing merge step that deduplicates extracted entities using fuzzy string matching (Levenshtein distance < 3).",
+    "result": "Extraction accuracy jumped from 72% to 94% on documents over 10 pages. Processing time increased linearly (expected) but total pipeline latency stayed under 8 seconds for a 30-page PDF on RTX 3060 hardware.",
+    "file_content": "# Context Window Overflow — Chunking Strategy\n\nMAX_TOKENS = 3800  # Model limit: 4096 - 200 buffer - 96 system\nOVERLAP = 0.15     # 15% overlap to prevent entity splitting\n\ndef chunk_document(tokens: list[str]) -> list[list[str]]:\n    chunks = []\n    step = int(MAX_TOKENS * (1 - OVERLAP))\n    for i in range(0, len(tokens), step):\n        chunk = tokens[i:i + MAX_TOKENS]\n        chunks.append(chunk)\n    return chunks\n\ndef merge_extractions(results: list[dict]) -> dict:\n    seen = {}\n    for r in results:\n        for entity in r['entities']:\n            key = entity['name'].lower()\n            if key not in seen or levenshtein(key, seen[key]) < 3:\n                seen[key] = entity\n    return list(seen.values())"
+  },
+  {
+    "id": "websocket-reconnect-storm",
+    "title": "WebSocket Reconnection Storm on Deploy",
+    "severity": "HIGH",
+    "project": "spendly",
+    "problem": "Every server restart during deployment caused all connected clients to simultaneously reconnect, creating a thundering herd that crashed the new instance within seconds. The default exponential backoff wasn't jittered, so all clients retried at identical intervals.",
+    "approach": "Implemented a jittered exponential backoff with decorrelated randomization. Base delay starts at 500ms, doubles each attempt up to 30s max, with ±40% jitter. Added a server-side connection rate limiter (token bucket, 50 connections/second) that returns HTTP 503 with a Retry-After header when capacity is exceeded.",
+    "result": "Reconnection storms eliminated. Deploy-time CPU spike dropped from 100% to 35%. Mean time to full reconnection for all clients went from 45s (with crashes) to 8s (smooth). Zero dropped connections in the last 3 months of deploys.",
+    "file_content": "// WebSocket Reconnection — Jittered Exponential Backoff\n\nclass ResilientSocket {\n  constructor(url) {\n    this.url = url;\n    this.attempt = 0;\n    this.maxDelay = 30000;\n    this.connect();\n  }\n\n  getDelay() {\n    const base = Math.min(500 * Math.pow(2, this.attempt), this.maxDelay);\n    const jitter = base * (0.6 + Math.random() * 0.8); // ±40%\n    return Math.round(jitter);\n  }\n\n  connect() {\n    this.ws = new WebSocket(this.url);\n    this.ws.onopen = () => { this.attempt = 0; };\n    this.ws.onclose = () => {\n      const delay = this.getDelay();\n      this.attempt++;\n      console.log(`[WS] Retry #${this.attempt} in ${delay}ms`);\n      setTimeout(() => this.connect(), delay);\n    };\n  }\n}"
+  }
+]
