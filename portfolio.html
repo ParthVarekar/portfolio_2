@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parth Varekar // AI Systems & Full-Stack Engineering</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Outfit:wght@100;400;800;900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        void: '#020202',
+                        accent: '#00F0FF', // Neon Cyan
+                        alert: '#FF0055',  // Neon Pink
+                        surface: 'rgba(255, 255, 255, 0.03)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+
+    <style>
+        body {
+            background-color: #020202;
+            color: #ffffff;
+            margin: 0;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            scrollbar-width: none;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            background: #00F0FF;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* Scanline Overlay */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0.3;
+        }
+
+        /* Enhanced Glass Panel Physics */
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.05);
+            border-color: rgba(0, 240, 255, 0.2);
+        }
+
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .horizontal-section {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .horizontal-wrapper {
+            display: flex;
+            width: 300vw;
+            height: 100%;
+        }
+
+        .h-panel {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 5vw;
+        }
+
+        .system-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 2, 2, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9000;
+            display: none;
+            opacity: 0;
+            overflow-y: auto;
+            padding: 10vh 5vw;
+        }
+
+        .tree-line {
+            border-left: 1px solid rgba(0, 240, 255, 0.3);
+            position: relative;
+        }
+
+        .tree-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 1.2em;
+            width: 1rem;
+            height: 1px;
+            background: rgba(0, 240, 255, 0.3);
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #020202;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-accent selection:text-black">
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+    <div class="scanline"></div>
+    <canvas id="webgl-canvas"></canvas>
+
+    <div id="loader">
+        <div class="font-mono text-accent text-sm md:text-lg mb-4" id="loader-text">SYS.INIT [0%]</div>
+        <div class="w-64 h-[1px] bg-gray-800 relative overflow-hidden">
+            <div id="loader-bar" class="absolute top-0 left-0 h-full bg-accent w-0"></div>
+        </div>
+        <div class="font-mono text-xs text-gray-500 mt-4 opacity-50">Compiling interactive proof of work...</div>
+    </div>
+
+    <nav
+        class="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50 mix-blend-difference pointer-events-none">
+        <div class="font-bold tracking-widest text-sm uppercase">PARTH VAREKAR // MUMBAI</div>
+        <div class="font-mono text-xs text-accent" id="clock">00:00:00</div>
+    </nav>
+
+    <main id="smooth-wrapper">
+        <div id="smooth-content">
+
+            <section class="h-screen flex flex-col justify-center px-6 md:px-12 lg:px-24 relative">
+                <div class="max-w-7xl">
+                    <p class="font-mono text-accent text-sm md:text-base mb-6 tracking-widest uppercase fade-up">Not a
+                        Website. An Interactive Product.</p>
+                    <h1 class="text-[12vw] md:text-[8vw] font-black leading-[0.85] tracking-tighter uppercase fade-up">
+                        Parth <br>
+                        <span
+                            class="text-outline hover:text-white transition-colors duration-500 interactive">Varekar</span>
+                    </h1>
+                    <p class="mt-8 text-lg md:text-2xl text-gray-400 font-light max-w-2xl leading-relaxed fade-up">
+                        AI Systems & Full-Stack Engineering. I build complete architectures—from local LLM pipelines to
+                        high-performance React interfaces. Execution over theory.
+                    </p>
+                    <div class="mt-12 fade-up">
+                        <button
+                            onclick="document.getElementById('cmd-input').focus(); document.getElementById('section-terminal').scrollIntoView({behavior:'smooth'})"
+                            class="interactive group relative px-8 py-4 bg-white text-black font-bold uppercase tracking-wider overflow-hidden">
+                            <span class="relative z-10">Access Terminal</span>
+                            <div
+                                class="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-0">
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-32 px-6 md:px-12 lg:px-24" id="section-about">
+                <div class="max-w-5xl mx-auto glass-panel p-8 md:p-16 rounded-sm cursor-default">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-2 h-2 bg-alert animate-pulse"></div>
+                        <span class="font-mono text-xs text-gray-400 uppercase tracking-widest">Architectural Blueprint
+                            // 01</span>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">Execution Over Surface</h2>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
+                        I design systems that prioritize measurable functionality. Whether it's securely managing escrow
+                        funds, parsing complex data via local AI models, or rendering WebGL interfaces, the goal is
+                        always performance and reliability.
+                    </p>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed fade-up">
+                        Based in Mumbai. Open to thoughtful product collaborations that require deep technical
+                        problem-solving.
+                    </p>
+                </div>
+            </section>
+
+            <section class="py-32 px-6 md:px-12 lg:px-24 border-t border-white/5">
+                <div class="max-w-5xl mx-auto glass-panel p-8 md:p-16 rounded-sm cursor-default">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-2 h-2 bg-accent animate-pulse"></div>
+                        <span class="font-mono text-xs text-gray-400 uppercase tracking-widest">SYSTEM.ID // 02</span>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">What I Build.</h2>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
+                        I architect end-to-end full-stack applications with an emphasis on local LLMs and robust AI
+                        systems.
+                        My focus isn't just on passing data between APIs, but Engineering intelligence directly into the
+                        core state.
+                    </p>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed fade-up">
+                        From complex PostgreSQL schemas handling atomic financial transactions to edge TTS integrations,
+                        the artifacts I deploy are built for resilience and real-world execution.
+                    </p>
+                </div>
+            </section>
+
+            <section class="py-32 px-6 md:px-12 lg:px-24 border-t border-white/5">
+                <div class="max-w-5xl mx-auto glass-panel p-8 md:p-16 rounded-sm cursor-default">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-2 h-2 bg-alert animate-pulse"></div>
+                        <span class="font-mono text-xs text-gray-400 uppercase tracking-widest">SYSTEM.LOGIC //
+                            03</span>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">How I Think.</h2>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
+                        Systems thinking dictates everything. Function over form, logic over assumptions. When faced
+                        with
+                        a severe trust deficit in an escrow marketplace or latency in an AI data extraction pipeline, I
+                        don't
+                        patch it—I restructure the underlying logic.
+                    </p>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed fade-up">
+                        I believe in controlling the entire stack. True execution means holding a deep understanding of
+                        how
+                        every node, database query, and animation frame interact. Execution definitively beats theory.
+                    </p>
+                </div>
+            </section>
+
+            <section class="py-32 px-6 md:px-12 lg:px-24 border-t border-white/5">
+                <div class="max-w-5xl mx-auto glass-panel p-8 md:p-16 rounded-sm cursor-default">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-2 h-2 bg-accent animate-pulse"></div>
+                        <span class="font-mono text-xs text-gray-400 uppercase tracking-widest">SYSTEM.EDGE // 04</span>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">What I Explore.</h2>
+                    <ul class="text-lg md:text-xl text-gray-300 font-light leading-relaxed space-y-4 fade-up">
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Local LLM deployments and
+                            quantization optimizations.</li>
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Experimental WebGL
+                            interfaces for spatial data representation.</li>
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Multi-agent systems solving
+                            deterministic logic problems.</li>
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Bare-metal performance
+                            tuning for rendering and network transit.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="section-projects" class="py-32 px-6 md:px-12 lg:px-24 border-t border-white/5 relative z-10">
+                <div class="max-w-[90rem] mx-auto">
+                    <h3 class="font-mono text-accent mb-4 uppercase">System.Nodes // Projects</h3>
+                    <h2 class="text-4xl md:text-6xl font-black uppercase leading-none mb-16">Deployed <br>Architecture.
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                        <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-reboxed')">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="/assets/reboxed-preview.png" loading="lazy" alt="Reboxed Preview"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">E-COMMERCE
+                                            // DEEP</h4>
+                                        <span
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">LIVE</span>
+                                    </div>
+                                    <h3
+                                        class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
+                                        Reboxed</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Escrow-based second-hand
+                                        marketplace. Funds are held securely and released only post-verification.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ FastAPI ]</span> <span>[ PostgreSQL ]</span> <span>[ React ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-spendly')">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="/assets/spendly-preview.png" loading="lazy" alt="Spendly Preview"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">FINANCE //
+                                            DEEP</h4>
+                                        <span
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">LIVE</span>
+                                    </div>
+                                    <h3
+                                        class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
+                                        Spendly</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Personal finance management engine
+                                        designed for smarter spending analytics and data categorization.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ Python ]</span> <span>[ TypeScript ]</span> <span>[ Dashboards ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-8 border-l-2 border-l-white/50 group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-gym')">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="/assets/gym-preview.png" loading="lazy" alt="Gym Progress Tracker Preview"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-gray-300 uppercase tracking-widest">FITNESS //
+                                            MED</h4>
+                                        <span
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">LIVE</span>
+                                    </div>
+                                    <h3 class="text-3xl font-black uppercase mb-4 transition-colors">Gym Tracker</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Body tracking platform logging
+                                        reps, intensity metrics, and progressive overload statistics.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ React ]</span> <span>[ REST APIs ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-8 border-l-2 border-l-white/50 group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-spatial')">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="/assets/spatial-preview.png" loading="lazy" alt="Spatial Learning Preview"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-gray-300 uppercase tracking-widest">WEBGL //
+                                            MED</h4>
+                                    </div>
+                                    <h3 class="text-3xl font-black uppercase mb-4 transition-colors">Spatial Learning
+                                    </h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">3D-first educational system
+                                        featuring adaptive pacing and layered interactive environments.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ Three.js ]</span> <span>[ R3F ]</span> <span>[ GSAP ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-8 border-l-2 border-l-alert group interactive cursor-pointer">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="/assets/motion-preview.png" loading="lazy" alt="Motion System Preview"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-alert uppercase tracking-widest">PLATFORM //
+                                            LITE</h4>
+                                    </div>
+                                    <h3
+                                        class="text-2xl font-black uppercase mb-4 group-hover:text-alert transition-colors">
+                                        Motion Design Sys</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">A library of reusable interaction
+                                        primitives tailored for high-end dashboards and marketing layers.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ Framer Motion ]</span> <span>[ CSS ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-8 border-l-2 border-l-alert group interactive cursor-pointer">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="/assets/fintech-preview.png" loading="lazy" alt="Fintech Onboarding Preview"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-alert uppercase tracking-widest">PRODUCT //
+                                            LITE</h4>
+                                    </div>
+                                    <h3
+                                        class="text-2xl font-black uppercase mb-4 group-hover:text-alert transition-colors">
+                                        Fintech Onboard</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Risk-aware user onboarding flow
+                                        optimized for KYC compliance and maximum conversion rates.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ TypeScript ]</span> <span>[ State Management ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-experience"
+                class="py-24 px-6 md:px-12 lg:px-24 bg-[#050505] relative z-10 border-t border-white/5">
+                <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24">
+
+                    <div>
+                        <h3 class="font-mono text-accent mb-4 uppercase">Topology // Tech Stack</h3>
+                        <h2 class="text-3xl md:text-5xl font-black uppercase leading-none mb-12">System
+                            <br>Capabilities.
+                        </h2>
+
+                        <div class="font-mono text-sm text-gray-400 bg-black/50 p-6 border border-white/10 rounded-sm">
+                            <div class="text-white mb-2">├── AI_VOICE_SYSTEMS</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-accent">├── Local LLMs & Prompt Engineering</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">├── Whisper (STT) & Edge TTS</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── Data Extraction Pipelines</div>
+
+                            <div class="text-white mt-6 mb-2">├── BACKEND_INFRASTRUCTURE</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-accent">├── FastAPI, Python, PostgreSQL,
+                                SQLAlchemy</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">├── WebSockets & Atomic Transactions
+                            </div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── Docker, GitHub Actions, Playwright
+                            </div>
+
+                            <div class="text-white mt-6 mb-2">└── FRONTEND_UX</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-alert">├── React, TypeScript, Tailwind, Vite</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── GSAP, Framer Motion, React Three
+                                Fiber</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-mono text-accent mb-4 uppercase">System.Logs // History</h3>
+                        <h2 class="text-3xl md:text-5xl font-black uppercase leading-none mb-12">Version <br>Control.
+                        </h2>
+
+                        <div class="space-y-8 font-mono text-sm">
+                            <div class="border-l-2 border-accent pl-6 relative">
+                                <div class="absolute -left-[5px] top-0 w-2 h-2 bg-accent rounded-full"></div>
+                                <div class="text-white font-bold mb-1">v2.0.0 [Current] -> AI & Full-Stack Engineer
+                                </div>
+                                <div class="text-gray-500 text-xs mb-3">@ Mumbai // Present</div>
+                                <div class="text-green-400">+ Architecting local LLM pipelines & integrations</div>
+                                <div class="text-green-400">+ Developing scalable escrow & finance platforms</div>
+                            </div>
+
+                            <div class="border-l-2 border-white/20 pl-6 relative">
+                                <div class="absolute -left-[5px] top-0 w-2 h-2 bg-white/40 rounded-full"></div>
+                                <div class="text-gray-300 font-bold mb-1">v1.5.0 -> Frontend & Interaction Developer
+                                </div>
+                                <div class="text-gray-500 text-xs mb-3">@ Previous // Foundation</div>
+                                <div class="text-green-400">+ Built WebGL and GSAP powered interfaces</div>
+                                <div class="text-green-400">+ Engineered complex state-driven dashboards</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-terminal"
+                class="py-32 px-6 md:px-12 lg:px-24 bg-[#050505] relative z-10 border-y border-white/5">
+                <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-4xl md:text-5xl font-bold uppercase mb-6">Global Routing<br>Interface.</h2>
+                        <p class="text-gray-400 font-light mb-8">
+                            Execute commands to traverse the portfolio system, open project telemetry, or initiate
+                            contact protocols directly.
+                        </p>
+                        <div class="font-mono text-sm text-gray-500 space-y-2">
+                            <p>> Try command: <span class="text-accent interactive cursor-pointer"
+                                    onclick="document.getElementById('cmd-input').value='projects'; document.getElementById('cmd-input').focus();">projects</span>
+                            </p>
+                            <p>> Try command: <span class="text-accent interactive cursor-pointer"
+                                    onclick="document.getElementById('cmd-input').value='open reboxed'; document.getElementById('cmd-input').focus();">open
+                                    reboxed</span></p>
+                            <p>> Try command: <span class="text-alert interactive cursor-pointer"
+                                    onclick="document.getElementById('cmd-input').value='contact'; document.getElementById('cmd-input').focus();">contact</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-md overflow-hidden shadow-2xl interactive cursor-text"
+                        id="terminal">
+                        <div class="bg-black/50 px-4 py-3 border-b border-white/10 flex gap-2 items-center">
+                            <div class="w-3 h-3 rounded-full bg-alert/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            <span class="ml-4 font-mono text-xs text-gray-500">guest@parth.dev: ~</span>
+                        </div>
+                        <div class="p-6 font-mono text-sm h-72 overflow-y-auto scroll-smooth" id="cmd-output">
+                            <div class="text-green-400 mb-2">System initialized. Awaiting commands... type 'help'</div>
+                        </div>
+                        <div class="p-4 bg-black/50 border-t border-white/10 flex items-center gap-3 font-mono text-sm">
+                            <span class="text-accent">➜</span>
+                            <input type="text" id="cmd-input"
+                                class="bg-transparent border-none outline-none text-white w-full focus:ring-0"
+                                placeholder="Type command and press Enter" autocomplete="off" tabindex="0">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-contact"
+                class="min-h-[80vh] flex flex-col justify-center items-center text-center px-6 relative z-10 bg-[#020202]">
+                <h3 class="font-mono text-alert mb-6">05 // CONVERSION PROTOCOL</h3>
+                <h2 class="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-12">
+                    Initiate <br>Handshake.
+                </h2>
+                <a href="mailto:parthvarekar27@gmail.com"
+                    class="interactive relative inline-flex items-center justify-center px-12 py-6 font-bold text-black bg-accent uppercase tracking-widest overflow-hidden group mb-12">
+                    <span class="relative z-10 transition-colors group-hover:text-white">Transmit Email</span>
+                    <div
+                        class="absolute inset-0 bg-void border border-accent scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out z-0">
+                    </div>
+                </a>
+
+                <div class="flex gap-8 font-mono text-sm text-gray-400">
+                    <a href="https://github.com/ParthVarekar" target="_blank"
+                        class="hover:text-white transition-colors interactive">[ GitHub ]</a>
+                    <a href="https://www.linkedin.com/in/parth-varekar-601432344/" target="_blank"
+                        class="hover:text-white transition-colors interactive">[ LinkedIn ]</a>
+                    <span class="text-gray-600">[ +91 7400082627 ]</span>
+                </div>
+            </section>
+
+            <footer
+                class="p-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center font-mono text-xs text-gray-600 z-10 relative bg-[#020202]">
+                <div>© 2026 PARTH VAREKAR // ARCHITECTURE</div>
+                <div>Mumbai, IN // System Online</div>
+            </footer>
+
+        </div>
+    </main>
+
+    <div id="modal-reboxed" class="system-modal">
+        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
+            <button onclick="window.closeSystemModal('modal-reboxed')"
+                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
+                [X]</button>
+            <h4 class="font-mono text-accent mb-4 uppercase">Case Study // Reboxed</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12">Escrow <br>Marketplace.</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Problem Space</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Second-hand marketplaces suffer from
+                        severe trust deficits. Buyers risk paying for items that never arrive, and sellers risk shipping
+                        items without guaranteed payment.</p>
+                </div>
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Architectural Logic</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Engineered a strict escrow protocol
+                        using FastAPI and PostgreSQL. Funds are cryptographically locked in the system state and only
+                        released upon atomic verification of delivery.</p>
+                </div>
+            </div>
+
+            <div class="mt-12 flex flex-wrap gap-4">
+                <a href="https://reboxed.onrender.com" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">LAUNCH
+                    LIVE APP ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-spendly" class="system-modal">
+        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
+            <button onclick="window.closeSystemModal('modal-spendly')"
+                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
+                [X]</button>
+            <h4 class="font-mono text-accent mb-4 uppercase">Case Study // Spendly</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12">Finance <br>Engine.</h2>
+            <p class="text-gray-400 font-light leading-relaxed mb-8 max-w-2xl">
+                A personal finance management system designed to process complex transaction data into readable,
+                actionable insights for smarter spending. Focus on data visualization, rapid categorization, and secure
+                state management.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-4">
+                <a href="https://spendlypay.tech" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">LAUNCH
+                    LIVE APP ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-gym" class="system-modal">
+        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
+            <button onclick="window.closeSystemModal('modal-gym')"
+                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
+                [X]</button>
+            <h4 class="font-mono text-white mb-4 uppercase">Project Node // Gym Tracker</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8">Body <br>Telemetry.</h2>
+            <p class="text-gray-400 font-light leading-relaxed mb-8">
+                A dedicated application for tracking physical output. Logs repetitions, calculates intensity, and graphs
+                workout statistics to ensure progressive overload is mathematically maintained.
+            </p>
+            <a href="https://gym-tracker-chi-six.vercel.app" target="_blank"
+                class="font-mono text-xs bg-white text-black px-6 py-3 font-bold interactive hover:bg-gray-300 transition-colors">LAUNCH
+                LIVE APP ↗</a>
+        </div>
+    </div>
+
+    <div id="modal-spatial" class="system-modal">
+        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
+            <button onclick="window.closeSystemModal('modal-spatial')"
+                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
+                [X]</button>
+            <h4 class="font-mono text-white mb-4 uppercase">Project Node // Spatial Learning</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8">WebGL <br>Education.</h2>
+            <p class="text-gray-400 font-light leading-relaxed mb-8">
+                Moving beyond 2D interfaces for complex concepts. This app utilizes Three.js and React Three Fiber to
+                build layered, interactive 3D scenes that adapt to the user's learning pace.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Boot Sequence ---
+        const initBootSequence = () => {
+            let progress = 0;
+            const loaderText = document.getElementById('loader-text');
+            const loaderBar = document.getElementById('loader-bar');
+            const loader = document.getElementById('loader');
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    gsap.to(loader, {
+                        yPercent: -100, duration: 1.2, ease: "power4.inOut", delay: 0.3,
+                        onComplete: initAnimations
+                    });
+                }
+                loaderText.innerText = `SYS.INIT [${progress}%]`;
+                loaderBar.style.width = `${progress}%`;
+            }, 60);
+        };
+
+        const initAnimations = () => {
+            gsap.fromTo('section:first-child .fade-up',
+                { y: 50, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power3.out" }
+            );
+
+            gsap.utils.toArray('section:not(:first-child) .fade-up').forEach((elem) => {
+                gsap.fromTo(elem,
+                    { y: 50, opacity: 0 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 1,
+                        ease: "power3.out",
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: "top 85%",
+                            toggleActions: "play none none reverse"
+                        }
+                    }
+                );
+            });
+        };
+
+        // --- 2. Custom Cursor ---
+        const initCursor = () => {
+            const dot = document.querySelector('.cursor-dot');
+            const ring = document.querySelector('.cursor-ring');
+
+            if (window.matchMedia("(pointer: coarse)").matches) {
+                dot.style.display = 'none';
+                ring.style.display = 'none';
+                document.body.style.cursor = 'auto';
+                return;
+            }
+
+            window.addEventListener('mousemove', (e) => {
+                gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0 });
+                gsap.to(ring, { x: e.clientX, y: e.clientY, duration: 0.15, ease: "power2.out" });
+            });
+
+            document.querySelectorAll('.interactive').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    gsap.to(ring, { width: 64, height: 64, backgroundColor: 'rgba(0, 240, 255, 0.1)', borderColor: 'rgba(0, 240, 255, 1)', duration: 0.2 });
+                });
+                el.addEventListener('mouseleave', () => {
+                    gsap.to(ring, { width: 36, height: 36, backgroundColor: 'transparent', borderColor: 'rgba(0, 240, 255, 0.5)', duration: 0.2 });
+                });
+            });
+        };
+
+        // --- 3. WebGL Background ---
+        const initWebGL = () => {
+            const canvas = document.getElementById('webgl-canvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: "high-performance" });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+            const geometry = new THREE.PlaneGeometry(30, 30, 40, 40);
+            const material = new THREE.PointsMaterial({ color: 0x00F0FF, size: 0.03, transparent: true, opacity: 0.3 });
+            const plane = new THREE.Points(geometry, material);
+
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -4;
+            scene.add(plane);
+
+            camera.position.z = 5;
+            camera.position.y = 1;
+
+            let mouseX = 0; let mouseY = 0;
+            window.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            const clock = new THREE.Clock();
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                const elapsedTime = clock.getElapsedTime();
+                const positions = plane.geometry.attributes.position.array;
+
+                for (let i = 0; i < positions.length; i += 3) {
+                    const x = positions[i];
+                    const y = positions[i + 1];
+                    positions[i + 2] = Math.sin((x + elapsedTime * 0.4) * 1.2) * 0.5 + Math.cos((y + elapsedTime * 0.2) * 1.2) * 0.5;
+                }
+                plane.geometry.attributes.position.needsUpdate = true;
+
+                camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+                camera.position.y += (mouseY * 0.5 + 1 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // --- 4. Smooth Scroll (Lenis) ---
+        const initScroll = () => {
+            const lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                smooth: true,
+                touchMultiplier: 2
+            });
+            window.lenis = lenis;
+
+            lenis.on('scroll', ScrollTrigger.update);
+            gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+            gsap.ticker.lagSmoothing(0);
+        };
+
+        // --- 5. Micro Parallax ---
+        const initMicroParallax = () => {
+            const projectCards = document.querySelectorAll('.glass-panel');
+
+            // Disable on mobile to save battery/performance
+            if (window.matchMedia("(pointer: coarse)").matches) return;
+
+            window.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth - 0.5) * 2;
+                const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+                projectCards.forEach(card => {
+                    const content = card.querySelector('.glass-content');
+                    if (content) {
+                        gsap.to(content, {
+                            x: x * 5,
+                            y: y * 5,
+                            duration: 0.5,
+                            ease: "power2.out",
+                            overwrite: "auto"
+                        });
+                    }
+                });
+            });
+        };
+
+        // --- 6. Terminal Logic ---
+        const initTerminal = () => {
+            const input = document.getElementById('cmd-input');
+            const output = document.getElementById('cmd-output');
+
+            const executeCommand = (cmd) => {
+                const args = cmd.split(' ');
+                const base = args[0];
+
+                const responseMap = {
+                    'help': `<div class="text-gray-300">SYSTEM.COMMANDS:<br>
+                            - <span class="text-accent">about</span>    : View identity & focus<br>
+                            - <span class="text-accent">projects</span> : List deployed systems<br>
+                            - <span class="text-accent">open [id]</span>: Access deep case study<br>
+                            - <span class="text-accent">skills</span>   : View tech topology<br>
+                            - <span class="text-accent">experience</span>: View system logs<br>
+                            - <span class="text-accent">contact</span>  : Display routing details<br>
+                            - <span class="text-accent">github</span>   : Authenticate remote repo<br>
+                            - <span class="text-accent">linkedin</span> : Open professional network<br>
+                            - <span class="text-accent">resume</span>   : Fetch CV document<br>
+                            - <span class="text-accent">clear</span>    : Flush terminal output</div>`,
+
+                    'about': `<div class="text-white">PARTH VAREKAR // MUMBAI<br>
+                              > AI Systems & Full-Stack Engineering<br>
+                              > Designing complete architectures, from local LLM pipelines to high-performance React interfaces.</div>`,
+
+                    'projects': `<div class="text-gray-300">DEPLOYED.NODES:<br>
+                            [ <span class="text-accent">reboxed</span> ] : Escrow Based Second Hand Marketplace<br>
+                            [ <span class="text-accent">spendly</span> ] : Personal Finance Engine<br>
+                            [ <span class="text-accent">gym</span> ]     : Body Tracking & Overload App<br>
+                            [ <span class="text-accent">spatial</span> ] : WebGL Education System<br>
+                            [ <span class="text-accent">motion</span> ]  : Interaction Primitives Library<br>
+                            [ <span class="text-accent">fintech</span> ] : Risk-Aware Onboarding Flow<br>
+                            > Type 'open reboxed' to access metrics.</div>`,
+
+                    'open': () => {
+                        const target = args[1];
+                        const validModals = ['reboxed', 'spendly', 'gym', 'spatial'];
+                        if (validModals.includes(target)) {
+                            window.openSystemModal(`modal-${target}`);
+                            return `<div class="text-green-400">Accessing Node: ${target.toUpperCase()}...</div>`;
+                        } else if (['motion', 'fintech'].includes(target)) {
+                            return `<div class="text-alert">Node '${target}' is classified LITE. Deep telemetry not available via terminal.</div>`;
+                        }
+                        return `<div class="text-alert">Syntax Error: Invalid node ID. Type 'projects'.</div>`;
+                    },
+
+                    'skills': () => {
+                        document.getElementById('section-experience').scrollIntoView({ behavior: 'smooth' });
+                        return `<div class="text-accent">Routing to /topology...</div>`;
+                    },
+
+                    'experience': () => {
+                        document.getElementById('section-experience').scrollIntoView({ behavior: 'smooth' });
+                        return `<div class="text-accent">Routing to /system-logs...</div>`;
+                    },
+
+                    'contact': `<div class="text-gray-300">CONTACT.VECTORS:<br>
+                                > Email: <a href="mailto:parthvarekar27@gmail.com" class="text-accent hover:underline">parthvarekar27@gmail.com</a><br>
+                                > Phone: +91 7400082627<br>
+                                > Location: Mumbai, India</div>`,
+
+                    'github': () => {
+                        window.open('https://github.com/ParthVarekar', '_blank');
+                        return `<div class="text-green-400">Establishing connection to remote repository...</div>`;
+                    },
+
+                    'linkedin': () => {
+                        window.open('https://www.linkedin.com/in/parth-varekar-601432344/', '_blank');
+                        return `<div class="text-green-400">Opening professional network...</div>`;
+                    },
+
+                    'resume': () => {
+                        return `<div class="text-alert">ERR: Document currently under revision. Contact directly for copy.</div>`;
+                    },
+
+                    'clear': 'CLEAR'
+                };
+
+                if (!base) return '';
+                if (responseMap[base]) {
+                    return typeof responseMap[base] === 'function' ? responseMap[base]() : responseMap[base];
+                }
+                return `<div class="text-alert">Error: Command '${base}' not recognized. Type 'help'.</div>`;
+            };
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const val = input.value.trim().toLowerCase();
+                    output.innerHTML += `<div class="text-white mt-2 font-bold">> ${val}</div>`;
+
+                    const response = executeCommand(val);
+
+                    setTimeout(() => {
+                        if (response === 'CLEAR') {
+                            const words = output.innerText.split(/(\s+)/).filter(Boolean);
+                            output.innerHTML = '';
+
+                            words.forEach((word) => {
+                                const particle = document.createElement('span');
+                                particle.style.display = 'inline-block';
+                                particle.style.whiteSpace = 'pre-wrap';
+                                particle.style.willChange = 'transform, opacity, filter';
+                                particle.innerText = word;
+                                output.appendChild(particle);
+
+                                gsap.to(particle, {
+                                    x: (Math.random() - 0.5) * 150,
+                                    y: (Math.random() - 0.5) * 150,
+                                    rotation: (Math.random() - 0.5) * 60,
+                                    opacity: 0,
+                                    filter: 'blur(8px)',
+                                    duration: 0.6 + Math.random() * 0.4,
+                                    delay: Math.random() * 0.1,
+                                    ease: "power3.out"
+                                });
+                            });
+
+                            setTimeout(() => {
+                                output.innerHTML = `<div class="text-green-400 mb-2">System initialized. Awaiting commands... type 'help'</div>`;
+                                output.scrollTop = output.scrollHeight;
+                            }, 1000);
+                        } else {
+                            output.innerHTML += response;
+                        }
+                        input.value = '';
+                        output.scrollTop = output.scrollHeight;
+                    }, 150);
+                }
+            });
+        };
+
+        // --- 7. Modal Logic ---
+        window.openSystemModal = (id) => {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                if (window.lenis) window.lenis.stop();
+                gsap.to(modal, { opacity: 1, duration: 0.3, ease: "power2.out" });
+            }
+        };
+
+        window.closeSystemModal = (id) => {
+            const modal = document.getElementById(id);
+            if (modal) {
+                gsap.to(modal, {
+                    opacity: 0, duration: 0.2, ease: "power2.in", onComplete: () => {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = '';
+                        if (window.lenis) window.lenis.start();
+                    }
+                });
+            }
+        };
+
+        // --- 9. Project Preview Hover ---
+        const initProjectHover = () => {
+            if (window.matchMedia("(pointer: coarse)").matches) return;
+            document.querySelectorAll('.glass-panel').forEach(card => {
+                const imgContainer = card.querySelector('.project-img-container');
+                if (imgContainer) {
+                    card.addEventListener('mouseenter', () => {
+                        gsap.to(imgContainer, { opacity: 1, scale: 1.05, duration: 0.5, ease: "power2.out", overwrite: "auto" });
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        gsap.to(imgContainer, { opacity: 0, scale: 1, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+                    });
+                }
+            });
+        };
+
+        // --- 8. Live Clock ---
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST';
+        }, 1000);
+
+        window.onload = () => {
+            initCursor();
+            initWebGL();
+            initScroll();
+            initMicroParallax();
+            initTerminal();
+            initProjectHover();
+            initBootSequence();
+        };
+    </script>
+</body>
+
+</html>
