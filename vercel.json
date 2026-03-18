@@ -1,0 +1,15 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "framework": null,
+  "routes": [
+    {
+      "src": "/workspace",
+      "dest": "/workspace.html"
+    },
+    {
+      "src": "/index",
+      "dest": "/index.html"
+    }
+  ]
+}
