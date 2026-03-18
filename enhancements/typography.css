@@ -1,0 +1,33 @@
+@font-face {
+    font-family: 'Inter Variable';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.ttf') format('truetype');
+}
+
+:root {
+    --color-accent-primary: #00F0FF;
+    --color-accent-secondary: #FF0055;
+    --color-bg-void: #020202;
+    --color-surface-translucent: rgba(255, 255, 255, 0.05);
+    
+    --type-scale-hero: clamp(4rem, 10vw, 8rem);
+    --type-scale-h2: clamp(2rem, 5vw, 4rem);
+}
+
+.enhanced .hero-title {
+    font-family: 'Inter Variable', sans-serif !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.04em !important;
+}
+
+/* Base override to respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+    .enhanced * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

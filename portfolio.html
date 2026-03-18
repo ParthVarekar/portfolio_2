@@ -11,6 +11,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Outfit:wght@100;400;800;900&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="enhancements/typography.css">
+    <link rel="stylesheet" href="enhancements/enhancements.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -218,7 +220,7 @@
                 <div class="max-w-7xl">
                     <p class="font-mono text-accent text-sm md:text-base mb-6 tracking-widest uppercase fade-up">Not a
                         Website. An Interactive Product.</p>
-                    <h1 class="text-[12vw] md:text-[8vw] font-black leading-[0.85] tracking-tighter uppercase fade-up">
+                    <h1 class="text-[12vw] md:text-[8vw] font-black leading-[0.85] tracking-tighter uppercase fade-up hero-title">
                         Parth <br>
                         <span
                             class="text-outline hover:text-white transition-colors duration-500 interactive">Varekar</span>
@@ -1085,6 +1087,8 @@
             initBootSequence();
         };
     </script>
+    <div data-enhance="terminal" aria-hidden="true" id="enhanced-terminal-modal"></div>
+    <script type="module" src="enhancements/index.js"></script>
 </body>
 
 </html>
