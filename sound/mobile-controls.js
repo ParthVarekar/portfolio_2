@@ -26,6 +26,19 @@
 
         btnShoot.addEventListener('touchstart', (e) => { e.preventDefault(); dispatch('keydown', ' '); });
         btnShoot.addEventListener('touchend', (e) => { e.preventDefault(); dispatch('keyup', ' '); });
+
+        // Absorb general touchstart to prevent bled focus on hidden overlays 
+        const overlay = document.getElementById('game-overlay');
+        if (overlay) {
+            overlay.addEventListener('touchstart', (e) => {
+                const target = e.target;
+                if (target.closest('.interactive') || target.tagName === 'BUTTON' || target.id === 'game-close') {
+                    return; // Allow button clicks
+                }
+                e.preventDefault(); 
+                e.stopPropagation();
+            }, { passive: false });
+        }
     }
 
     // Attempt trigger on DOM frame load
