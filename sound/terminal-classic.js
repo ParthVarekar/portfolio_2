@@ -20,13 +20,17 @@ function initTerminalClassic() {
         const args = parts.slice(1);
 
         const knownCommands = new Set([
-            'help', 'about', 'projects', 'open', 'skills', 'contact', 'play', 'github', 'linkedin', 'resume', 'clear'
+            'help', 'ls', 'cd', 'pwd', 'cat', 'about', 'projects', 'open', 'skills', 'contact', 'play', 'github', 'linkedin', 'resume', 'clear', 'neofetch'
         ]);
         const isKnown = cmd && knownCommands.has(cmd);
 
         switch (cmd) {
             case 'help':
                 term.echo(`[[;#00F0FF;]COMMANDS:]
+  ls              List directory contents
+  cd [dir]        Change directory
+  pwd             Print working directory
+  cat [file]      Open file contents
   about           View identity & focus
   projects        List deployed systems
   open [id]       Access deep case study (reboxed | spendly | gym | spatial)
@@ -36,7 +40,51 @@ function initTerminalClassic() {
   github          Authenticate remote repo
   linkedin        Open professional network
   resume          Fetch CV file
-  clear           Flush terminal output`);
+  clear           Flush terminal output
+  
+  [[;#444;]Easter eggs: neofetch]`);
+                break;
+
+            case 'ls':
+                term.echo('  📁 [[;#00F0FF;]projects/]');
+                term.echo('  📁 [[;#00F0FF;]skills/]');
+                term.echo('  📄 [[;#888;]README.md]');
+                break;
+
+            case 'cd':
+                if (!args[0] || args[0] === '~') { currentCwd = '~'; }
+                else if (args[0] === '..') { currentCwd = '~'; }
+                else if (['projects', 'skills'].includes(args[0].replace('/', '').toLowerCase())) { 
+                    currentCwd = '~/' + args[0].replace('/', '').toLowerCase(); 
+                } else {
+                    term.echo(`[[;#FF5F56;]cd: no such directory: ${args[0]}]`);
+                }
+                break;
+
+            case 'pwd':
+                term.echo(currentCwd);
+                break;
+
+            case 'cat':
+                if (args[0] === 'README.md') {
+                    term.echo(`[[;#00F0FF;]PARTH VAREKAR // AUDIT LOG]
+> System Framework v1.0 [Online]
+> Load balanced across programmatic canvas scopes.
+> Type 'help' to audit commands.`);
+                } else {
+                    term.echo(`[[;#FF5F56;]cat: ${args[0] || ''}: No such file]`);
+                }
+                break;
+
+            case 'neofetch':
+                term.echo(`[[;#00F0FF;]            ..              ]  [[;#00F0FF;]OS:] Classic Portfolio v1.0
+[[;#00F0FF;]          .oo.              ]  [[;#00F0FF;]Host:] Chrome/Firefox/Safari
+[[;#00F0FF;]        .ooooo.             ]  [[;#00F0FF;]Shell:] jQuery Terminal
+[[;#00F0FF;]      .ooooooo.            ]  [[;#00F0FF;]WM:] Vanilla JS + GSAP
+[[;#00F0FF;]    .ooooooooo.           ]  [[;#00F0FF;]CPU:] Interactive Runtime
+[[;#00F0FF;]  .ooooooooooo.          ]  [[;#00F0FF;]Memory:] 64MB Cache Allocation
+[[;#00F0FF;] .ooooooooooooo.        ]
+[[;#00F0FF;]  .ooooooooooo.          ]`);
                 break;
 
             case 'about':

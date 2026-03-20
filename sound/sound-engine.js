@@ -202,7 +202,7 @@
   // ═══════════════════════════════════════════════════════════
   var SCROLL_MAX_GAIN = 0.22;
   var SCROLL_MAX_VEL = 80;
-  var SCROLL_FRICTION = 0.92;
+  var SCROLL_FRICTION = 0.45; // reduced immediately on stop
   var SCROLL_INPUT_ALPHA = 0.20;
   var SCROLL_STOP_THR = 0.08;
   var SCROLL_INPUT_SCALE = 2.2;
@@ -239,29 +239,18 @@
   var scrollInertia = 0, scrollRawInput = 0, scrollHasInput = false, scrollDir = 0;
   var scrollSmMG = 0, scrollSmFA = SCROLL_BASE_FREQ_A, scrollSmFB = SCROLL_BASE_FREQ_B;
 
-  window.addEventListener('wheel', function (e) {
+  var lastScrollY = window.scrollY || window.pageYOffset || 0;
+  
+  window.addEventListener('scroll', function () {
     initScroll();
-    scrollRawInput += Math.abs(e.deltaY) * SCROLL_INPUT_SCALE;
-    scrollDir = e.deltaY > 0 ? 1 : -1;
-    scrollHasInput = true;
-  }, { passive: true });
+    var currentY = window.scrollY || window.pageYOffset || 0;
+    var deltaY = Math.abs(currentY - lastScrollY);
+    var dir = (currentY - lastScrollY) > 0 ? 1 : -1;
+    lastScrollY = currentY;
 
-  var lastTouchY = 0;
-  window.addEventListener('touchstart', function (e) {
-    if (e.touches && e.touches.length > 0) {
-      lastTouchY = e.touches[0].clientY;
-      initScroll();
-    }
-  }, { passive: true });
-
-  window.addEventListener('touchmove', function (e) {
-    if (e.touches && e.touches.length > 0) {
-      var currentY = e.touches[0].clientY;
-      var deltaY = lastTouchY - currentY;
-      lastTouchY = currentY;
-      
-      scrollRawInput += Math.abs(deltaY) * SCROLL_INPUT_SCALE * 1.5; // slight boost for touch
-      scrollDir = deltaY > 0 ? 1 : -1;
+    if (deltaY > 0.5) {
+      scrollRawInput += deltaY * SCROLL_INPUT_SCALE; 
+      scrollDir = dir;
       scrollHasInput = true;
     }
   }, { passive: true });
