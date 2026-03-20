@@ -42,7 +42,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- jQuery Terminal -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/js/jquery.terminal.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/css/jquery.terminal.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/css/jquery.terminal.min.css"
+        rel="stylesheet">
 
     <style>
         body {
@@ -112,68 +113,138 @@
         }
 
         .terminal-header {
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 6px 16px;
             background: rgba(0, 0, 0, 0.4);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 11px; color: #888;
+            font-size: 11px;
+            color: #888;
         }
 
-        .terminal-header-tabs { display: flex; gap: 12px; }
+        .terminal-header-tabs {
+            display: flex;
+            gap: 12px;
+        }
+
         .terminal-header-tab {
-            padding: 2px 8px; cursor: pointer; transition: color 0.2s;
-            background: none; border: none; color: #888;
-            font-family: 'Fira Code', monospace; font-size: 11px;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            color: #888;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
         }
-        .terminal-header-tab:hover { color: #fff; }
-        .terminal-header-tab.active { color: #00F0FF; border-bottom: 1px solid #00F0FF; }
 
-        .terminal-container .terminal { background: transparent !important; padding: 4px 12px !important; }
-        .terminal-container .cmd .cursor { background: #00F0FF !important; }
-        .terminal-container .terminal-output { color: #fff !important; }
-        .terminal-container .cmd { color: #fff !important; }
+        .terminal-header-tab:hover {
+            color: #fff;
+        }
+
+        .terminal-header-tab.active {
+            color: #00F0FF;
+            border-bottom: 1px solid #00F0FF;
+        }
+
+        .terminal-container .terminal {
+            background: transparent !important;
+            padding: 4px 12px !important;
+        }
+
+        .terminal-container .cmd .cursor {
+            background: #00F0FF !important;
+        }
+
+        .terminal-container .terminal-output {
+            color: #fff !important;
+        }
+
+        .terminal-container .cmd {
+            color: #fff !important;
+        }
 
         @media (max-width: 640px) {
-            .terminal-container { font-size: 11px !important; }
+            .terminal-container {
+                font-size: 11px !important;
+            }
         }
 
         /* --- Game Overlay & Mobile D-Pad (Classic Backport) --- */
         .game-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.92);
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(8px);
             z-index: 100000;
             display: none;
-            align-items: center; justify-content: center; flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
         }
-        .game-overlay.active { display: flex; }
+
+        .game-overlay.active {
+            display: flex;
+        }
+
         .game-canvas-wrapper {
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 4px; background: #000;
-            overflow: visible; position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            background: #000;
+            overflow: visible;
+            position: relative;
         }
+
         .game-hud {
-            display: flex; justify-content: space-between;
-            padding: 8px 16px; background: rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-family: 'Fira Code', monospace; font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
         }
+
         .game-close {
-            position: absolute; top: -36px; right: 0;
-            background: none; border: 1px solid rgba(255,255,255,0.1);
-            color: #888; padding: 4px 12px;
-            font-family: 'Fira Code', monospace; font-size: 11px;
-            cursor: pointer; transition: all 0.2s;
+            position: absolute;
+            top: -36px;
+            right: 0;
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            padding: 4px 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .game-close:hover { background: #FF0055; color: #fff; border-color: #FF0055; }
-        
+
+        .game-close:hover {
+            background: #FF0055;
+            color: #fff;
+            border-color: #FF0055;
+        }
+
         .mobile-controls {
-            position: absolute; bottom: -110px; left: 0; right: 0;
-            display: flex; justify-content: center; gap: 20px;
-            padding: 16px; background: rgba(0,0,0,0.4);
-            border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);
+            position: absolute;
+            bottom: -110px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        @media (min-width: 768px) { .mobile-controls { display: none !important; } }
+
+        @media (min-width: 768px) {
+            .mobile-controls {
+                display: none !important;
+            }
+        }
 
         /* Scanline Overlay */
         .scanline {
@@ -672,6 +743,33 @@
                 </div>
             </section>
 
+
+
+            <section id="section-topology" class="py-32 px-6 bg-[#030303] border-y border-white/5 relative z-10">
+                <div class="max-w-6xl mx-auto mb-12 flex justify-between items-center px-4">
+                    <h4 class="font-mono text-accent uppercase tracking-wider text-sm">ARCHITECTURE WIRING (INTERACTIVE)
+                    </h4>
+
+                    <!-- Switch Toolbar -->
+                    <div class="flex gap-4 font-mono text-xs">
+                        <button id="btn-topo-reboxed"
+                            class="topo-btn active px-3 py-1.5 border border-accent text-accent hover:bg-accent hover:text-black transition-all interactive"
+                            onclick="switchTopology('reboxed')">[ REBOXED ]</button>
+                        <button id="btn-topo-ai"
+                            class="topo-btn px-3 py-1.5 border border-white/20 text-gray-400 hover:border-white hover:text-white transition-all interactive"
+                            onclick="switchTopology('ai')">[ AI_PIPELINE ]</button>
+                        <button id="btn-topo-game"
+                            class="topo-btn px-3 py-1.5 border border-white/20 text-gray-400 hover:border-white hover:text-white transition-all interactive"
+                            onclick="switchTopology('game')">[ GAME_ENGINE ]</button>
+                    </div>
+                </div>
+
+                <div class="max-w-4xl mx-auto h-[400px] bg-black/40 border border-white/5 rounded-sm relative overflow-hidden"
+                    id="topo-container">
+                    <canvas id="topo-canvas" style="width:100%; height:100%; display:block;"></canvas>
+                </div>
+            </section>
+
             <section id="section-terminal"
                 class="py-32 px-6 md:px-12 lg:px-24 bg-[#050505] relative z-10 border-y border-white/5">
                 <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -726,7 +824,8 @@
                     </div>
                 </a>
 
-                <div class="flex flex-col md:flex-row gap-4 md:gap-8 font-mono text-sm text-gray-400 items-center justify-center">
+                <div
+                    class="flex flex-col md:flex-row gap-4 md:gap-8 font-mono text-sm text-gray-400 items-center justify-center">
                     <a href="https://github.com/ParthVarekar" target="_blank"
                         class="hover:text-white transition-colors interactive whitespace-nowrap">[ GitHub ]</a>
                     <a href="https://www.linkedin.com/in/parth-varekar-601432344/" target="_blank"
@@ -1052,6 +1151,13 @@
             initMicroParallax();
             initProjectHover();
             initBootSequence();
+
+            // Force ScrollTrigger dimensions refresh after boot sequence completes
+            setTimeout(() => {
+                if (typeof ScrollTrigger !== 'undefined') {
+                    ScrollTrigger.refresh();
+                }
+            }, 1500);
         };
     </script>
     <div data-enhance="terminal" aria-hidden="true" id="enhanced-terminal-modal"></div>
@@ -1060,22 +1166,13 @@
     <style>
         .sound-toggles-container {
             position: fixed;
-            top: 16px;
+            bottom: 72px;
             right: 16px;
             z-index: 100000;
             pointer-events: auto;
             display: flex;
             flex-direction: column;
             gap: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .sound-toggles-container {
-                top: auto !important;
-                bottom: 16px !important;
-                transform: scale(0.82) !important;
-                transform-origin: bottom right !important;
-            }
         }
 
         .sound-toggle-row {
@@ -1267,15 +1364,19 @@
 
             <!-- D-Pad for Mobile -->
             <div class="mobile-controls" id="mobile-dpad">
-                <button id="btn-left" class="p-4 bg-accent/20 border border-accent rounded-sm text-white font-bold w-14 h-14 interactive">←</button>
-                <button id="btn-shoot" class="p-4 bg-red-500/20 border border-red-500 rounded-sm text-white font-bold w-20 h-14 interactive">FIRE</button>
-                <button id="btn-right" class="p-4 bg-accent/20 border border-accent rounded-sm text-white font-bold w-14 h-14 interactive">→</button>
+                <button id="btn-left"
+                    class="p-4 bg-accent/20 border border-accent rounded-sm text-white font-bold w-14 h-14 interactive">←</button>
+                <button id="btn-shoot"
+                    class="p-4 bg-red-500/20 border border-red-500 rounded-sm text-white font-bold w-20 h-14 interactive">FIRE</button>
+                <button id="btn-right"
+                    class="p-4 bg-accent/20 border border-accent rounded-sm text-white font-bold w-14 h-14 interactive">→</button>
             </div>
         </div>
     </div>
 
     <audio id="bgAudio" loop></audio>
     <script src="sound/terminal-classic.js"></script>
+    <script src="sound/topology-visualizer.js"></script>
     <script src="sound/sound-engine.js"></script>
     <script src="sound/haptics.js"></script>
     <script src="sound/mobile-controls.js"></script>

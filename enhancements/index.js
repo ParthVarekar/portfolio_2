@@ -13,14 +13,14 @@ window.addEventListener('load', () => {
     // Enable enhanced classes to trigger CSS overriding
     document.body.classList.add('enhanced');
     document.body.classList.add('enhanced-typography');
-    
+
     // Defer initialization to avoid blocking critical render path
     setTimeout(() => {
         try {
             initMicrointeractions();
             // initTerminalEnhanced(); // Disabled for classic view
             initPlaygrounds();
-            initArchitectureMap();
+            // initArchitectureMap(); // Disabled for classic view
             initHero3D();
             // initReproducibilityPanel(); // Disabled for classic view
             initTelemetryConfig();
