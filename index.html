@@ -128,10 +128,14 @@
         .terminal-header-tab:hover { color: #fff; }
         .terminal-header-tab.active { color: #00F0FF; border-bottom: 1px solid #00F0FF; }
 
-        .terminal-container .terminal { background: transparent !important; }
+        .terminal-container .terminal { background: transparent !important; padding: 4px 12px !important; }
         .terminal-container .cmd .cursor { background: #00F0FF !important; }
         .terminal-container .terminal-output { color: #fff !important; }
         .terminal-container .cmd { color: #fff !important; }
+
+        @media (max-width: 640px) {
+            .terminal-container { font-size: 11px !important; }
+        }
 
         /* --- Game Overlay & Mobile D-Pad (Classic Backport) --- */
         .game-overlay {

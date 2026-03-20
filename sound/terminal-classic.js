@@ -27,20 +27,20 @@ function initTerminalClassic() {
         switch (cmd) {
             case 'help':
                 term.echo(`[[;#00F0FF;]COMMANDS:]
-  ls              List directory contents
-  cd [dir]        Change directory
-  pwd             Print working directory
-  cat [file]      Open file contents
-  about           View identity & focus
-  projects        List deployed systems
-  open [id]       Access deep case study (reboxed | spendly | gym | spatial)
-  skills          View tech topology
-  contact         Display routing details
-  play [game]     Launch mini-game (hex)
-  github          Authenticate remote repo
-  linkedin        Open professional network
-  resume          Fetch CV file
-  clear           Flush terminal output
+  ls        List directory contents
+  cd [dir]  Change directory
+  pwd       Print working directory
+  cat [file] Open file contents
+  about     View identity & focus
+  projects  List deployed systems
+  open [id] Access deep case study
+  skills    View tech topology
+  contact   Display routing details
+  play [g]  Launch mini-game (hex)
+  github    Authenticate remote repo
+  linkedin  Open professional network
+  resume    Fetch CV file
+  clear     Flush terminal output
   
   [[;#444;]Easter eggs: neofetch]`);
                 break;
