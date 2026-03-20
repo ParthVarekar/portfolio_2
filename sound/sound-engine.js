@@ -246,6 +246,26 @@
     scrollHasInput = true;
   }, { passive: true });
 
+  var lastTouchY = 0;
+  window.addEventListener('touchstart', function (e) {
+    if (e.touches && e.touches.length > 0) {
+      lastTouchY = e.touches[0].clientY;
+      initScroll();
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchmove', function (e) {
+    if (e.touches && e.touches.length > 0) {
+      var currentY = e.touches[0].clientY;
+      var deltaY = lastTouchY - currentY;
+      lastTouchY = currentY;
+      
+      scrollRawInput += Math.abs(deltaY) * SCROLL_INPUT_SCALE * 1.5; // slight boost for touch
+      scrollDir = deltaY > 0 ? 1 : -1;
+      scrollHasInput = true;
+    }
+  }, { passive: true });
+
   function scrollLoop() {
     if (scrollReady) {
       if (scrollHasInput) {
