@@ -138,12 +138,12 @@
         const nodes = getNodes(layout);
 
         // Draw Edges
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.2;
         layout.edges.forEach(edge => {
             const from = nodes.find(n => n.id === edge.from);
             const to = nodes.find(n => n.id === edge.to);
             if (!from || !to) return;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
             ctx.lineTo(to.x, to.y);
