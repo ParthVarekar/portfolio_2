@@ -38,6 +38,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <!-- jQuery for Terminal -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery Terminal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/js/jquery.terminal.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/css/jquery.terminal.min.css" rel="stylesheet">
 
     <style>
         body {
@@ -93,6 +98,78 @@
             pointer-events: none;
             opacity: 0.6;
         }
+
+        /* --- Terminal Container (Backport) --- */
+        .terminal-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: 'Fira Code', monospace !important;
+            font-size: 13px;
+            height: 340px;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px; color: #888;
+        }
+
+        .terminal-header-tabs { display: flex; gap: 12px; }
+        .terminal-header-tab {
+            padding: 2px 8px; cursor: pointer; transition: color 0.2s;
+            background: none; border: none; color: #888;
+            font-family: 'Fira Code', monospace; font-size: 11px;
+        }
+        .terminal-header-tab:hover { color: #fff; }
+        .terminal-header-tab.active { color: #00F0FF; border-bottom: 1px solid #00F0FF; }
+
+        .terminal-container .terminal { background: transparent !important; }
+        .terminal-container .cmd .cursor { background: #00F0FF !important; }
+        .terminal-container .terminal-output { color: #fff !important; }
+        .terminal-container .cmd { color: #fff !important; }
+
+        /* --- Game Overlay & Mobile D-Pad (Classic Backport) --- */
+        .game-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(8px);
+            z-index: 100000;
+            display: none;
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        .game-overlay.active { display: flex; }
+        .game-canvas-wrapper {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px; background: #000;
+            overflow: visible; position: relative;
+        }
+        .game-hud {
+            display: flex; justify-content: space-between;
+            padding: 8px 16px; background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-family: 'Fira Code', monospace; font-size: 12px;
+        }
+        .game-close {
+            position: absolute; top: -36px; right: 0;
+            background: none; border: 1px solid rgba(255,255,255,0.1);
+            color: #888; padding: 4px 12px;
+            font-family: 'Fira Code', monospace; font-size: 11px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .game-close:hover { background: #FF0055; color: #fff; border-color: #FF0055; }
+        
+        .mobile-controls {
+            position: absolute; bottom: -110px; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 20px;
+            padding: 16px; background: rgba(0,0,0,0.4);
+            border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        @media (min-width: 768px) { .mobile-controls { display: none !important; } }
 
         /* Scanline Overlay */
         .scanline {
@@ -212,15 +289,21 @@
         <div class="font-bold tracking-widest text-sm uppercase">PARTH VAREKAR // MUMBAI</div>
         <div class="flex items-center gap-6 relative">
             <!-- CTA Callout -->
-            <div class="absolute -left-20 top-10 pointer-events-none hidden md:block" id="workspace-callout">
-                <div class="flex flex-col items-center">
-                    <span class="font-mono text-[10px] text-accent uppercase tracking-tighter whitespace-nowrap mb-1 opacity-80">check me out!</span>
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="rotate-[120deg]">
-                        <path d="M5 5C5 5 25 5 30 25M30 25L22 22M30 25L33 17" stroke="#00F0FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <div class="absolute -left-20 top-2 pointer-events-none hidden md:block" id="workspace-callout">
+                <div class="flex flex-col items-start">
+                    <svg width="60" height="40" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        class="ml-2">
+                        <path d="M10 35Q25 30 45 5M45 5L37 8M45 5L48 15" stroke="#00F0FF" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
+                    <span
+                        class="font-mono text-[10px] text-accent uppercase tracking-tighter whitespace-nowrap opacity-80 mt-[-5px]">check
+                        me out!</span>
                 </div>
             </div>
-            <a href="workspace.html" class="pointer-events-auto font-mono text-xs text-accent hover:text-white transition-colors interactive" style="pointer-events:auto;">[ Workspace ]</a>
+            <a href="workspace.html"
+                class="pointer-events-auto font-mono text-xs text-accent hover:text-white transition-colors interactive hidden md:inline-block"
+                style="pointer-events:auto;">[ Workspace ]</a>
             <div class="font-mono text-xs text-accent" id="clock">00:00:00</div>
         </div>
     </nav>
@@ -233,7 +316,8 @@
                 <div class="max-w-7xl">
                     <p class="font-mono text-accent text-sm md:text-base mb-6 tracking-widest uppercase fade-up">Not a
                         Website. An Interactive Product.</p>
-                    <h1 class="text-[12vw] md:text-[8vw] font-black leading-[0.85] tracking-tighter uppercase fade-up hero-title">
+                    <h1
+                        class="text-[12vw] md:text-[8vw] font-black leading-[0.85] tracking-tighter uppercase fade-up hero-title">
                         Parth <br>
                         <span
                             class="text-outline hover:text-white transition-colors duration-500 interactive">Varekar</span>
@@ -606,23 +690,20 @@
                         </div>
                     </div>
 
-                    <div class="glass-panel rounded-md overflow-hidden shadow-2xl interactive cursor-text"
-                        id="terminal">
-                        <div class="bg-black/50 px-4 py-3 border-b border-white/10 flex gap-2 items-center">
-                            <div class="w-3 h-3 rounded-full bg-alert/80"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
-                            <span class="ml-4 font-mono text-xs text-gray-500">guest@parth.dev: ~</span>
+                    <div class="terminal-container" id="terminal-container">
+                        <div class="terminal-header">
+                            <div class="terminal-header-tabs">
+                                <button class="terminal-header-tab active">TERMINAL</button>
+                                <button class="terminal-header-tab">PROBLEMS</button>
+                                <button class="terminal-header-tab">OUTPUT</button>
+                            </div>
+                            <div class="flex gap-1.5 item-center">
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
+                            </div>
                         </div>
-                        <div class="p-6 font-mono text-sm h-72 overflow-y-auto scroll-smooth" id="cmd-output">
-                            <div class="text-green-400 mb-2">System initialized. Awaiting commands... type 'help'</div>
-                        </div>
-                        <div class="p-4 bg-black/50 border-t border-white/10 flex items-center gap-3 font-mono text-sm">
-                            <span class="text-accent">➜</span>
-                            <input type="text" id="cmd-input"
-                                class="bg-transparent border-none outline-none text-white w-full focus:ring-0"
-                                placeholder="Type command and press Enter" autocomplete="off" tabindex="0">
-                        </div>
+                        <div id="terminal" style="height:calc(100% - 28px);"></div>
                     </div>
                 </div>
             </section>
@@ -912,137 +993,7 @@
             });
         };
 
-        // --- 6. Terminal Logic ---
-        const initTerminal = () => {
-            const input = document.getElementById('cmd-input');
-            const output = document.getElementById('cmd-output');
-
-            const executeCommand = (cmd) => {
-                const args = cmd.split(' ');
-                const base = args[0];
-
-                const responseMap = {
-                    'help': `<div class="text-gray-300">SYSTEM.COMMANDS:<br>
-                            - <span class="text-accent">about</span>    : View identity & focus<br>
-                            - <span class="text-accent">projects</span> : List deployed systems<br>
-                            - <span class="text-accent">open [id]</span>: Access deep case study<br>
-                            - <span class="text-accent">skills</span>   : View tech topology<br>
-                            - <span class="text-accent">experience</span>: View system logs<br>
-                            - <span class="text-accent">contact</span>  : Display routing details<br>
-                            - <span class="text-accent">github</span>   : Authenticate remote repo<br>
-                            - <span class="text-accent">linkedin</span> : Open professional network<br>
-                            - <span class="text-accent">resume</span>   : Fetch CV document<br>
-                            - <span class="text-accent">clear</span>    : Flush terminal output</div>`,
-
-                    'about': `<div class="text-white">PARTH VAREKAR // MUMBAI<br>
-                              > AI Systems & Full-Stack Engineering<br>
-                              > Designing complete architectures, from local LLM pipelines to high-performance React interfaces.</div>`,
-
-                    'projects': `<div class="text-gray-300">DEPLOYED.NODES:<br>
-                            [ <span class="text-accent">reboxed</span> ] : Escrow Based Second Hand Marketplace<br>
-                            [ <span class="text-accent">spendly</span> ] : Personal Finance Engine<br>
-                            [ <span class="text-accent">gym</span> ]     : Body Tracking & Overload App<br>
-                            [ <span class="text-accent">spatial</span> ] : WebGL Education System<br>
-                            [ <span class="text-accent">motion</span> ]  : Interaction Primitives Library<br>
-                            [ <span class="text-accent">fintech</span> ] : Risk-Aware Onboarding Flow<br>
-                            > Type 'open reboxed' to access metrics.</div>`,
-
-                    'open': () => {
-                        const target = args[1];
-                        const validModals = ['reboxed', 'spendly', 'gym', 'spatial'];
-                        if (validModals.includes(target)) {
-                            window.openSystemModal(`modal-${target}`);
-                            return `<div class="text-green-400">Accessing Node: ${target.toUpperCase()}...</div>`;
-                        } else if (['motion', 'fintech'].includes(target)) {
-                            return `<div class="text-alert">Node '${target}' is classified LITE. Deep telemetry not available via terminal.</div>`;
-                        }
-                        return `<div class="text-alert">Syntax Error: Invalid node ID. Type 'projects'.</div>`;
-                    },
-
-                    'skills': () => {
-                        document.getElementById('section-experience').scrollIntoView({ behavior: 'smooth' });
-                        return `<div class="text-accent">Routing to /topology...</div>`;
-                    },
-
-                    'experience': () => {
-                        document.getElementById('section-experience').scrollIntoView({ behavior: 'smooth' });
-                        return `<div class="text-accent">Routing to /system-logs...</div>`;
-                    },
-
-                    'contact': `<div class="text-gray-300">CONTACT.VECTORS:<br>
-                                > Email: <a href="mailto:parthvarekar27@gmail.com" class="text-accent hover:underline">parthvarekar27@gmail.com</a><br>
-                                > Phone: +91 7400082627<br>
-                                > Location: Mumbai, India</div>`,
-
-                    'github': () => {
-                        window.open('https://github.com/ParthVarekar', '_blank');
-                        return `<div class="text-green-400">Establishing connection to remote repository...</div>`;
-                    },
-
-                    'linkedin': () => {
-                        window.open('https://www.linkedin.com/in/parth-varekar-601432344/', '_blank');
-                        return `<div class="text-green-400">Opening professional network...</div>`;
-                    },
-
-                    'resume': () => {
-                        return `<div class="text-alert">ERR: Document currently under revision. Contact directly for copy.</div>`;
-                    },
-
-                    'clear': 'CLEAR'
-                };
-
-                if (!base) return '';
-                if (responseMap[base]) {
-                    return typeof responseMap[base] === 'function' ? responseMap[base]() : responseMap[base];
-                }
-                return `<div class="text-alert">Error: Command '${base}' not recognized. Type 'help'.</div>`;
-            };
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const val = input.value.trim().toLowerCase();
-                    output.innerHTML += `<div class="text-white mt-2 font-bold">> ${val}</div>`;
-
-                    const response = executeCommand(val);
-
-                    setTimeout(() => {
-                        if (response === 'CLEAR') {
-                            const words = output.innerText.split(/(\s+)/).filter(Boolean);
-                            output.innerHTML = '';
-
-                            words.forEach((word) => {
-                                const particle = document.createElement('span');
-                                particle.style.display = 'inline-block';
-                                particle.style.whiteSpace = 'pre-wrap';
-                                particle.style.willChange = 'transform, opacity, filter';
-                                particle.innerText = word;
-                                output.appendChild(particle);
-
-                                gsap.to(particle, {
-                                    x: (Math.random() - 0.5) * 150,
-                                    y: (Math.random() - 0.5) * 150,
-                                    rotation: (Math.random() - 0.5) * 60,
-                                    opacity: 0,
-                                    filter: 'blur(8px)',
-                                    duration: 0.6 + Math.random() * 0.4,
-                                    delay: Math.random() * 0.1,
-                                    ease: "power3.out"
-                                });
-                            });
-
-                            setTimeout(() => {
-                                output.innerHTML = `<div class="text-green-400 mb-2">System initialized. Awaiting commands... type 'help'</div>`;
-                                output.scrollTop = output.scrollHeight;
-                            }, 1000);
-                        } else {
-                            output.innerHTML += response;
-                        }
-                        input.value = '';
-                        output.scrollTop = output.scrollHeight;
-                    }, 150);
-                }
-            });
-        };
+        // --- 6. Terminal Logic (Swapped to jQuery Terminal in head/foot) ---
 
         // --- 7. Modal Logic ---
         window.openSystemModal = (id) => {
@@ -1095,12 +1046,227 @@
             initWebGL();
             initScroll();
             initMicroParallax();
-            initTerminal();
             initProjectHover();
             initBootSequence();
         };
     </script>
     <div data-enhance="terminal" aria-hidden="true" id="enhanced-terminal-modal"></div>
+
+    <!-- ═══ CINEMATIC SOUND TOGGLES ═══ -->
+    <style>
+        .sound-toggles-container {
+            position: fixed;
+            top: 60px;
+            right: 16px;
+            z-index: 100000;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sound-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .sound-toggle-row:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .sound-toggle-row.active {
+            border-color: rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        .sound-toggle-label {
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.3);
+            transition: color 0.3s, text-shadow 0.3s;
+            min-width: 22px;
+        }
+
+        .sound-toggle-row.active .sound-toggle-label {
+            color: #00F0FF;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+        }
+
+        .sound-toggle-track {
+            position: relative;
+            width: 36px;
+            height: 18px;
+            border-radius: 9px;
+            background: #27272a;
+            transition: background-color 0.3s;
+            flex-shrink: 0;
+        }
+
+        .sound-toggle-row.active .sound-toggle-track {
+            background: #064e3b;
+        }
+
+        .sound-toggle-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #52525b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                background-color 0.3s,
+                box-shadow 0.3s;
+        }
+
+        .sound-toggle-thumb::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            width: 6px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            filter: blur(1px);
+        }
+
+        .sound-toggle-row.active .sound-toggle-thumb {
+            transform: translateX(18px);
+            background: #34d399;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+        }
+
+        .sound-toggle-vol {
+            width: 60px;
+            height: 3px;
+            accent-color: #00F0FF;
+            opacity: 0.4;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+
+        .sound-toggle-row.active .sound-toggle-vol {
+            opacity: 1;
+        }
+
+        .sound-toggle-track:active .sound-toggle-thumb {
+            transform: scale(0.9);
+        }
+
+        .sound-toggle-row.active .sound-toggle-track:active .sound-toggle-thumb {
+            transform: translateX(18px) scale(0.9);
+        }
+    </style>
+
+    <div id="sound-settings" class="sound-toggles-container">
+        <!-- BG Music Toggle -->
+        <div class="sound-toggle-row active" id="bg-toggle-row">
+            <span class="sound-toggle-label">BG</span>
+            <div class="sound-toggle-track" id="bg-toggle">
+                <div class="sound-toggle-thumb"></div>
+            </div>
+            <input id="bgVol" type="range" min="0" max="1" step="0.01" value="0.25" class="sound-toggle-vol">
+        </div>
+        <!-- SFX Toggle -->
+        <div class="sound-toggle-row active" id="sfx-toggle-row">
+            <span class="sound-toggle-label">SFX</span>
+            <div class="sound-toggle-track" id="sfx-toggle">
+                <div class="sound-toggle-thumb"></div>
+            </div>
+            <input id="sfxVol" type="range" min="0" max="1" step="0.01" value="1.00" class="sound-toggle-vol">
+        </div>
+    </div>
+
+    <!-- Sound toggle wiring -->
+    <script>
+        (function () {
+            function wireToggle(rowId, sliderId) {
+                var row = document.getElementById(rowId);
+                var slider = document.getElementById(sliderId);
+                if (!row || !slider) return;
+
+                var track = row.querySelector('.sound-toggle-track');
+                var prevVal = parseFloat(slider.value);
+
+                // Toggle on/off when clicking the track or label
+                function toggle(e) {
+                    e.stopPropagation();
+                    var isOn = row.classList.contains('active');
+                    if (isOn) {
+                        prevVal = parseFloat(slider.value) || prevVal;
+                        slider.value = 0;
+                        row.classList.remove('active');
+                    } else {
+                        slider.value = prevVal > 0.01 ? prevVal : 0.3;
+                        row.classList.add('active');
+                    }
+                    slider.dispatchEvent(new Event('input'));
+                }
+
+                track.addEventListener('click', toggle);
+                row.querySelector('.sound-toggle-label').addEventListener('click', toggle);
+
+                // Sync toggle state with slider
+                slider.addEventListener('input', function () {
+                    var val = parseFloat(slider.value);
+                    if (val < 0.01) {
+                        row.classList.remove('active');
+                    } else {
+                        row.classList.add('active');
+                    }
+                });
+
+                // Stop propagation on slider so row click doesn't fire
+                slider.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+                slider.addEventListener('click', function (e) { e.stopPropagation(); });
+            }
+
+            wireToggle('bg-toggle-row', 'bgVol');
+            wireToggle('sfx-toggle-row', 'sfxVol');
+        })();
+    </script>
+
+    <!-- ═══ GAME OVERLAY ═══ -->
+    <div class="game-overlay" id="game-overlay" role="dialog" aria-modal="true" aria-label="Mini-Game">
+        <div class="game-canvas-wrapper">
+            <button class="game-close" id="game-close" aria-label="Close game">[ ESC ] CLOSE</button>
+            <div class="game-hud" id="game-hud">
+                <span id="game-title">Game</span>
+                <span id="game-score">Score: 0</span>
+            </div>
+            <!-- Canvas responsive bounds -->
+            <canvas id="game-canvas" width="480" height="320" style="max-width:100%; height:auto;"></canvas>
+
+            <!-- D-Pad for Mobile -->
+            <div class="mobile-controls" id="mobile-dpad">
+                <button id="btn-left" class="p-4 bg-accent/20 border border-accent rounded-sm text-white font-bold w-14 h-14 interactive">←</button>
+                <button id="btn-shoot" class="p-4 bg-red-500/20 border border-red-500 rounded-sm text-white font-bold w-20 h-14 interactive">FIRE</button>
+                <button id="btn-right" class="p-4 bg-accent/20 border border-accent rounded-sm text-white font-bold w-14 h-14 interactive">→</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bgAudio" loop></audio>
+    <script src="sound/terminal-classic.js"></script>
+    <script src="sound/sound-engine.js"></script>
+    <script src="sound/haptics.js"></script>
+    <script src="sound/mobile-controls.js"></script>
+    <script src="workspace/games/launcher.js"></script>
     <script type="module" src="enhancements/index.js"></script>
 </body>
 

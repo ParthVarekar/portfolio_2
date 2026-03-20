@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sound Layer Tester</title>
+<!--
+  ============================================================
+  FONT IMPORTS
+  Only used for this demo UI. Remove when integrating into
+  your portfolio if you already import these elsewhere.
+  ============================================================
+-->
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;700;800&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   Change these to restyle the entire demo UI instantly.
+   These are purely visual — none affect the sound system.
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #090b0f;
+  --surf:    #0f1318;
+  --surf2:   #141a24;
+  --surf3:   #1c2535;
+  --border:  #1e2838;
+  --border2: #28384f;
+  --text:    #c8d4e0;
+  --muted:   #4a5a6e;
+  --dim:     #232f3e;
+  --green:   #2eea8f;
+  --cyan:    #00c8f0;
+  --amber:   #f0a820;
+  --red:     #f04858;
+  --purple:  #9855e8;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; }
+
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px; opacity: 0.18; pointer-events: none; z-index: 0;
+}
+
+/* ── LAYOUT ── */
+.layout {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 52px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  grid-column: 1 / -1; background: var(--surf); border-bottom: 1px solid var(--border2);
+  display: flex; align-items: center; padding: 0 18px; overflow: hidden;
+}
+.topbar-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; letter-spacing: -0.02em; color: #fff; margin-right: 18px; white-space: nowrap; }
+.topbar-logo em { color: var(--cyan); font-style: normal; }
+.topbar-sep { width: 1px; height: 18px; background: var(--border2); margin: 0 14px; flex-shrink: 0; }
+.topbar-tag { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.bg-controls { display: flex; align-items: center; gap: 8px; margin-left: auto; overflow: hidden; }
+.bg-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.track-pills { display: flex; gap: 5px; }
+.track-pill { padding: 3px 10px; border: 1px solid var(--border2); border-radius: 40px; background: transparent; font-size: 10px; color: var(--muted); cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.15s; white-space: nowrap; }
+.track-pill:hover { border-color: var(--cyan); color: var(--cyan); }
+.track-pill.active { background: rgba(0,200,240,0.1); border-color: var(--cyan); color: var(--cyan); }
+.bg-play-btn { display: flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 5px; background: var(--cyan); color: #050a10; border: none; cursor: pointer; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; transition: filter 0.15s; white-space: nowrap; }
+.bg-play-btn:hover { filter: brightness(1.1); }
+.bg-play-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.bg-play-btn svg { width: 10px; height: 10px; fill: #050a10; }
+.vol-row { display: flex; align-items: center; gap: 5px; }
+.vol-lbl { font-size: 10px; color: var(--muted); white-space: nowrap; }
+input[type="range"] { -webkit-appearance: none; width: 60px; height: 2px; background: var(--border2); border-radius: 1px; outline: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: var(--cyan); cursor: pointer; }
+.bg-status { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.bg-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
+.bg-dot.live { background: var(--green); box-shadow: 0 0 5px var(--green); }
+.bg-bars { display: flex; align-items: flex-end; gap: 1px; height: 12px; }
+.bg-bar { width: 2px; border-radius: 1px; background: var(--green); height: 3px; }
+.bg-bars.live .bg-bar { animation: bgBarUp 0.7s ease-in-out infinite alternate; }
+.bg-bars.live .bg-bar:nth-child(2) { animation-delay: 0.15s; }
+.bg-bars.live .bg-bar:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bgBarUp { from { height: 2px; } to { height: 10px; } }
+.mute-btn { padding: 3px 10px; background: var(--surf2); border: 1px solid var(--border2); border-radius: 4px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.mute-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.mute-btn.muted { color: var(--dim); }
+
+/* ── SIDEBAR ── */
+.sidebar { background: var(--surf); border-right: 1px solid var(--border2); overflow-y: auto; padding: 16px 0; }
+.sidebar-head { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); padding: 0 16px 10px; display: block; }
+.sfx-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; transition: background 0.12s; position: relative; }
+.sfx-item:hover { background: var(--surf2); }
+.sfx-item.active-tab { background: var(--surf3); }
+.sfx-item.active-tab::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; border-radius: 1px; background: var(--c, var(--cyan)); }
+.sfx-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--cyan)); flex-shrink: 0; opacity: 0.4; transition: all 0.2s; }
+.sfx-item.active-tab .sfx-dot { opacity: 1; box-shadow: 0 0 5px var(--c, var(--cyan)); }
+.sfx-item-info { flex: 1; min-width: 0; }
+.sfx-item-name { font-size: 12px; color: var(--text); font-family: 'Syne', sans-serif; font-weight: 700; }
+.sfx-item-hint { font-size: 10px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sfx-fire-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--c,var(--cyan)); opacity:0; transition: opacity 0.1s; flex-shrink:0; }
+.sfx-item.firing .sfx-fire-dot { opacity: 1; }
+
+/* ── MAIN PANEL ── */
+.main { overflow: hidden; position: relative; display: flex; flex-direction: column; }
+.demo-zone { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.demo-zone.visible { display: flex; }
+.zone-header { padding: 14px 22px 10px; border-bottom: 1px solid var(--border); background: var(--surf); flex-shrink: 0; }
+.zone-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: #fff; margin-bottom: 3px; }
+.zone-desc { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+/* ── ZONE 1: CURSOR WOOSH ── */
+#zone-woosh { cursor: none; }
+#woosh-body { flex: 1; position: relative; overflow: hidden; background: var(--bg); }
+#trail-canvas { position: absolute; inset: 0; pointer-events: none; }
+#woosh-cursor { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--cyan); transform: translate(-50%,-50%); pointer-events: none; mix-blend-mode: screen; left: -100px; top: -100px; }
+#woosh-cursor-ring { position: absolute; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--cyan); transform: translate(-50%,-50%); pointer-events: none; opacity: 0.4; left: -100px; top: -100px; transition: width 0.1s, height 0.1s; }
+#woosh-hud { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(15,19,24,0.88); border: 1px solid var(--border2); border-radius: 8px; padding: 9px 18px; display: flex; gap: 22px; backdrop-filter: blur(4px); pointer-events: none; }
+.woosh-stat { display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.woosh-stat-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.woosh-stat-val { font-size: 13px; color: #fff; font-weight: 500; }
+#woosh-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Syne', sans-serif; font-size: 1rem; color: var(--muted); text-align: center; pointer-events: none; transition: opacity 0.5s; }
+
+/* ── ZONE 2: CLICK ── */
+#zone-click .zone-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.click-section { padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.click-section-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.ui-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; border: 1px solid transparent; transition: all 0.12s; }
+.ui-btn:active { transform: scale(0.97); }
+.ui-btn-primary { background: var(--cyan); color: #050a10; font-weight: 500; border-color: var(--cyan); }
+.ui-btn-primary:hover { filter: brightness(1.1); }
+.ui-btn-outline { background: transparent; border-color: var(--border2); color: var(--muted); }
+.ui-btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+.ui-btn-ghost { background: var(--surf2); color: var(--muted); border-color: var(--border); }
+.ui-btn-ghost:hover { background: var(--border); color: var(--text); }
+.ui-btn-danger { background: transparent; border-color: var(--red); color: var(--red); opacity: 0.7; }
+.ui-btn-danger:hover { opacity: 1; }
+.ui-btn-success { background: transparent; border-color: var(--green); color: var(--green); opacity: 0.75; }
+.ui-btn-success:hover { opacity: 1; }
+.input-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ui-input { flex: 1; min-width: 130px; padding: 7px 11px; background: var(--surf2); border: 1px solid var(--border2); border-radius: 6px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; }
+.ui-input:focus { border-color: var(--cyan); }
+.ui-input::placeholder { color: var(--muted); }
+.ui-select { padding: 7px 26px 7px 11px; background: var(--surf2); border: 1px solid var(--border2); border-radius: 6px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234a5a6e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; }
+.toggle-row { display: flex; flex-direction: column; gap: 10px; }
+.toggle-item { display: flex; align-items: center; justify-content: space-between; }
+.toggle-label { font-size: 12px; color: var(--muted); }
+.toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track { position: absolute; inset: 0; background: var(--surf2); border: 1px solid var(--border2); border-radius: 100px; transition: all 0.2s; }
+.toggle input:checked + .toggle-track { background: var(--cyan); border-color: var(--cyan); }
+.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; background: var(--muted); border-radius: 50%; transition: all 0.2s; }
+.toggle input:checked ~ .toggle-thumb { left: 19px; background: #fff; }
+.empty-zone { margin-top: 4px; height: 48px; border: 1px dashed var(--border2); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 11px; }
+.click-statusbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 22px; border-top: 1px solid var(--border); background: var(--surf); flex-shrink: 0; }
+.click-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 100px; font-size: 11px; color: var(--muted); background: var(--surf2); border: 1px solid var(--border2); transition: all 0.2s; }
+.click-pill .cdot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
+.click-pill.active-interactive .cdot { background: var(--green); box-shadow: 0 0 5px var(--green); }
+.click-pill.active-empty .cdot { background: var(--cyan); box-shadow: 0 0 5px var(--cyan); }
+#click-log { font-size: 11px; color: var(--muted); font-style: italic; transition: color 0.3s; }
+#click-log.flash { color: var(--text); }
+.ripple { position: fixed; width: 26px; height: 26px; border-radius: 50%; background: rgba(0,200,240,0.2); transform: scale(0); pointer-events: none; animation: rout 0.4s ease-out forwards; z-index: 9999; margin: -13px 0 0 -13px; }
+.ripple-empty { background: rgba(200,212,224,0.09); }
+@keyframes rout { 0%{transform:scale(0);opacity:.5} 100%{transform:scale(2.5);opacity:0} }
+
+/* ── ZONE 3: SCROLL ── */
+#zone-scroll { position: relative; }
+#scroll-body { flex: 1; overflow-y: scroll; position: relative; }
+#scroll-body::-webkit-scrollbar { width: 4px; }
+#scroll-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.scroll-content { padding: 28px 36px 200px; max-width: 560px; margin: 0 auto; font-family: Georgia, serif; color: #c0b090; line-height: 1.85; }
+.scroll-content h2 { font-size: 1.25rem; font-weight: 400; margin: 32px 0 12px; color: #ddd0b8; }
+.scroll-content p { margin-bottom: 1.2em; font-size: 0.93rem; }
+.scroll-content blockquote { margin: 24px 0; padding: 12px 0 12px 18px; border-left: 2px solid #2a2010; font-style: italic; color: #907860; font-size: 0.9rem; }
+.scroll-hud { flex-shrink: 0; background: rgba(9,11,15,0.94); border-top: 1px solid var(--border); padding: 9px 18px; display: flex; align-items: center; gap: 16px; backdrop-filter: blur(4px); }
+.smg { display: flex; align-items: center; gap: 6px; }
+.sml { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; }
+.smt { width: 44px; height: 2px; background: var(--border2); position: relative; overflow: hidden; border-radius: 1px; }
+.smf { position: absolute; left:0; top:0; height:100%; width:0%; border-radius:1px; transition:width .05s; background:var(--amber); }
+.smv { font-size: 10px; color: var(--muted); min-width: 38px; font-family: 'DM Mono', monospace; }
+.sdb { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.sda { font-size: 12px; color: var(--border2); transition: color 0.2s; }
+.sda.live { color: var(--amber); }
+#fric-bar { position: absolute; right: 0; top: 0; bottom: 0; width: 3px; pointer-events: none; }
+#fric-fill { position: absolute; left:0; bottom:0; width:100%; height:0%; background: linear-gradient(to top, var(--amber), transparent); opacity:0; transition:height .08s,opacity .3s; border-radius:2px; }
+
+/* ── ZONE 4: TERMINAL ── */
+#zone-terminal .zone-body { flex: 1; display: flex; flex-direction: column; background: #0e1115; overflow: hidden; }
+#term-out { flex: 1; overflow-y: auto; padding: 14px 14px 6px; font-family: 'DM Mono', monospace; font-size: 13px; }
+#term-out::-webkit-scrollbar { width: 3px; }
+#term-out::-webkit-scrollbar-thumb { background: var(--border2); }
+.tl { margin: 2px 0; line-height: 1.5; }
+.tp { color: #2eea8f; }
+.te { color: #f04858; }
+.ti { color: #00c8f0; }
+#term-row { display: flex; align-items: center; gap: 7px; border-top: 1px solid var(--border); padding: 9px 14px; background: #0f1318; }
+#term-prompt { color: #2eea8f; white-space: nowrap; font-size: 13px; }
+#term-input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; caret-color: var(--text); }
+
+/* ── ZONE 5: DIGITAL PULSE ── */
+#zone-pulse .zone-body { flex: 1; padding: 28px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; align-items: center; }
+.pulse-vis { display: flex; align-items: center; justify-content: center; gap: 5px; height: 56px; width: 100%; }
+.pb { width: 3px; border-radius: 2px; background: var(--muted); height: 4px; transition: height .05s, background .05s; }
+.pulse-btn { position: relative; width: 84px; height: 84px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surf); cursor: pointer; outline: none; display: flex; align-items: center; justify-content: center; transition: border-color .15s; }
+.pulse-btn::before { content:''; position:absolute; inset:-1px; border-radius:50%; background:radial-gradient(circle,rgba(0,200,240,.12),transparent 70%); opacity:0; transition:opacity .2s; }
+.pulse-btn:hover { border-color: rgba(0,200,240,.4); }
+.pulse-btn:hover::before { opacity:1; }
+.pulse-btn svg { width:17px; height:17px; fill:var(--muted); transition:fill .15s; }
+.pulse-btn:hover svg { fill: var(--cyan); }
+.pulse-ring { position:absolute; inset:-1px; border-radius:50%; border:1px solid var(--cyan); opacity:0; pointer-events:none; }
+.pulse-btn.firing svg { fill: var(--cyan); }
+.pulse-btn.firing .pulse-ring { animation: pr-out .45s ease-out forwards; }
+@keyframes pr-out { 0%{opacity:.7;transform:scale(1)} 100%{opacity:0;transform:scale(1.55)} }
+.pulse-lbl { text-align:center; }
+.pulse-lbl-main { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.pulse-lbl-freq { margin-top:4px; font-size:10px; color:rgba(255,255,255,.15); }
+.pulse-lbl-freq .fa { color:var(--cyan); }
+.pulse-lbl-freq .fb { color:var(--purple); }
+.proj-links { display:flex; flex-direction:column; gap:6px; width:240px; }
+.proj-links p { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:2px; }
+.proj-link { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surf2); color:var(--text); font-size:12px; font-family:'DM Mono',monospace; transition:all .15s; cursor:pointer; }
+.proj-link:hover { border-color:rgba(0,200,240,.35); color:var(--cyan); }
+.proj-link .arr { font-size:11px; color:var(--muted); transition:all .15s; }
+.proj-link:hover .arr { color:var(--cyan); transform:translateX(3px); }
+
+/* ── ZONE 6: VOID STRIKER GAME ── */
+#zone-game { background: #020508; }
+#game-body {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; padding: 16px;
+  font-family: 'Share Tech Mono', monospace;
+  background: #020508; position: relative; overflow: hidden;
+}
+/* Starfield */
+#game-body::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, #ffffff22 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, #ffffff18 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 10%, #ffffff20 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, #ffffff15 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 35%, #ffffff22 0%, transparent 100%),
+    radial-gradient(1px 1px at 20% 85%, #ffffff18 0%, transparent 100%),
+    radial-gradient(2px 2px at 15% 45%, #00d4ff18 0%, transparent 100%),
+    radial-gradient(2px 2px at 75% 70%, #ff3c6e15 0%, transparent 100%);
+}
+.game-canvas-wrap {
+  position: relative;
+  border: 1px solid #0d2a3a;
+  box-shadow: 0 0 0 1px #000, 0 0 30px #00d4ff22, inset 0 0 60px #00000088;
+}
+.game-canvas-wrap::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+}
+#gameCanvas { display: block; background: #020a10; }
+.game-corner { position: absolute; width: 12px; height: 12px; z-index: 4; }
+.game-corner.tl { top:-1px; left:-1px; border-top:2px solid #00d4ff; border-left:2px solid #00d4ff; }
+.game-corner.tr { top:-1px; right:-1px; border-top:2px solid #00d4ff; border-right:2px solid #00d4ff; }
+.game-corner.bl { bottom:-1px; left:-1px; border-bottom:2px solid #00d4ff; border-left:2px solid #00d4ff; }
+.game-corner.br { bottom:-1px; right:-1px; border-bottom:2px solid #00d4ff; border-right:2px solid #00d4ff; }
+.game-flash { position:absolute; inset:0; background:#ff3c6e; opacity:0; pointer-events:none; z-index:3; mix-blend-mode:screen; transition:opacity 0.08s ease-out; }
+.game-flash.active { opacity:0.12; }
+.game-hud {
+  display: flex; align-items: stretch; gap: 8px; width: 100%;
+  max-width: 520px;
+}
+.game-hud-panel {
+  flex: 1; background: #060d14; border: 1px solid #0d2a3a; padding: 8px 12px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.game-hud-label { font-size: 9px; letter-spacing: 3px; color: #2a4a5a; text-transform: uppercase; }
+.game-hud-value {
+  font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700;
+  color: #00d4ff; text-shadow: 0 0 12px #00d4ff66; line-height: 1;
+}
+.game-hud-value.kills { color: #ff3c6e; text-shadow: 0 0 12px #ff3c6e66; }
+.game-sfx-panel {
+  background: #060d14; border: 1px solid #0d2a3a; padding: 8px 12px;
+  display: flex; flex-direction: column; gap: 6px; min-width: 130px;
+}
+.game-sfx-label { font-size: 9px; letter-spacing: 3px; color: #2a4a5a; text-transform: uppercase; margin-bottom: 1px; }
+.game-sfx-row { display:flex; align-items:center; gap:7px; font-size:10px; color:#2a4a5a; letter-spacing:1px; }
+.game-sfx-bar-wrap { flex:1; height:5px; background:#0a1a22; border:1px solid #0d2a3a; overflow:hidden; }
+.game-sfx-bar { height:100%; width:0%; transition:width .05s linear; }
+.game-sfx-bar.laser { background:#00d4ff; box-shadow:0 0 5px #00d4ff; }
+.game-sfx-bar.expl  { background:#ff3c6e; box-shadow:0 0 5px #ff3c6e; }
+.game-controls { display:flex; gap:8px; width:100%; max-width:520px; align-items:center; }
+.game-key-hint {
+  background:#060d14; border:1px solid #0d2a3a; padding:7px 12px;
+  font-size:10px; letter-spacing:2px; color:#2a4a5a; text-transform:uppercase;
+  display:flex; align-items:center; gap:7px;
+}
+.game-key {
+  display:inline-block; border:1px solid #00d4ff; color:#00d4ff;
+  padding:2px 7px; font-size:10px; letter-spacing:1px;
+  text-shadow:0 0 8px #00d4ff66; box-shadow:0 0 8px #00d4ff33;
+}
+.game-fire-btn {
+  flex:1; background:transparent; border:1px solid #ff3c6e; color:#ff3c6e;
+  font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:4px; padding:9px; cursor:pointer; text-transform:uppercase;
+  text-shadow:0 0 8px #ff3c6e66; box-shadow:0 0 10px #ff3c6e33, inset 0 0 20px #ff3c6e08;
+  transition:all .1s;
+}
+.game-fire-btn:active { background:#ff3c6e22; box-shadow:0 0 20px #ff3c6e88; transform:scale(0.98); }
+.game-inactive-msg {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-family:'Orbitron',sans-serif; font-size:12px; letter-spacing:3px;
+  color:#00d4ff88; text-align:center; pointer-events:none;
+  text-shadow:0 0 12px #00d4ff44;
+}
+
+</style>
+</head>
+<body>
+
+<!--
+  ============================================================
+  DEMO LAYOUT — This is the test harness only.
+  When integrating into your portfolio, you only need the
+  <script> block at the bottom. The HTML here just provides
+  playground zones to demonstrate each sound effect in context.
+  ============================================================
+-->
+<div class="layout">
+
+  <!-- TOPBAR: BG music controls -->
+  <div class="topbar">
+    <div class="topbar-logo">Sound<em>Layers</em></div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-tag">BG + SFX Tester</div>
+    <div class="topbar-sep"></div>
+    <div class="bg-controls">
+      <span class="bg-label">BG</span>
+      <div class="track-pills">
+        <!-- data-src: path to your BG music file (must be in the same folder as this HTML) -->
+        <button class="track-pill active" data-src="final_bg.mp3">🎵 Final BG</button>
+      </div>
+      <button class="bg-play-btn" id="bgPlayBtn" disabled>
+        <svg id="bgPI" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="bgPA" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        <span id="bgLbl">Play</span>
+      </button>
+      <div class="vol-row">
+        <span class="vol-lbl">Vol</span>
+        <!-- BG volume slider — default 0.3 (30%). Drag to adjust. -->
+        <input type="range" id="bgVol" min="0" max="1" step="0.01" value="0.3" />
+      </div>
+      <div class="bg-status">
+        <div class="bg-dot" id="bgDot"></div>
+        <div class="bg-bars" id="bgBars">
+          <div class="bg-bar"></div><div class="bg-bar"></div><div class="bg-bar"></div>
+        </div>
+      </div>
+      <!-- Global SFX mute: silences all Web Audio SFX but NOT the BG track -->
+      <button class="mute-btn" id="muteBtn">🔊 SFX</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR: navigate between SFX demos -->
+  <div class="sidebar">
+    <span class="sidebar-head">Sound Effects</span>
+    <div class="sfx-item active-tab" data-zone="zone-woosh" style="--c:var(--purple)" id="tab-woosh">
+      <div class="sfx-dot"></div>
+      <div class="sfx-item-info"><div class="sfx-item-name">Cursor Woosh</div><div class="sfx-item-hint">Move cursor fast</div></div>
+      <div class="sfx-fire-dot"></div>
+    </div>
+    <div class="sfx-item" data-zone="zone-click" style="--c:var(--green)" id="tab-click">
+      <div class="sfx-dot"></div>
+      <div class="sfx-item-info"><div class="sfx-item-name">Click System</div><div class="sfx-item-hint">Interactive vs empty space</div></div>
+      <div class="sfx-fire-dot"></div>
+    </div>
+    <div class="sfx-item" data-zone="zone-scroll" style="--c:var(--amber)" id="tab-scroll">
+      <div class="sfx-dot"></div>
+      <div class="sfx-item-info"><div class="sfx-item-name">Paper Scroll</div><div class="sfx-item-hint">Scroll the document</div></div>
+      <div class="sfx-fire-dot"></div>
+    </div>
+    <div class="sfx-item" data-zone="zone-terminal" style="--c:var(--red)" id="tab-terminal">
+      <div class="sfx-dot"></div>
+      <div class="sfx-item-info"><div class="sfx-item-name">Terminal Sounds</div><div class="sfx-item-hint">Correct vs error command</div></div>
+      <div class="sfx-fire-dot"></div>
+    </div>
+    <div class="sfx-item" data-zone="zone-pulse" style="--c:var(--cyan)" id="tab-pulse">
+      <div class="sfx-dot"></div>
+      <div class="sfx-item-info"><div class="sfx-item-name">Digital Pulse</div><div class="sfx-item-hint">Click button or links</div></div>
+      <div class="sfx-fire-dot"></div>
+    </div>
+    <div class="sfx-item" data-zone="zone-game" style="--c:var(--red)" id="tab-game">
+      <div class="sfx-dot"></div>
+      <div class="sfx-item-info"><div class="sfx-item-name">Void Striker</div><div class="sfx-item-hint">WASD + Space to play</div></div>
+      <div class="sfx-fire-dot"></div>
+    </div>
+
+  </div>
+
+  <!-- MAIN: one demo zone per SFX -->
+  <div class="main">
+
+    <!-- ── ZONE 1: CURSOR WOOSH ── -->
+    <div class="demo-zone visible" id="zone-woosh">
+      <div class="zone-header">
+        <div class="zone-title">💨 Cursor Woosh</div>
+        <div class="zone-desc">Move your cursor anywhere in this area. Speed → volume &amp; pitch. Fast circles trigger whirl mode.</div>
+      </div>
+      <div id="woosh-body">
+        <canvas id="trail-canvas"></canvas>
+        <div id="woosh-cursor"></div>
+        <div id="woosh-cursor-ring"></div>
+        <div id="woosh-msg">Move your cursor here</div>
+        <div id="woosh-hud">
+          <div class="woosh-stat"><span class="woosh-stat-label">Velocity</span><span class="woosh-stat-val" id="w-vel">0</span></div>
+          <div class="woosh-stat"><span class="woosh-stat-label">Gain</span><span class="woosh-stat-val" id="w-gain">0%</span></div>
+          <div class="woosh-stat"><span class="woosh-stat-label">Filter</span><span class="woosh-stat-val" id="w-freq">— Hz</span></div>
+          <div class="woosh-stat"><span class="woosh-stat-label">Mode</span><span class="woosh-stat-val" id="w-mode">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ZONE 2: CLICK SYSTEM ── -->
+    <div class="demo-zone" id="zone-click">
+      <div class="zone-header">
+        <div class="zone-title">🖱️ Click Sound System</div>
+        <div class="zone-desc">Click buttons, inputs, links, or toggles → press + ting. Click the empty dashed area → softer neutral tick only.</div>
+      </div>
+      <div class="zone-body">
+        <div class="click-section">
+          <div class="click-section-label">Buttons — press + ting</div>
+          <div class="btn-row">
+            <button class="ui-btn ui-btn-primary">Confirm</button>
+            <button class="ui-btn ui-btn-outline">Cancel</button>
+            <button class="ui-btn ui-btn-ghost">Settings</button>
+            <button class="ui-btn ui-btn-danger">Delete</button>
+            <button class="ui-btn ui-btn-success">✓ Save</button>
+          </div>
+        </div>
+        <div class="click-section">
+          <div class="click-section-label">Inputs &amp; select — press + ting</div>
+          <div class="input-row">
+            <input type="text" class="ui-input" placeholder="Click to focus…" />
+            <select class="ui-select"><option>Option A</option><option>Option B</option></select>
+            <button class="ui-btn ui-btn-outline">Search</button>
+          </div>
+        </div>
+        <div class="click-section">
+          <div class="click-section-label">Links &amp; toggles — press + ting</div>
+          <div class="btn-row" style="margin-bottom:10px">
+            <a class="ui-btn ui-btn-outline" href="#" style="text-decoration:none">Docs</a>
+            <a class="ui-btn ui-btn-outline" href="#" style="text-decoration:none">GitHub</a>
+            <span class="ui-btn ui-btn-ghost" role="button" style="cursor:pointer">Custom role</span>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-item"><span class="toggle-label">Enable notifications</span>
+              <label class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+            <div class="toggle-item"><span class="toggle-label">Dark mode</span>
+              <label class="toggle"><input type="checkbox" /><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+          </div>
+        </div>
+        <div class="click-section" style="flex:1">
+          <div class="click-section-label">Non-interactive — soft click only</div>
+          <div class="empty-zone">← click anywhere in this empty area →</div>
+        </div>
+      </div>
+      <div class="click-statusbar">
+        <div class="click-pill" id="clickPill"><span class="cdot"></span><span id="clickTxt">idle</span></div>
+        <span id="click-log">— waiting for input —</span>
+      </div>
+    </div>
+
+    <!-- ── ZONE 3: PAPER SCROLL ── -->
+    <div class="demo-zone" id="zone-scroll">
+      <div class="zone-header">
+        <div class="zone-title">📄 Paper Scroll</div>
+        <div class="zone-desc">Scroll the text below. Faster = louder and brighter. Sound coasts when you stop like real paper friction.</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+        <div id="scroll-body">
+          <div id="fric-bar"><div id="fric-fill"></div></div>
+          <div class="scroll-content">
+            <h2>The Texture of Matter</h2>
+            <p>The first principle of our inquiry must be this: nothing is ever created out of nothing by divine will, and nothing that exists is annihilated entirely.</p>
+            <p>Once we have learned that nothing comes from nothing, we shall then have a clearer view of what we are looking for — both the source from which each thing can be created and the manner in which everything is done without the aid of gods.</p>
+            <blockquote>Matter is never destroyed. Every body that seems to perish only transforms; it passes into new things and by passing nourishes them.</blockquote>
+            <h2>On the Nature of Atoms</h2>
+            <p>Furthermore, nature resolves everything back into its component atoms and does not reduce things to nothing. As things are, since the atoms are of solid single nature, they can abide through the ages, though everything around them may be dissolved and reformed.</p>
+            <h2>The Void and Its Properties</h2>
+            <p>Again, if there were no void, the universe would be a solid mass. And so body and void are the two primary constituents of nature, neither of which can be reduced to the other.</p>
+            <h2>Motion and the Falling of Atoms</h2>
+            <p>The atoms fall straight down through empty space by their own weight; but at quite unpredictable times and places, they swerve ever so little from their course. Without this swerve, nature would never have created anything.</p>
+            <p>Consider the sheet of papyrus between your fingers. When you draw your thumb across it, thousands of fibres deflect, vibrate, and spring back. It is this — the mechanical negotiation of surface — that produces what we call texture.</p>
+            <h2>The Infinity of the Universe</h2>
+            <p>Now listen: the universe in all its parts has no boundary in any direction. Whatever place anyone occupies, he leaves the universe just as infinite in all directions.</p>
+            <p>The sum of things is such that there is no end to it in any direction. What is infinite cannot have a centre. And if it has no centre, it can have no outer edge.</p>
+          </div>
+        </div>
+        <div class="scroll-hud">
+          <div class="smg"><span class="sml">Velocity</span><div class="smt"><div class="smf" id="sMVel"></div></div><span class="smv" id="sVVel">0.0</span></div>
+          <div class="smg"><span class="sml">Texture</span><div class="smt"><div class="smf" id="sMTex"></div></div><span class="smv" id="sVTex">—</span></div>
+          <div class="sdb">Dir <span class="sda" id="sDirArr">↕</span> <span id="sDirTxt">—</span></div>
+          <div style="margin-left:auto;font-size:10px;color:var(--muted)" id="sStatus">Idle</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ZONE 4: TERMINAL SOUNDS ── -->
+    <div class="demo-zone" id="zone-terminal">
+      <div class="zone-header">
+        <div class="zone-title">🖥️ Terminal Sounds</div>
+        <div class="zone-desc">Type <code style="color:var(--cyan)">help</code> for valid commands (plays correct sound). Unknown commands trigger the error sound.</div>
+      </div>
+      <div class="zone-body">
+        <div id="term-out">
+          <div class="tl ti">Web Terminal v1.0 — type <strong>help</strong> for commands.</div>
+          <div class="tl"></div>
+        </div>
+        <div id="term-row">
+          <span id="term-prompt">user@terminal:~$</span>
+          <input id="term-input" type="text" autocomplete="off" spellcheck="false" placeholder="type a command…" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ZONE 5: DIGITAL PULSE ── -->
+    <div class="demo-zone" id="zone-pulse">
+      <div class="zone-header">
+        <div class="zone-title">⚡ Digital Pulse</div>
+        <div class="zone-desc">Click the button or any project link. The two-tone pulse fires on every click, even while BG music plays.</div>
+      </div>
+      <div class="zone-body">
+        <div class="pulse-vis" id="pulseVis"></div>
+        <button class="pulse-btn" id="pulseBtn">
+          <div class="pulse-ring" id="pulseRing"></div>
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="pulse-lbl">
+          <div class="pulse-lbl-main">Digital Pulse</div>
+          <div class="pulse-lbl-freq"><span class="fa">580 Hz</span> → <span class="fb">740 Hz</span></div>
+        </div>
+        <div class="proj-links">
+          <p>Also fires on links</p>
+          <div class="proj-link" id="pl1">Reboxed <span class="arr">↗</span></div>
+          <div class="proj-link" id="pl2">Project Two <span class="arr">↗</span></div>
+          <div class="proj-link" id="pl3">Project Three <span class="arr">↗</span></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── ZONE 6: VOID STRIKER GAME ── -->
+    <div class="demo-zone" id="zone-game">
+      <div class="zone-header">
+        <div class="zone-title">🎮 Void Striker</div>
+        <div class="zone-desc">WASD to move · Space or [ FIRE ] button to shoot · Destroy enemies for score. Game sounds layer over BG music.</div>
+      </div>
+      <div id="game-body">
+        <div id="game-inactive-msg" class="game-inactive-msg">CLICK HERE OR PRESS TAB TO FOCUS</div>
+        <div class="game-canvas-wrap" id="gameCanvasWrap">
+          <div class="game-corner tl"></div>
+          <div class="game-corner tr"></div>
+          <div class="game-corner bl"></div>
+          <div class="game-corner br"></div>
+          <canvas id="gameCanvas" width="520" height="300"></canvas>
+          <div class="game-flash" id="gameFlash"></div>
+        </div>
+        <div class="game-hud">
+          <div class="game-hud-panel">
+            <div class="game-hud-label">Score</div>
+            <div class="game-hud-value" id="gameScore">000</div>
+          </div>
+          <div class="game-hud-panel">
+            <div class="game-hud-label">Kills</div>
+            <div class="game-hud-value kills" id="gameKills">000</div>
+          </div>
+          <div class="game-sfx-panel">
+            <div class="game-sfx-label">SFX Monitor</div>
+            <div class="game-sfx-row">
+              <span>LASER</span>
+              <div class="game-sfx-bar-wrap"><div class="game-sfx-bar laser" id="gameLaserBar"></div></div>
+            </div>
+            <div class="game-sfx-row">
+              <span>EXPL</span>
+              <div class="game-sfx-bar-wrap"><div class="game-sfx-bar expl" id="gameExplBar"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="game-controls">
+          <div class="game-key-hint"><span class="game-key">WASD</span> move &nbsp; <span class="game-key">SPACE</span> shoot</div>
+          <button class="game-fire-btn" id="gameFireBtn">[ FIRE ]</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!--
+  ============================================================
+  BACKGROUND MUSIC AUDIO ELEMENT
+  ── Why a plain <audio> tag and not Web Audio API? ──────────
+  The <audio> element runs on its own audio pipeline, completely
+  separate from the AudioContext used by all SFX below.
+  This means BG music and every SFX layer simultaneously
+  with zero conflict — they mix at the OS level.
+
+  ── To use in your portfolio ────────────────────────────────
+  Keep this element. Set its src to your track file.
+  Call bgAudio.play() after any user gesture (browser policy).
+  Adjust bgAudio.volume (0.0–1.0) to taste.
+  ============================================================
+-->
+<audio id="bgAudio" loop></audio>
+
+<script>
+'use strict';
+
+// ============================================================
+//  TAB SWITCHING — demo UI only, not needed in portfolio
+// ============================================================
+document.querySelectorAll('.sfx-item').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sfx-item').forEach(t => t.classList.remove('active-tab'));
+    document.querySelectorAll('.demo-zone').forEach(z => z.classList.remove('visible'));
+    tab.classList.add('active-tab');
+    document.getElementById(tab.dataset.zone).classList.add('visible');
+    if (tab.dataset.zone === 'zone-terminal') setTimeout(() => document.getElementById('term-input').focus(), 50);
+    if (tab.dataset.zone === 'zone-woosh') resizeWoosh();
+  });
+});
+
+// Flashes the sidebar indicator dot when an SFX fires
+function flashTab(id) {
+  const t = document.getElementById(id);
+  t.classList.add('firing');
+  setTimeout(() => t.classList.remove('firing'), 200);
+}
+
+
+// ============================================================
+//  BACKGROUND MUSIC SYSTEM
+//  ── Pipeline ────────────────────────────────────────────
+//  HTML <audio> element → browser's native audio mixer
+//  Completely independent from Web Audio API (used by SFX).
+//
+//  ── To integrate ────────────────────────────────────────
+//  1. Keep <audio id="bgAudio" loop></audio> in your HTML
+//  2. Set bgAudio.src = 'your-file.mp3' on page load
+//  3. Trigger bgAudio.play() on first user gesture
+//
+//  ── VOLUME CONTROL ──────────────────────────────────────
+//  bgAudio.volume accepts 0.0 (silent) to 1.0 (full)
+//  Default here: 0.3 (30%) — a good ambient background level
+// ============================================================
+const bgAudio = document.getElementById('bgAudio');
+let bgPlaying = false;
+let activeTrack = null;
+
+// ── BG MASTER VOLUME — change 0.3 to adjust default level ──
+bgAudio.volume = 0.3;
+
+document.getElementById('bgVol').addEventListener('input', e => {
+  bgAudio.volume = parseFloat(e.target.value);
+});
+
+// Track pill buttons set which file to load
+document.querySelectorAll('.track-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.track-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    activeTrack = pill.dataset.src;
+    document.getElementById('bgPlayBtn').disabled = false;
+    if (bgPlaying) {
+      bgAudio.src = activeTrack; bgAudio.currentTime = 0;
+      bgAudio.play().catch(() => {});
+    } else {
+      bgAudio.src = activeTrack; bgAudio.currentTime = 0;
+    }
+  });
+});
+
+document.getElementById('bgPlayBtn').addEventListener('click', () => {
+  if (!activeTrack) return;
+  if (bgPlaying) {
+    bgAudio.pause(); bgPlaying = false; setBgUI(false);
+  } else {
+    bgAudio.currentTime = 0;
+    bgAudio.play().then(() => { bgPlaying = true; setBgUI(true); }).catch(() => {});
+  }
+});
+bgAudio.addEventListener('ended', () => { bgPlaying = false; setBgUI(false); });
+
+function setBgUI(on) {
+  document.getElementById('bgPI').style.display  = on ? 'none' : '';
+  document.getElementById('bgPA').style.display  = on ? '' : 'none';
+  document.getElementById('bgLbl').textContent   = on ? 'Pause' : 'Play';
+  document.getElementById('bgDot').classList.toggle('live', on);
+  document.getElementById('bgBars').classList.toggle('live', on);
+}
+
+// Auto-select and pre-load the track on page init
+(function () {
+  const pill = document.querySelector('.track-pill');
+  if (pill) {
+    pill.classList.add('active');
+    activeTrack = pill.dataset.src;
+    bgAudio.src = activeTrack;
+    document.getElementById('bgPlayBtn').disabled = false;
+  }
+})();
+
+
+// ============================================================
+//  SHARED WEB AUDIO CONTEXT
+//  ── Why one shared context? ─────────────────────────────
+//  All SFX (woosh, clicks, scroll, pulse, terminal) share one
+//  AudioContext. Creating multiple contexts wastes resources
+//  and can hit browser limits. One context handles everything.
+//
+//  ── Lazy initialisation ─────────────────────────────────
+//  AudioContext must be created (or resumed) after a user
+//  gesture — browsers block audio until the user has interacted.
+//  getAC() handles this: call it before any sound play.
+//
+//  ── Global SFX mute ─────────────────────────────────────
+//  Set sfxMuted = true to silence all SFX globally.
+//  Does NOT affect bgAudio (different pipeline).
+// ============================================================
+let ac = null;
+let sfxMuted = false;
+
+document.getElementById('muteBtn').addEventListener('click', function () {
+  sfxMuted = !sfxMuted;
+  this.textContent = sfxMuted ? '🔇 SFX' : '🔊 SFX';
+  this.classList.toggle('muted', sfxMuted);
+});
+
+function getAC() {
+  if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if (ac.state === 'suspended') ac.resume();
+  return ac;
+}
+
+
+// ============================================================
+//  SFX 1 — CURSOR WOOSH
+//  ── Trigger ─────────────────────────────────────────────
+//  Fires continuously while the cursor moves.
+//  Auto-silences after WOOSH_SILENCE_MS of no movement.
+//
+//  ── Sound chain ─────────────────────────────────────────
+//  WhiteNoise → BandpassFilter → Gain → StereoPanner → Destination
+//                                     ↘ Convolver(reverb) → Destination
+//
+//  ── To integrate in your portfolio ─────────────────────
+//  Attach mousemove to your page or a specific section:
+//    document.addEventListener('mousemove', yourHandler);
+//  Call initWoosh() on first move, then let the RAF loop run.
+//  The woosh zone in this demo can be your whole page.
+//
+//  ── VOLUME & TONE KNOBS — adjust these to taste ─────────
+//  WOOSH_MAX_GAIN    0.88   Peak gain at full speed. Lower = quieter overall.
+//  WOOSH_MAX_VEL     2800   Speed (px/s) at which gain maxes out. Lower = louder at slow speeds.
+//  WOOSH_FREQ_MIN    280    Filter Hz when cursor is slow. Lower = deeper/bassier.
+//  WOOSH_FREQ_MAX    2400   Filter Hz at max speed. Lower = less shrieky at fast speed.
+//  WOOSH_REVERB_WET  0.22   Reverb amount. 0 = dry, 1 = fully wet.
+//  WOOSH_FILTER_Q    1.2    Resonance. Higher = more tonal/whistling character.
+//  WOOSH_CIRCLE_Q    2.0    Extra resonance added during circular motion.
+//  WOOSH_CIRCLE_HZ   500    Extra Hz shift during circular motion (whirl mode).
+//  WOOSH_SILENCE_MS  110    Milliseconds without movement before sound fades out.
+// ============================================================
+(function () {
+
+  const WOOSH_MAX_GAIN   = 0.88;
+  const WOOSH_MAX_VEL    = 2800;
+  const WOOSH_FREQ_MIN   = 280;
+  const WOOSH_FREQ_MAX   = 2400;
+  const WOOSH_REVERB_WET = 0.22;
+  const WOOSH_FILTER_Q   = 1.2;
+  const WOOSH_CIRCLE_Q   = 2.0;
+  const WOOSH_CIRCLE_HZ  = 500;
+  const WOOSH_SILENCE_MS = 110;
+
+  const body   = document.getElementById('woosh-body');
+  const canvas = document.getElementById('trail-canvas');
+  const curEl  = document.getElementById('woosh-cursor');
+  const ringEl = document.getElementById('woosh-cursor-ring');
+  const msgEl  = document.getElementById('woosh-msg');
+  const ctx2d  = canvas.getContext('2d');
+
+  function resizeWoosh() {
+    canvas.width  = body.offsetWidth;
+    canvas.height = body.offsetHeight;
+  }
+  window.resizeWoosh = resizeWoosh;
+  resizeWoosh();
+  window.addEventListener('resize', resizeWoosh);
+
+  let filterNode = null, gainNode = null, pannerNode = null, wooshReady = false;
+
+  // White noise buffer: uniform random samples span all frequencies.
+  // The bandpass filter carves out just the "woosh" frequency band.
+  function buildNoise(ctx, secs) {
+    const len = Math.floor(ctx.sampleRate * secs);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  // Algorithmic reverb impulse response: exponentially decaying noise.
+  // No external audio file needed — generates a short, airy reverb tail.
+  function buildIR(ctx, secs, decay) {
+    const len = Math.floor(ctx.sampleRate * secs);
+    const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++)
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+    return buf;
+  }
+
+  function initWoosh() {
+    if (wooshReady) return;
+    const ctx = getAC();
+    const src = ctx.createBufferSource();
+    src.buffer = buildNoise(ctx, 4); // 4 seconds of looping noise
+    src.loop   = true;
+
+    filterNode = ctx.createBiquadFilter();
+    filterNode.type            = 'bandpass';
+    filterNode.frequency.value = WOOSH_FREQ_MIN;
+    filterNode.Q.value         = WOOSH_FILTER_Q;
+
+    gainNode = ctx.createGain();
+    gainNode.gain.value = 0; // starts silent, driven by cursor speed
+
+    pannerNode = ctx.createStereoPanner();
+    pannerNode.pan.value = 0; // driven by cursor X position
+
+    const convolver = ctx.createConvolver();
+    convolver.buffer = buildIR(ctx, 0.45, 3.5);
+    const wetGain = ctx.createGain();
+    wetGain.gain.value = WOOSH_REVERB_WET;
+
+    // Signal chain
+    src.connect(filterNode);
+    filterNode.connect(gainNode);
+    gainNode.connect(pannerNode);
+    pannerNode.connect(ctx.destination);  // dry path
+    pannerNode.connect(convolver);        // wet reverb path
+    convolver.connect(wetGain);
+    wetGain.connect(ctx.destination);
+
+    src.start();
+    wooshReady = true;
+  }
+
+  let mx = 0, my = 0, prevMx = 0, prevMy = 0;
+  let pendingX = 0, pendingY = 0, hasPending = false;
+  let velocity = 0;
+  let smGain = 0, smFreq = 400, smPan = 0;
+  let circScore = 0;
+  const angleHist = [];
+  const HIST = 32;
+  let trail = [];
+  let silTimer = null;
+  const DT = 1 / 60; // assumed frame time for px/s normalisation
+  let entered = false;
+
+  body.addEventListener('mousemove', e => {
+    if (!entered) { entered = true; msgEl.style.opacity = '0'; initWoosh(); }
+    const r = body.getBoundingClientRect();
+    pendingX = e.clientX - r.left; pendingY = e.clientY - r.top; hasPending = true;
+    curEl.style.left  = pendingX + 'px'; curEl.style.top  = pendingY + 'px';
+    ringEl.style.left = pendingX + 'px'; ringEl.style.top = pendingY + 'px';
+    clearTimeout(silTimer);
+    silTimer = setTimeout(() => {
+      if (gainNode) gainNode.gain.setTargetAtTime(0, getAC().currentTime, 0.18);
+      smGain = 0;
+    }, WOOSH_SILENCE_MS);
+    flashTab('tab-woosh');
+  });
+
+  body.addEventListener('mouseleave', () => {
+    clearTimeout(silTimer);
+    silTimer = setTimeout(() => {
+      if (gainNode) gainNode.gain.setTargetAtTime(0, getAC().currentTime, 0.2);
+      smGain = 0;
+    }, 60);
+  });
+
+  function wloop() {
+    if (document.getElementById('zone-woosh').classList.contains('visible')) {
+      if (hasPending) { mx = pendingX; my = pendingY; hasPending = false; }
+
+      // Velocity: pixels per second
+      const vx = (mx - prevMx) / DT, vy = (my - prevMy) / DT;
+      velocity = Math.sqrt(vx * vx + vy * vy);
+      prevMx = mx; prevMy = my;
+
+      // Circular motion detection: track heading angle history
+      if (velocity > 30) {
+        angleHist.push(Math.atan2(vy, vx));
+        if (angleHist.length > HIST) angleHist.shift();
+        if (angleHist.length === HIST) {
+          let total = 0; const dA = [];
+          for (let i = 1; i < angleHist.length; i++) {
+            let da = angleHist[i] - angleHist[i - 1];
+            while (da >  Math.PI) da -= 2 * Math.PI;
+            while (da < -Math.PI) da += 2 * Math.PI;
+            dA.push(da); total += da;
+          }
+          const mean = total / dA.length;
+          const std  = Math.sqrt(dA.reduce((s, d) => s + (d - mean) ** 2, 0) / dA.length);
+          // Low std (consistent rotation) + large total turn = circling
+          const isCircling = std < 0.28 && Math.abs(total) > Math.PI * 0.8;
+          circScore = circScore * 0.88 + (isCircling ? 1 : 0) * 0.12;
+        }
+      } else { circScore *= 0.93; }
+
+      // Map speed → audio params
+      const norm = Math.min(velocity / WOOSH_MAX_VEL, 1);
+      const targetGain = norm < 0.005 ? 0 : Math.pow(norm, 0.65) * WOOSH_MAX_GAIN;
+      // Asymmetric EMA: faster attack, slower release
+      const gAlpha = targetGain > smGain ? 0.13 : 0.055;
+      smGain = smGain + (targetGain - smGain) * gAlpha;
+      smFreq = smFreq + (WOOSH_FREQ_MIN + (WOOSH_FREQ_MAX - WOOSH_FREQ_MIN) * Math.pow(norm, 0.55) + circScore * WOOSH_CIRCLE_HZ - smFreq) * 0.07;
+      smPan  = smPan  + (((mx / canvas.width) * 2 - 1) * 0.88 - smPan) * 0.04;
+
+      // Push to Web Audio using setTargetAtTime (prevents clicks/zippers)
+      if (wooshReady && !sfxMuted) {
+        const t = getAC().currentTime, TC = 0.035;
+        gainNode.gain.setTargetAtTime(smGain, t, TC);
+        filterNode.frequency.setTargetAtTime(smFreq, t, TC * 1.2);
+        pannerNode.pan.setTargetAtTime(smPan, t, TC * 2);
+        filterNode.Q.setTargetAtTime(WOOSH_FILTER_Q + circScore * WOOSH_CIRCLE_Q, t, 0.1);
+      } else if (wooshReady) {
+        gainNode.gain.setTargetAtTime(0, getAC().currentTime, 0.05);
+      }
+
+      // Canvas trail
+      trail.push({ x: mx, y: my, age: 0, intensity: smGain });
+      if (trail.length > 80) trail.shift();
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < trail.length; i++) {
+        const p = trail[i], life = 1 - p.age / 80, a = life * p.intensity * 0.55;
+        if (a < 0.01) { p.age++; continue; }
+        const hue = 185 + circScore * 90;
+        ctx2d.beginPath(); ctx2d.arc(p.x, p.y, 1.5 + p.intensity * 3.5, 0, Math.PI * 2);
+        ctx2d.fillStyle = `hsla(${hue},100%,65%,${a})`; ctx2d.fill(); p.age++;
+      }
+
+      // Cursor visual
+      const rs = 32 + smGain * 28 + circScore * 10, hue = 185 + circScore * 90;
+      ringEl.style.width = rs + 'px'; ringEl.style.height = rs + 'px';
+      ringEl.style.borderColor = `hsl(${hue},100%,65%)`;
+      ringEl.style.opacity = (0.25 + smGain * 0.75) + '';
+      curEl.style.background = `hsl(${hue},100%,65%)`;
+      const ds = (8 + smGain * 7) + 'px'; curEl.style.width = ds; curEl.style.height = ds;
+
+      // HUD
+      document.getElementById('w-vel').textContent  = Math.round(velocity) + ' px/s';
+      document.getElementById('w-gain').textContent = Math.round(smGain * 100) + '%';
+      document.getElementById('w-freq').textContent = Math.round(smFreq) + ' Hz';
+      document.getElementById('w-mode').textContent = circScore > 0.38 ? '⟳ Whirl' : '—';
+    }
+    requestAnimationFrame(wloop);
+  }
+  wloop();
+
+})(); // end CURSOR WOOSH
+
+
+// ============================================================
+//  SFX 2 — CLICK SOUND SYSTEM
+//  ── Trigger ─────────────────────────────────────────────
+//  mousedown on any interactive element → press sound
+//  mouseup  on any interactive element → ting (release) sound
+//  mousedown on empty/non-interactive  → soft tick only
+//
+//  ── Detection logic ─────────────────────────────────────
+//  isInteractive() walks up the DOM. Matches:
+//    - Tag names: BUTTON, A, INPUT, TEXTAREA, SELECT, LABEL
+//    - role="button" attribute
+//    - computed CSS cursor: pointer
+//  Everything else = empty space.
+//
+//  ── Sound chain ─────────────────────────────────────────
+//  Press:  WhiteNoise → Bandpass(~1480Hz) → Gain → Destination
+//  Ting:   OscillatorSine(2100Hz) → Gain → Destination
+//  Empty:  WhiteNoise → Bandpass(~734Hz)  → Gain → Destination
+//
+//  ── To integrate in your portfolio ─────────────────────
+//  Add the mousedown listener to document (or any container).
+//  isInteractive() auto-detects your buttons/links — no need
+//  to tag elements with special classes.
+//
+//  ── VOLUME & TONE KNOBS ─────────────────────────────────
+//  CLICK_INTERACTIVE_GAIN  0.85   Interactive press loudness. Lower = subtler click.
+//  CLICK_EMPTY_GAIN        0.55   Empty-space click loudness. Lower = more subtle.
+//  CLICK_TING_GAIN         0.06   Release ting loudness. Keep low (it's subtle feedback).
+//  CLICK_INTERACTIVE_HZ    1480   Press tone centre. Higher = snappier/clickier feel.
+//  CLICK_EMPTY_HZ          734    Empty click centre. Lower = softer/more muted.
+//  CLICK_TING_HZ           2100   Ting pitch. Higher = glassier/more delicate.
+//  CLICK_TING_DELAY_MS     20     ms after press before ting fires.
+// ============================================================
+(function () {
+
+  const CLICK_INTERACTIVE_GAIN = 0.85;
+  const CLICK_EMPTY_GAIN       = 0.55;
+  const CLICK_TING_GAIN        = 0.06;
+  const CLICK_INTERACTIVE_HZ   = 1480;
+  const CLICK_EMPTY_HZ         = 734;
+  const CLICK_TING_HZ          = 2100;
+  const CLICK_TING_DELAY_MS    = 20;
+  const CLICK_DEDUP_SEC        = 0.060; // ignore synthetic re-fires within this window
+
+  const zone = document.getElementById('zone-click');
+
+  // Shared 50ms noise burst — decoded once, reused for all click sounds
+  let noiseBuf = null;
+  function getNoise() {
+    if (noiseBuf) return noiseBuf;
+    const ctx = getAC(), len = Math.floor(ctx.sampleRate * 0.05);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    noiseBuf = buf; return buf;
+  }
+
+  // Spam variation: adds ±8% pitch and ±10% gain jitter on rapid clicks
+  // so fast repeated clicks don't sound mechanical/robotic
+  const spam = {
+    lastT: 0, fv: 1, gv: 1, rt: null,
+    tick() {
+      const dt = performance.now() - this.lastT; this.lastT = performance.now();
+      if (dt < 300) {
+        this.fv = 1 + (Math.random() - 0.5) * 0.16; // ±8% frequency
+        this.gv = 1 + (Math.random() - 0.5) * 0.20; // ±10% gain
+      } else {
+        clearTimeout(this.rt);
+        this.rt = setTimeout(() => { this.fv = 1; this.gv = 1; }, 600);
+      }
+    }
+  };
+
+  // Interactive press: sharp bandpass noise burst + delayed sine ting
+  function playClickInteractive() {
+    if (sfxMuted) return;
+    const ctx = getAC(), now = ctx.currentTime;
+    const src = ctx.createBufferSource(); src.buffer = getNoise();
+    const bp  = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = CLICK_INTERACTIVE_HZ * spam.fv; bp.Q.value = 3.5;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(CLICK_INTERACTIVE_GAIN * spam.gv, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+    src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+    src.start(now); src.stop(now + 0.06);
+    // Ting on release: short sine wave slightly after the press
+    setTimeout(() => {
+      const c2 = getAC(), t = c2.currentTime;
+      const osc = c2.createOscillator(), tg = c2.createGain();
+      osc.type = 'sine'; osc.frequency.value = CLICK_TING_HZ;
+      tg.gain.setValueAtTime(0, t);
+      tg.gain.linearRampToValueAtTime(CLICK_TING_GAIN, t + 0.007);
+      tg.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+      osc.connect(tg); tg.connect(c2.destination); osc.start(t); osc.stop(t + 0.12);
+    }, CLICK_TING_DELAY_MS);
+  }
+
+  // Empty space: softer, lower-pitched tick, no ting
+  function playClickEmpty() {
+    if (sfxMuted) return;
+    const ctx = getAC(), now = ctx.currentTime;
+    const src = ctx.createBufferSource(); src.buffer = getNoise();
+    const bp  = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = CLICK_EMPTY_HZ; bp.Q.value = 1.2;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(CLICK_EMPTY_GAIN * spam.gv, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+    src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+    src.start(now); src.stop(now + 0.05);
+  }
+
+  // DOM walker: returns true if el or any ancestor is "interactive"
+  const ITAGS = new Set(['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT', 'LABEL']);
+  function isInteractive(el) {
+    let n = el;
+    while (n && n !== zone) {
+      if (ITAGS.has(n.tagName)) return true;
+      if (n.getAttribute && n.getAttribute('role') === 'button') return true;
+      try { if (window.getComputedStyle(n).cursor === 'pointer') return true; } catch (e) {}
+      n = n.parentElement;
+    }
+    return false;
+  }
+
+  let lastMD = -999;
+  const pill = document.getElementById('clickPill');
+  const log  = document.getElementById('click-log');
+  const txt  = document.getElementById('clickTxt');
+  let sTimer;
+
+  zone.addEventListener('mousedown', e => {
+    const ctx = getAC(), now = ctx.currentTime;
+    if (now - lastMD < CLICK_DEDUP_SEC) return; // deduplicate synthetic re-fires
+    lastMD = now;
+    const inter = isInteractive(e.target);
+    spam.tick();
+    if (inter) playClickInteractive(); else playClickEmpty();
+    clearTimeout(sTimer);
+    pill.className  = 'click-pill ' + (inter ? 'active-interactive' : 'active-empty');
+    txt.textContent = inter ? 'interactive' : 'empty space';
+    log.textContent = inter ? `→ ${e.target.tagName.toLowerCase()} | press + ting` : '→ background | soft click only';
+    log.classList.add('flash'); setTimeout(() => log.classList.remove('flash'), 300);
+    sTimer = setTimeout(() => { pill.className = 'click-pill'; txt.textContent = 'idle'; }, 1200);
+    const r = document.createElement('div');
+    r.className = 'ripple' + (inter ? '' : ' ripple-empty');
+    r.style.left = e.clientX + 'px'; r.style.top = e.clientY + 'px';
+    document.body.appendChild(r); setTimeout(() => r.remove(), 500);
+    flashTab('tab-click');
+  }, true);
+
+})(); // end CLICK SYSTEM
+
+
+// ============================================================
+//  SFX 3 — PAPER SCROLL SOUND
+//  ── Trigger ─────────────────────────────────────────────
+//  Fires on wheel events inside the scroll zone.
+//  Momentum model: sound "coasts" after scrolling stops.
+//
+//  ── Sound chain ─────────────────────────────────────────
+//  NoiseA → BandpassA(~850–1400Hz, Q=1.4) → GainA ↘
+//                                                   MasterGain → Panner → Destination
+//  NoiseB → BandpassB(~1750–2800Hz, Q=2.2) → GainB ↗
+//
+//  Two independent noise layers (different random seeds) create
+//  the irregular, realistic texture of paper on paper.
+//  Random LFO modulation prevents the sound feeling static.
+//
+//  Three-stage smoothing pipeline (no clicks/zippers):
+//    1. Input EMA:  rawInputVel → inertialVel
+//    2. Param EMA:  targets → smoothed audio params
+//    3. Web Audio:  setTargetAtTime() on all nodes
+//
+//  ── To integrate in your portfolio ─────────────────────
+//  Attach the 'wheel' listener to your scrollable container.
+//  For page-level scroll, use window instead of scrollEl.
+//  Call initScroll() on first wheel event.
+//
+//  ── VOLUME & TEXTURE KNOBS ──────────────────────────────
+//  SCROLL_MAX_GAIN    0.22   Peak master gain. Raise for louder scroll sound.
+//  SCROLL_MAX_VEL     80     Scroll velocity at which gain maxes out.
+//  SCROLL_FRICTION    0.92   Per-frame decay. 0.90=stops fast, 0.96=coasts long.
+//  SCROLL_BASE_FREQ_A 850    Layer A filter at rest. Lower = deeper rumble.
+//  SCROLL_MAX_FREQ_A  1400   Layer A filter at max speed. Higher = brighter.
+//  SCROLL_BASE_FREQ_B 1750   Layer B filter at rest.
+//  SCROLL_MAX_FREQ_B  2800   Layer B filter at max speed.
+// ============================================================
+(function () {
+
+  const SCROLL_MAX_GAIN    = 0.22;
+  const SCROLL_MAX_VEL     = 80;
+  const SCROLL_FRICTION    = 0.92;
+  const SCROLL_INPUT_ALPHA = 0.20;
+  const SCROLL_STOP_THR    = 0.08;
+  const SCROLL_INPUT_SCALE = 2.2;
+  const SCROLL_BASE_FREQ_A = 850;
+  const SCROLL_BASE_FREQ_B = 1750;
+  const SCROLL_MAX_FREQ_A  = 1400;
+  const SCROLL_MAX_FREQ_B  = 2800;
+
+  const scrollEl = document.getElementById('scroll-body');
+  let fA = null, fB = null, gA = null, gB = null, mGain = null, pan = null;
+  let scrollReady = false;
+
+  function buildNoise(ctx, secs) {
+    const len = Math.floor(ctx.sampleRate * secs);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+  function makeSrc(ctx, buf) {
+    const s = ctx.createBufferSource();
+    s.buffer    = buf;
+    s.loop      = true;
+    s.loopStart = Math.random() * 3; // offset so layers are out of phase (prevents comb filtering)
+    s.loopEnd   = buf.duration;
+    return s;
+  }
+
+  function initScroll() {
+    if (scrollReady) return;
+    const ctx = getAC();
+    // Two different noise buffers = statistically independent layers
+    const bufA = buildNoise(ctx, 4), bufB = buildNoise(ctx, 4);
+    const srcA = makeSrc(ctx, bufA), srcB = makeSrc(ctx, bufB);
+
+    fA = ctx.createBiquadFilter(); fA.type = 'bandpass'; fA.frequency.value = SCROLL_BASE_FREQ_A; fA.Q.value = 1.4;
+    fB = ctx.createBiquadFilter(); fB.type = 'bandpass'; fB.frequency.value = SCROLL_BASE_FREQ_B; fB.Q.value = 2.2;
+    gA = ctx.createGain(); gA.gain.value = 0.6; // body layer slightly dominant
+    gB = ctx.createGain(); gB.gain.value = 0.4;
+    mGain = ctx.createGain(); mGain.gain.value = 0;
+    pan   = ctx.createStereoPanner(); pan.pan.value = 0;
+
+    srcA.connect(fA); fA.connect(gA); gA.connect(mGain);
+    srcB.connect(fB); fB.connect(gB); gB.connect(mGain);
+    mGain.connect(pan); pan.connect(ctx.destination);
+    srcA.start(); srcB.start();
+    scrollReady = true;
+  }
+
+  let inertialVel = 0, rawInputVel = 0, hasInput = false, scrollDir = 0;
+  let smMG = 0, smFA = SCROLL_BASE_FREQ_A, smFB = SCROLL_BASE_FREQ_B;
+  let smGA = 0.6, smGB = 0.4, smPan = 0;
+  const PA = 0.07; // audio param EMA weight
+
+  // Random modulation: slow drift keeps texture from sounding mechanical
+  const MOD_ALPHA = 0.022, MOD_RANGE_F = 120, MOD_RANGE_B = 0.12;
+  let modFA = 0, modFB = 0, modBal = 0;
+
+  scrollEl.addEventListener('wheel', e => {
+    if (!document.getElementById('zone-scroll').classList.contains('visible')) return;
+    initScroll();
+    rawInputVel += Math.abs(e.deltaY) * SCROLL_INPUT_SCALE;
+    scrollDir    = e.deltaY > 0 ? 1 : -1;
+    hasInput     = true;
+  }, { passive: true });
+
+  function sloop() {
+    if (document.getElementById('zone-scroll').classList.contains('visible') && scrollReady) {
+
+      // Stage 1: Blend input into inertial velocity (smooth rising edge)
+      if (hasInput) {
+        inertialVel = inertialVel * (1 - SCROLL_INPUT_ALPHA) + rawInputVel * SCROLL_INPUT_ALPHA;
+        rawInputVel = 0; hasInput = false;
+      } else {
+        // Stage 2: Friction decay (sound coasts after scrolling stops)
+        inertialVel *= SCROLL_FRICTION;
+        if (inertialVel < SCROLL_STOP_THR) { inertialVel = 0; scrollDir = 0; }
+      }
+
+      const norm = Math.min(inertialVel / SCROLL_MAX_VEL, 1);
+
+      // Stage 3: Random texture modulation
+      modFA  = modFA  * (1 - MOD_ALPHA) + (Math.random() - 0.5) * 2 * MOD_ALPHA;
+      modFB  = modFB  * (1 - MOD_ALPHA) + (Math.random() - 0.5) * 2 * MOD_ALPHA;
+      modBal = modBal * (1 - MOD_ALPHA) + (Math.random() - 0.5) * 2 * MOD_ALPHA;
+
+      // Stage 4: Calculate targets
+      const tg  = Math.pow(norm, 0.65) * SCROLL_MAX_GAIN;
+      const tFA = SCROLL_BASE_FREQ_A + (SCROLL_MAX_FREQ_A - SCROLL_BASE_FREQ_A) * Math.pow(norm, 0.7) + modFA * MOD_RANGE_F;
+      const tFB = SCROLL_BASE_FREQ_B + (SCROLL_MAX_FREQ_B - SCROLL_BASE_FREQ_B) * Math.pow(norm, 0.55) + modFB * MOD_RANGE_F;
+      const tGA = 0.60 + modBal * MOD_RANGE_B;
+      const tGB = 0.40 - modBal * MOD_RANGE_B;
+      const tP  = scrollDir * 0.15 * norm;
+
+      // Stage 5: EMA smoothing (asymmetric: fast attack, slow release)
+      const ga = tg > smMG ? 0.10 : 0.05;
+      smMG = smMG + (tg  - smMG) * ga;
+      smFA = smFA + (tFA - smFA) * PA;
+      smFB = smFB + (tFB - smFB) * PA;
+      smGA = smGA + (tGA - smGA) * PA;
+      smGB = smGB + (tGB - smGB) * PA;
+      smPan = smPan + (tP - smPan) * 0.035;
+
+      // Stage 6: Push to Web Audio (setTargetAtTime = third smoothing stage)
+      if (!sfxMuted) {
+        const t = getAC().currentTime, TC = 0.04;
+        mGain.gain.setTargetAtTime(smMG, t, TC);
+        fA.frequency.setTargetAtTime(Math.max(200, smFA), t, TC * 1.5);
+        fB.frequency.setTargetAtTime(Math.max(400, smFB), t, TC * 1.5);
+        gA.gain.setTargetAtTime(Math.max(0.1, smGA), t, TC * 2);
+        gB.gain.setTargetAtTime(Math.max(0.1, smGB), t, TC * 2);
+        pan.pan.setTargetAtTime(smPan, t, TC * 3);
+      } else { mGain.gain.setTargetAtTime(0, getAC().currentTime, 0.05); }
+
+      // HUD
+      document.getElementById('sMVel').style.width = Math.round(norm * 100) + '%';
+      document.getElementById('sVVel').textContent  = inertialVel.toFixed(1);
+      const pA = Math.max(0, Math.round((smFA - SCROLL_BASE_FREQ_A) / (SCROLL_MAX_FREQ_A - SCROLL_BASE_FREQ_A) * 100));
+      document.getElementById('sMTex').style.width  = pA + '%';
+      document.getElementById('sVTex').textContent  = Math.round(smFA) + ' Hz';
+      const arr = document.getElementById('sDirArr');
+      if (scrollDir !== 0 && inertialVel > SCROLL_STOP_THR) {
+        arr.textContent = scrollDir > 0 ? '↓' : '↑'; arr.classList.add('live');
+        document.getElementById('sDirTxt').textContent = scrollDir > 0 ? 'Down' : 'Up';
+      } else { arr.textContent = '↕'; arr.classList.remove('live'); document.getElementById('sDirTxt').textContent = '—'; }
+      document.getElementById('sStatus').textContent = inertialVel > SCROLL_STOP_THR ? (hasInput ? 'Friction' : 'Coasting') : 'Idle';
+      document.getElementById('fric-fill').style.height  = (norm * 100) + '%';
+      document.getElementById('fric-fill').style.opacity = norm > 0.01 ? (0.3 + norm * 0.7) : '0';
+    }
+    requestAnimationFrame(sloop);
+  }
+  sloop();
+
+})(); // end PAPER SCROLL
+
+
+// ============================================================
+//  SFX 4 — TERMINAL SOUNDS (correct + error)
+//  ── Trigger ─────────────────────────────────────────────
+//  playCorrect() → call when an action succeeds
+//  playError()   → call when an action fails
+//
+//  In this demo:
+//    Known command typed → playCorrect()
+//    Unknown command     → playError()
+//
+//  In your portfolio you might use:
+//    Form submitted successfully → playCorrect()
+//    Form validation failed      → playError()
+//    API call succeeded          → playCorrect()
+//    API call failed / 404       → playError()
+//
+//  ── Sound design ─────────────────────────────────────────
+//  Both sounds are real MP3 files (error_final.mp3 and
+//  correct_final.mp3) embedded as base64 inside this HTML.
+//  No external files needed — they work anywhere.
+//
+//  They are decoded once via decodeAudioData() into
+//  AudioBuffers, then replayed from the buffer on each call
+//  (zero re-decode latency after first play).
+//
+//  ── To swap audio files ─────────────────────────────────
+//  1. Get your new file's base64:
+//     python3 -c "import base64; print(base64.b64encode(open('new.mp3','rb').read()).decode())"
+//  2. Replace the ERR_B64 or CORRECT_B64 string below.
+//
+//  ── VOLUME KNOBS ────────────────────────────────────────
+//  TERMINAL_CORRECT_GAIN  1.0   Correct sound volume (0.0–1.0)
+//  TERMINAL_ERROR_GAIN    1.0   Error sound volume (0.0–1.0)
+// ============================================================
+(function () {
+
+  const TERMINAL_CORRECT_GAIN = 1.0; // Correct command sound volume (0.0–1.0)
+  const TERMINAL_ERROR_GAIN   = 1.0; // Error/unknown command sound volume (0.0–1.0)
+
+  let errBuf     = null, errDecoding     = false;
+  let correctBuf = null, correctDecoding = false;
+
+  // ── EMBEDDED AUDIO FILES ────────────────────────────────
+  // These base64 strings ARE the audio files — no external files needed.
+  // To swap: replace the string with your new file's base64 encoding.
+  const ERR_B64     = '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WUpOXLr0XPJTH8JROSlIGzx0tCURXarXRxAiTvOjJdHX1sK2q3mXSsTunFzR888ctmJjF/WhOSUjx61l3zpyesraWXWKrl69LLstGR9tZrn1yZnLWtVmh09tfHFV1em29MztVrtetzS7/ZWraZ8snvVauuOo+lmszb2hKPxBUnR8744jr1kp6iASaF8Drh0+ekpxsSRJRRrSsjSxIYkohyHaE9XLADVf1/ZxW5XV/NlKnZiKXpmK9iNQDFYizmTZ0E9BSCZK6Yi1WrSwEsM06O38dSqNU3ZmMtrYHpKwlKmbSdGT07WuztZqtZMfodGQlE56bVaXPb015mrJJLLULuUEIdoelkkg//vSRJoPZol+ooEvY1LNL+WRYZDOAEACAAyAACLQPw1Y8T6xifTrK1b1tmssuzJ0DZxd8nQlRra2XNkk97zkmy0uaXJT3pnVp7Rd82rWs4ZHz3zNtdz69pye1ZiOlRy9WfrlrQmTbs4dPLdXCkUCHogCIWmnjAQmHCXlt///UkipUV4LhhtGpsMaIKjNFY7mxArrGiuSpOoSUDWCEh8ieEvMRNrMbW8/etxWJSrpeY4k7O3W7OUMFBkdspgoMjs5TFBAlI7Pp+5URfRURUXRURSO3///xnT6DLS+v84zmm5oz1iUqKSSneR4k+t6+t6nZVEX0wj2T6oc3U8V9BbYF/7PU8iUiwM8Tes4znFbRXzCukiuWqWMqTKFtCBAuQpxCFW0LSpOofI5iBE/OhHtDua1c/f///+M0nZU8pV9kn18VhQ1lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=';
+  const CORRECT_B64 = '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';
+
+  // base64 string → ArrayBuffer (required by decodeAudioData)
+  function b64ToAB(b64) {
+    const bin = atob(b64);
+    const ab  = new ArrayBuffer(bin.length);
+    const v   = new Uint8Array(ab);
+    for (let i = 0; i < bin.length; i++) v[i] = bin.charCodeAt(i);
+    return ab;
+  }
+
+  // Lazy decode with callback: decodes once on first call, caches the buffer
+  function ensureErrBuf(cb) {
+    if (errBuf) { cb(errBuf); return; }
+    if (errDecoding) { setTimeout(() => ensureErrBuf(cb), 80); return; }
+    errDecoding = true;
+    getAC().decodeAudioData(b64ToAB(ERR_B64),
+      buf => { errBuf = buf; errDecoding = false; cb(buf); },
+      e   => { console.warn('Error sound decode failed:', e); errDecoding = false; }
+    );
+  }
+
+  function ensureCorrectBuf(cb) {
+    if (correctBuf) { cb(correctBuf); return; }
+    if (correctDecoding) { setTimeout(() => ensureCorrectBuf(cb), 80); return; }
+    correctDecoding = true;
+    getAC().decodeAudioData(b64ToAB(CORRECT_B64),
+      buf => { correctBuf = buf; correctDecoding = false; cb(buf); },
+      e   => { console.warn('Correct sound decode failed:', e); correctDecoding = false; }
+    );
+  }
+
+  // ── PUBLIC API ────────────────────────────────────────────
+  // Call these from anywhere in your portfolio code:
+
+  // playError() — call when something fails (unknown command, validation error, etc.)
+  function playError() {
+    if (sfxMuted) return;
+    const ctx = getAC();
+    ensureErrBuf(buf => {
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const g   = ctx.createGain(); g.gain.value = TERMINAL_ERROR_GAIN;
+      src.connect(g); g.connect(ctx.destination); src.start(ctx.currentTime);
+    });
+    flashTab('tab-terminal');
+  }
+
+  // playCorrect() — call when something succeeds (valid command, form sent, etc.)
+  function playCorrect() {
+    if (sfxMuted) return;
+    const ctx = getAC();
+    ensureCorrectBuf(buf => {
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const g   = ctx.createGain(); g.gain.value = TERMINAL_CORRECT_GAIN;
+      src.connect(g); g.connect(ctx.destination); src.start(ctx.currentTime);
+    });
+  }
+
+  // Pre-warm: decode both buffers in background after first interaction
+  // so the first actual play is instant (no decode delay)
+  setTimeout(() => { if (ac) ensureErrBuf(() => {}); },     500);
+  setTimeout(() => { if (ac) ensureCorrectBuf(() => {}); }, 600);
+
+  // ── Terminal command registry ────────────────────────────
+  const cmds = {
+    help:   () => [{ text: 'Commands:', cls: 'ti' }, { text: '  help  echo  date  clear  whoami  ls  pwd  uname' }],
+    echo:   (a) => [{ text: a.join(' ') || '' }],
+    date:   ()  => [{ text: new Date().toString() }],
+    clear:  ()  => { document.getElementById('term-out').innerHTML = ''; return []; },
+    whoami: ()  => [{ text: 'user' }],
+    ls:     ()  => [{ text: 'documents/   downloads/   projects/   readme.txt   .bashrc' }],
+    pwd:    ()  => [{ text: '/home/user' }],
+    uname:  ()  => [{ text: 'SoundLayers 1.0.0 Web Terminal' }],
+  };
+
+  function handle(raw) {
+    const s = raw.trim(); if (!s) return;
+    const out = document.getElementById('term-out');
+    add('user@terminal:~$ ' + s, 'tp');
+    const [cmd, ...args] = s.split(/\s+/);
+    if (cmds[cmd]) {
+      try {
+        (cmds[cmd](args) || []).forEach(r => add(r.text, r.cls || ''));
+        playCorrect(); // ← success sound
+      } catch (e) {
+        playError();   // ← error sound on exception
+        add('Error: ' + e.message, 'te');
+      }
+    } else {
+      playError();     // ← error sound on unknown command
+      add('command not found: ' + cmd, 'te');
+    }
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function add(text, cls) {
+    const d = document.createElement('div');
+    d.className  = 'tl' + (cls ? ' ' + cls : '');
+    d.textContent = text;
+    document.getElementById('term-out').appendChild(d);
+  }
+
+  document.getElementById('term-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { const v = e.target.value; e.target.value = ''; handle(v); }
+  });
+
+})(); // end TERMINAL SOUNDS
+
+
+// ============================================================
+//  SFX 5 — DIGITAL PULSE (navigation / link click sound)
+//  ── Trigger ─────────────────────────────────────────────
+//  Fires on click of the pulse button or any project link.
+//  In your portfolio: attach to nav links, project cards,
+//  CTA buttons, or any element you want to "sonify".
+//
+//  ── Sound design ─────────────────────────────────────────
+//  Two sine tones in quick succession:
+//    Tone 1: 580 Hz (onset at t=0,     duration 70ms)
+//    Tone 2: 740 Hz (onset at t=55ms,  duration 70ms)
+//  Both have a 7ms linear attack to prevent clicks,
+//  then exponential decay for a natural tail.
+//  The slight overlap creates the "digital pulse" character.
+//
+//  ── To integrate in your portfolio ─────────────────────
+//  Option A — specific elements:
+//    document.querySelectorAll('a.nav-link, .project-card').forEach(el => {
+//      el.addEventListener('click', playDigitalPulse);
+//    });
+//
+//  Option B — all links on the page:
+//    document.querySelectorAll('a').forEach(el => {
+//      el.addEventListener('click', playDigitalPulse);
+//    });
+//
+//  ── VOLUME & TONE KNOBS ─────────────────────────────────
+//  PULSE_TONE1_HZ     580    First tone pitch. Lower = deeper ping.
+//  PULSE_TONE2_HZ     740    Second tone pitch. Higher = brighter follow-up.
+//  PULSE_TONE1_GAIN   0.14   First tone volume. Keep under 0.25 to avoid harshness.
+//  PULSE_TONE2_GAIN   0.12   Second tone volume (slightly quieter by default).
+//  PULSE_TONE2_DELAY  0.055  Seconds before second tone fires (the "pulse" stagger).
+//  PULSE_DURATION     0.07   Duration of each tone in seconds. Longer = more resonant.
+// ============================================================
+(function () {
+
+  const PULSE_TONE1_HZ    = 580;
+  const PULSE_TONE2_HZ    = 740;
+  const PULSE_TONE1_GAIN  = 0.14;
+  const PULSE_TONE2_GAIN  = 0.12;
+  const PULSE_TONE2_DELAY = 0.055;
+  const PULSE_DURATION    = 0.07;
+
+  // The core sound function — call this wherever you want the pulse
+  function playDigitalPulse() {
+    if (sfxMuted) return;
+    const ctx = getAC(), now = ctx.currentTime;
+
+    function tone(freq, start, dur, vol) {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.setValueAtTime(freq, start);
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(vol, start + 0.007); // 7ms attack (no click)
+      g.gain.exponentialRampToValueAtTime(0.001, start + dur); // natural decay
+      osc.connect(g); g.connect(ctx.destination); osc.start(start); osc.stop(start + dur + 0.01);
+    }
+
+    tone(PULSE_TONE1_HZ, now,                     PULSE_DURATION, PULSE_TONE1_GAIN);
+    tone(PULSE_TONE2_HZ, now + PULSE_TONE2_DELAY,  PULSE_DURATION, PULSE_TONE2_GAIN);
+  }
+
+  // Waveform bar visualiser (32 bars, idle breathing + fire animation)
+  const vis  = document.getElementById('pulseVis');
+  const BC   = 32;
+  const bars = [];
+  for (let i = 0; i < BC; i++) {
+    const b = document.createElement('div'); b.className = 'pb';
+    vis.appendChild(b); bars.push(b);
+  }
+
+  let af, firing = false;
+
+  // Idle: slow breathing wave
+  function idleAnimate(t) {
+    if (firing) return;
+    bars.forEach((b, i) => {
+      const w = Math.sin(t * 0.0018 + i * 0.45) * 0.5 + 0.5;
+      b.style.height = (3 + w * 4) + 'px'; b.style.background = 'var(--muted)';
+    });
+    af = requestAnimationFrame(idleAnimate);
+  }
+  idleAnimate(0);
+
+  // Fire: two colour waves matching the two tones
+  function fireAnim() {
+    firing = true; cancelAnimationFrame(af);
+    const start = performance.now(), D = 200;
+    function a(now) {
+      const e = now - start, t = Math.min(e / D, 1);
+      bars.forEach((b, i) => {
+        const n  = i / (BC - 1);
+        const p1 = Math.max(0, 1 - Math.abs(n * 2 - t * 2.8)) * Math.max(0, 1 - t * 1.6);
+        const t2 = Math.max(0, e - 55) / 145;
+        const p2 = Math.max(0, 1 - Math.abs((n - 0.3) * 2.5 - t2 * 2.5)) * Math.max(0, 1 - t2 * 1.5);
+        const c  = Math.max(p1, p2);
+        b.style.height     = (4 + c * 36) + 'px';
+        b.style.background = p2 > p1 ? 'var(--purple)' : (c > 0.05 ? 'var(--cyan)' : 'var(--muted)');
+      });
+      if (e < D + 60) requestAnimationFrame(a);
+      else { firing = false; requestAnimationFrame(idleAnimate); }
+    }
+    requestAnimationFrame(a);
+  }
+
+  // Wire up the pulse button and project links
+  const btn = document.getElementById('pulseBtn');
+  function fire() {
+    playDigitalPulse(); fireAnim();
+    btn.classList.add('firing'); setTimeout(() => btn.classList.remove('firing'), 450);
+    flashTab('tab-pulse');
+  }
+  btn.addEventListener('click', fire);
+  ['pl1', 'pl2', 'pl3'].forEach(id => document.getElementById(id).addEventListener('click', fire));
+
+})(); // end DIGITAL PULSE
+
+
+
+// ============================================================
+//  SFX 6 — VOID STRIKER GAME
+//  ── What it does ──────────────────────────────────────────
+//  A fully playable mini shooter embedded as a tab.
+//  Two synthesised game sounds run through the SAME shared
+//  AudioContext as all other SFX — proving they all coexist
+//  with the BG music without any conflict.
+//
+//  ── Sound design ─────────────────────────────────────────
+//  Laser: Sawtooth oscillator, 880Hz → 220Hz pitch sweep over
+//         90ms. Highpass filter keeps it crisp. 100ms total.
+//
+//  Explosion: White noise burst (220ms) through a lowpass
+//             filter that sweeps 800Hz → 200Hz. Punchy attack
+//             at gain 0.55, exponential fade.
+//
+//  ── Controls ────────────────────────────────────────────
+//  WASD  — move ship       (only active when this tab is open)
+//  SPACE — fire laser      (only active when this tab is open)
+//  [ FIRE ] button — also fires on click / touch
+//
+//  ── VOLUME KNOBS ────────────────────────────────────────
+//  LASER_GAIN      0.28   Laser shot volume (0.0–1.0)
+//  EXPLOSION_GAIN  0.55   Explosion volume (0.0–1.0)
+//  LASER_FREQ_START 880   Laser pitch start (Hz). Higher = shriller.
+//  LASER_FREQ_END   220   Laser pitch end (Hz). Lower = more "pew pew".
+//  LASER_DURATION   0.10  Laser sound duration (seconds).
+//  EXPL_DURATION    0.22  Explosion sound duration (seconds).
+//  EXPL_LP_START    800   Explosion lowpass start (Hz). Higher = more treble.
+//  EXPL_LP_END      200   Explosion lowpass end (Hz). Lower = more thuddy.
+// ============================================================
+(function () {
+
+  // ── GAME SOUND KNOBS ──
+  const LASER_GAIN        = 0.28;   // Laser shot volume (0.0–1.0)
+  const EXPLOSION_GAIN    = 0.55;   // Explosion volume (0.0–1.0)
+  const LASER_FREQ_START  = 880;    // Laser pitch start Hz. Higher = shriller.
+  const LASER_FREQ_END    = 220;    // Laser pitch end Hz. Lower = deeper sweep.
+  const LASER_DURATION    = 0.10;   // Laser sound duration in seconds.
+  const EXPL_DURATION     = 0.22;   // Explosion duration in seconds.
+  const EXPL_LP_START     = 800;    // Explosion lowpass filter start Hz.
+  const EXPL_LP_END       = 200;    // Explosion lowpass filter end Hz.
+
+  // ── DOM refs ──
+  const gameCanvas   = document.getElementById('gameCanvas');
+  const gc           = gameCanvas.getContext('2d');
+  const gameFlash    = document.getElementById('gameFlash');
+  const gameFireBtn  = document.getElementById('gameFireBtn');
+  const gameBody     = document.getElementById('game-body');
+  const inactiveMsg  = document.getElementById('game-inactive-msg');
+
+  const GW = gameCanvas.width;
+  const GH = gameCanvas.height;
+
+  // ── GAME SOUNDS (use shared getAC() — same context as all other SFX) ──
+
+  function playLaser() {
+    if (sfxMuted) return;
+    const ctx = getAC(), now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(LASER_FREQ_START, now);
+    osc.frequency.exponentialRampToValueAtTime(LASER_FREQ_END, now + 0.09);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(LASER_GAIN, now + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + LASER_DURATION);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(400, now);
+    osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + LASER_DURATION + 0.02);
+    animateGameBar('gameLaserBar', 100, 100);
+    flashTab('tab-game');
+  }
+
+  function playExplosion() {
+    if (sfxMuted) return;
+    const ctx = getAC(), now = ctx.currentTime;
+    const bufLen = Math.floor(ctx.sampleRate * EXPL_DURATION);
+    const buf    = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data   = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const lp  = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(EXPL_LP_START, now);
+    lp.frequency.exponentialRampToValueAtTime(EXPL_LP_END, now + EXPL_DURATION);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(EXPLOSION_GAIN, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + EXPL_DURATION);
+    src.connect(lp); lp.connect(gain); gain.connect(ctx.destination);
+    src.start(now); src.stop(now + EXPL_DURATION);
+    animateGameBar('gameExplBar', 100, 220);
+    flashTab('tab-game');
+  }
+
+  function animateGameBar(id, peak, dur) {
+    const bar = document.getElementById(id);
+    bar.style.width = peak + '%';
+    setTimeout(() => {
+      bar.style.transition = `width ${dur}ms linear`;
+      bar.style.width = '0%';
+      setTimeout(() => { bar.style.transition = ''; }, dur);
+    }, 40);
+  }
+
+  // ── Flash effect ──
+  let flashTO = null;
+  function triggerFlash() {
+    gameFlash.classList.add('active');
+    clearTimeout(flashTO);
+    flashTO = setTimeout(() => gameFlash.classList.remove('active'), 80);
+  }
+
+  // ── Game state ──
+  const gKeys = { w: false, a: false, s: false, d: false };
+  const SPEED = 4;
+  const gs = {
+    score: 0, kills: 0,
+    player: { x: GW / 2, y: GH - 36 },
+    projectiles: [], enemies: [], particles: [],
+    lastSpawn: 0, spawnInterval: 1800, cooldown: 0,
+    running: false,  // only process game input when tab is active
+  };
+
+  function shoot() {
+    if (gs.cooldown > 0 || !gs.running) return;
+    gs.projectiles.push({ x: gs.player.x, y: gs.player.y - 10, trail: [] });
+    playLaser();
+    gs.cooldown = 10;
+  }
+
+  function spawnEnemy() {
+    const size = 20 + Math.random() * 14;
+    gs.enemies.push({
+      x: 20 + Math.random() * (GW - 40), y: -size, size,
+      speed: 0.8 + Math.random() * 1.0,
+      hue: Math.random() < 0.5 ? 0 : 180 + Math.random() * 60,
+      flash: 0,
+    });
+  }
+
+  function spawnParticles(x, y, color) {
+    for (let i = 0; i < 12; i++) {
+      const a = Math.random() * Math.PI * 2, spd = 1 + Math.random() * 3.5;
+      gs.particles.push({
+        x, y, vx: Math.cos(a)*spd, vy: Math.sin(a)*spd,
+        life: 1.0, decay: 0.025 + Math.random() * 0.03,
+        size: 1.5 + Math.random() * 3, color,
+      });
+    }
+  }
+
+  function checkCollisions() {
+    for (let p = gs.projectiles.length - 1; p >= 0; p--) {
+      const proj = gs.projectiles[p];
+      for (let e = gs.enemies.length - 1; e >= 0; e--) {
+        const en = gs.enemies[e], h = en.size / 2;
+        if (proj.x > en.x-h && proj.x < en.x+h && proj.y > en.y-h && proj.y < en.y+h) {
+          playExplosion(); triggerFlash();
+          spawnParticles(en.x, en.y, `hsl(${en.hue},100%,65%)`);
+          spawnParticles(en.x, en.y, '#ffffff');
+          gs.enemies.splice(e, 1); gs.projectiles.splice(p, 1);
+          gs.score += 100; gs.kills += 1;
+          document.getElementById('gameScore').textContent = String(gs.score).padStart(3,'0');
+          document.getElementById('gameKills').textContent = String(gs.kills).padStart(3,'0');
+          break;
+        }
+      }
+    }
+  }
+
+  // ── Drawing ──
+  function drawGrid() {
+    gc.strokeStyle = 'rgba(0,212,255,0.04)'; gc.lineWidth = 1;
+    for (let x = 0; x < GW; x += 40) { gc.beginPath(); gc.moveTo(x,0); gc.lineTo(x,GH); gc.stroke(); }
+    for (let y = 0; y < GH; y += 40) { gc.beginPath(); gc.moveTo(0,y); gc.lineTo(GW,y); gc.stroke(); }
+  }
+
+  function drawPlayer(p) {
+    gc.save(); gc.translate(p.x, p.y);
+    const g = gc.createRadialGradient(0,8,0,0,8,18);
+    g.addColorStop(0,'rgba(0,212,255,0.4)'); g.addColorStop(1,'rgba(0,212,255,0)');
+    gc.fillStyle = g; gc.beginPath(); gc.ellipse(0,8,18,14,0,0,Math.PI*2); gc.fill();
+    gc.fillStyle = '#00d4ff';
+    gc.beginPath(); gc.moveTo(0,-14); gc.lineTo(-12,8); gc.lineTo(-5,5);
+    gc.lineTo(0,9); gc.lineTo(5,5); gc.lineTo(12,8); gc.closePath(); gc.fill();
+    gc.fillStyle = '#ffffff44'; gc.beginPath(); gc.ellipse(0,-4,3.5,5,0,0,Math.PI*2); gc.fill();
+    gc.strokeStyle = '#ffffff33'; gc.lineWidth = 1;
+    gc.beginPath(); gc.moveTo(0,-14); gc.lineTo(-12,8); gc.moveTo(0,-14); gc.lineTo(12,8); gc.stroke();
+    gc.restore();
+  }
+
+  function drawProjectile(proj) {
+    for (let i = 0; i < proj.trail.length; i++) {
+      const t = proj.trail[i], a = (i / proj.trail.length) * 0.4;
+      gc.fillStyle = `rgba(0,212,255,${a})`; gc.beginPath(); gc.arc(t.x,t.y,1.5,0,Math.PI*2); gc.fill();
+    }
+    gc.save(); gc.shadowColor = '#00d4ff'; gc.shadowBlur = 8;
+    gc.fillStyle = '#ffffff'; gc.beginPath(); gc.arc(proj.x,proj.y,2.5,0,Math.PI*2); gc.fill();
+    gc.fillStyle = '#00d4ff'; gc.beginPath(); gc.roundRect(proj.x-1.5,proj.y-7,3,10,2); gc.fill();
+    gc.restore();
+  }
+
+  function drawEnemy(en) {
+    const h = en.size / 2;
+    gc.save(); gc.translate(en.x, en.y);
+    const g = gc.createRadialGradient(0,0,0,0,0,h*1.5);
+    g.addColorStop(0, `hsla(${en.hue},100%,60%,0.3)`); g.addColorStop(1, `hsla(${en.hue},100%,60%,0)`);
+    gc.fillStyle = g; gc.beginPath(); gc.arc(0,0,h*1.5,0,Math.PI*2); gc.fill();
+    gc.shadowColor = `hsl(${en.hue},100%,60%)`; gc.shadowBlur = en.flash > 0 ? 20 : 6;
+    gc.fillStyle = en.flash > 0 ? '#ffffff' : `hsl(${en.hue},90%,55%)`;
+    gc.fillRect(-h,-h,en.size,en.size);
+    gc.fillStyle = `hsla(${en.hue},80%,30%,0.7)`;
+    gc.fillRect(-h*0.5,-h*0.5,en.size*0.5,en.size*0.5);
+    gc.restore();
+  }
+
+  // ── Game loop ──
+  let lastGT = 0, gFrame = 0;
+  function gameLoop(ts) {
+    const isVisible = document.getElementById('zone-game').classList.contains('visible');
+
+    if (isVisible) {
+      // Mark running so keyboard input works
+      gs.running = true;
+      inactiveMsg.style.display = 'none';
+
+      gc.fillStyle = '#020a10'; gc.fillRect(0, 0, GW, GH);
+      drawGrid();
+
+      // Spawn
+      if (ts - gs.lastSpawn > gs.spawnInterval) {
+        spawnEnemy(); gs.lastSpawn = ts;
+        gs.spawnInterval = Math.max(600, gs.spawnInterval - 8);
+      }
+      if (gs.cooldown > 0) gs.cooldown--;
+
+      // Projectiles
+      for (let i = gs.projectiles.length - 1; i >= 0; i--) {
+        const p = gs.projectiles[i];
+        p.trail.push({x: p.x, y: p.y});
+        if (p.trail.length > 6) p.trail.shift();
+        p.y -= 7;
+        if (p.y < -10) { gs.projectiles.splice(i, 1); continue; }
+        drawProjectile(p);
+      }
+
+      // Enemies
+      for (let i = gs.enemies.length - 1; i >= 0; i--) {
+        const en = gs.enemies[i];
+        en.y += en.speed;
+        if (en.flash > 0) en.flash--;
+        if (en.y > GH + en.size) { gs.enemies.splice(i, 1); continue; }
+        drawEnemy(en);
+      }
+
+      // Particles
+      for (let i = gs.particles.length - 1; i >= 0; i--) {
+        const pt = gs.particles[i];
+        pt.x += pt.vx; pt.y += pt.vy; pt.vx *= 0.93; pt.vy *= 0.93;
+        pt.life -= pt.decay;
+        if (pt.life <= 0) { gs.particles.splice(i, 1); continue; }
+        gc.save(); gc.globalAlpha = pt.life; gc.fillStyle = pt.color;
+        gc.shadowColor = pt.color; gc.shadowBlur = 4;
+        gc.beginPath(); gc.arc(pt.x, pt.y, pt.size * pt.life, 0, Math.PI*2); gc.fill();
+        gc.restore();
+      }
+
+      checkCollisions();
+
+      // Move player
+      const pl = gs.player;
+      if (gKeys.a) pl.x = Math.max(16, pl.x - SPEED);
+      if (gKeys.d) pl.x = Math.min(GW - 16, pl.x + SPEED);
+      if (gKeys.w) pl.y = Math.max(16, pl.y - SPEED);
+      if (gKeys.s) pl.y = Math.min(GH - 16, pl.y + SPEED);
+      drawPlayer(gs.player);
+
+      // Hint text
+      if (gs.kills === 0 && gFrame % 60 < 30) {
+        gc.fillStyle = 'rgba(0,212,255,0.35)';
+        gc.font = '10px "Share Tech Mono", monospace';
+        gc.textAlign = 'center';
+        gc.fillText('[ WASD ] move  ·  [ SPACE ] fire', GW/2, GH - 10);
+      }
+      gFrame++;
+    } else {
+      gs.running = false;
+    }
+
+    requestAnimationFrame(gameLoop);
+  }
+  requestAnimationFrame(gameLoop);
+
+  // ── Keyboard input (scoped: only fires when game zone is active) ──
+  document.addEventListener('keydown', e => {
+    if (!gs.running) return; // ignore when on other tabs
+    if (e.code === 'Space') { e.preventDefault(); shoot(); }
+    if (e.code === 'KeyW')  { e.preventDefault(); gKeys.w = true; }
+    if (e.code === 'KeyA')  { e.preventDefault(); gKeys.a = true; }
+    if (e.code === 'KeyS')  { e.preventDefault(); gKeys.s = true; }
+    if (e.code === 'KeyD')  { e.preventDefault(); gKeys.d = true; }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.code === 'KeyW') gKeys.w = false;
+    if (e.code === 'KeyA') gKeys.a = false;
+    if (e.code === 'KeyS') gKeys.s = false;
+    if (e.code === 'KeyD') gKeys.d = false;
+  });
+
+  // ── Fire button (click + touch) ──
+  gameFireBtn.addEventListener('click', shoot);
+  gameFireBtn.addEventListener('touchstart', e => { e.preventDefault(); shoot(); });
+
+})(); // end VOID STRIKER
+
+</script>
+</body>
+</html>

@@ -17,6 +17,32 @@ function initTerminalBridge() {
         const cmd = parts[0].toLowerCase();
         const args = parts.slice(1);
 
+        const knownCommands = new Set([
+            'help',
+            'ls',
+            'cd',
+            'cat',
+            'pwd',
+            'projects',
+            'skills',
+            'contact',
+            'about',
+            'philosophy',
+            'case',
+            'system',
+            'collab',
+            'github',
+            'linkedin',
+            'play',
+            'blog',
+            'clear',
+            'whoami',
+            'neofetch',
+            'sudo',
+            'logs'
+        ]);
+        const isKnownCommand = !!cmd && knownCommands.has(cmd);
+
         switch (cmd) {
             case 'help':
                 term.echo(`[[;#43BF6D;]COMMANDS:]
@@ -374,6 +400,14 @@ function initTerminalBridge() {
 
             default:
                 term.echo(`[[;#FF5F56;]Command not found: ${cmd}.] Type [[;#43BF6D;]help] for available commands.`);
+        }
+
+        // Terminal sound mapping:
+        // - recognized command -> success
+        // - unknown command -> error
+        if (cmd && window.PortfolioSound) {
+            if (isKnownCommand) window.PortfolioSound.playTerminalSuccess();
+            else window.PortfolioSound.playTerminalError();
         }
     }, {
         greetings: `[[;#43BF6D;]╔══════════════════════════════════════════╗

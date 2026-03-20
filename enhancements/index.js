@@ -18,11 +18,11 @@ window.addEventListener('load', () => {
     setTimeout(() => {
         try {
             initMicrointeractions();
-            initTerminalEnhanced();
+            // initTerminalEnhanced(); // Disabled for classic view
             initPlaygrounds();
             initArchitectureMap();
             initHero3D();
-            initReproducibilityPanel();
+            // initReproducibilityPanel(); // Disabled for classic view
             initTelemetryConfig();
         } catch (e) {
             console.error('Enhancement initialization error:', e);

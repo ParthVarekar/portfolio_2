@@ -256,6 +256,182 @@
     <div class="game-overlay" id="systems-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Systems Visualizer">
     </div>
 
+    <!-- ═══ CINEMATIC SOUND TOGGLES ═══ -->
+    <style>
+        .sound-toggles-container {
+            position: fixed;
+            top: 50px;
+            right: 16px;
+            z-index: 10001;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .sound-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .sound-toggle-row:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        .sound-toggle-row.active {
+            border-color: rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+        .sound-toggle-label {
+            font-family: var(--font-mono, 'Fira Code', monospace);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.3);
+            transition: color 0.3s, text-shadow 0.3s;
+            min-width: 22px;
+        }
+        .sound-toggle-row.active .sound-toggle-label {
+            color: var(--accent, #00F0FF);
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+        }
+        .sound-toggle-track {
+            position: relative;
+            width: 36px;
+            height: 18px;
+            border-radius: 9px;
+            background: #27272a;
+            transition: background-color 0.3s;
+            flex-shrink: 0;
+        }
+        .sound-toggle-row.active .sound-toggle-track {
+            background: #064e3b;
+        }
+        .sound-toggle-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #52525b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                        background-color 0.3s,
+                        box-shadow 0.3s;
+        }
+        .sound-toggle-thumb::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            width: 6px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            filter: blur(1px);
+        }
+        .sound-toggle-row.active .sound-toggle-thumb {
+            transform: translateX(18px);
+            background: #34d399;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+        }
+        .sound-toggle-vol {
+            width: 60px;
+            height: 3px;
+            accent-color: var(--accent, #00F0FF);
+            opacity: 0.4;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .sound-toggle-row.active .sound-toggle-vol {
+            opacity: 1;
+        }
+        .sound-toggle-track:active .sound-toggle-thumb {
+            transform: scale(0.9);
+        }
+        .sound-toggle-row.active .sound-toggle-track:active .sound-toggle-thumb {
+            transform: translateX(18px) scale(0.9);
+        }
+    </style>
+
+    <div id="sound-settings" class="sound-toggles-container">
+        <!-- BG Music Toggle -->
+        <div class="sound-toggle-row active" id="bg-toggle-row">
+            <span class="sound-toggle-label">BG</span>
+            <div class="sound-toggle-track" id="bg-toggle">
+                <div class="sound-toggle-thumb"></div>
+            </div>
+            <input id="bgVol" type="range" min="0" max="1" step="0.01" value="0.25" class="sound-toggle-vol">
+        </div>
+        <!-- SFX Toggle -->
+        <div class="sound-toggle-row active" id="sfx-toggle-row">
+            <span class="sound-toggle-label">SFX</span>
+            <div class="sound-toggle-track" id="sfx-toggle">
+                <div class="sound-toggle-thumb"></div>
+            </div>
+            <input id="sfxVol" type="range" min="0" max="1" step="0.01" value="1.00" class="sound-toggle-vol">
+        </div>
+    </div>
+
+    <!-- Sound toggle wiring -->
+    <script>
+    (function() {
+        function wireToggle(rowId, sliderId) {
+            var row = document.getElementById(rowId);
+            var slider = document.getElementById(sliderId);
+            if (!row || !slider) return;
+
+            var track = row.querySelector('.sound-toggle-track');
+            var prevVal = parseFloat(slider.value);
+
+            function toggle(e) {
+                e.stopPropagation();
+                var isOn = row.classList.contains('active');
+                if (isOn) {
+                    prevVal = parseFloat(slider.value) || prevVal;
+                    slider.value = 0;
+                    row.classList.remove('active');
+                } else {
+                    slider.value = prevVal > 0.01 ? prevVal : 0.3;
+                    row.classList.add('active');
+                }
+                slider.dispatchEvent(new Event('input'));
+            }
+
+            track.addEventListener('click', toggle);
+            row.querySelector('.sound-toggle-label').addEventListener('click', toggle);
+
+            slider.addEventListener('input', function() {
+                var val = parseFloat(slider.value);
+                if (val < 0.01) {
+                    row.classList.remove('active');
+                } else {
+                    row.classList.add('active');
+                }
+            });
+
+            slider.addEventListener('pointerdown', function(e) { e.stopPropagation(); });
+            slider.addEventListener('click', function(e) { e.stopPropagation(); });
+        }
+
+        wireToggle('bg-toggle-row', 'bgVol');
+        wireToggle('sfx-toggle-row', 'sfxVol');
+    })();
+    </script>
+
+    <!-- ═══ SOUND ENGINE ═══ -->
+    <audio id="bgAudio" loop></audio>
+    <script src="sound/sound-engine.js"></script>
+
     <!-- ═══ SCRIPTS (order matters) ═══ -->
     <script type="module" src="workspace/ide.js"></script>
     <script type="module" src="workspace/terminal-bridge.js"></script>

@@ -48,14 +48,31 @@ export function startHexInvaders(canvas, onScore, onGameOver) {
         });
     }
 
-    // Input
-    function onKeyDown(e) { keys[e.key] = true; }
-    function onKeyUp(e) { keys[e.key] = false; }
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
+    // Keys that the game consumes — prevent them from reaching the terminal input
+    var GAME_KEYS = { 'a': 1, 'd': 1, 'w': 1, 's': 1, ' ': 1,
+                      'ArrowLeft': 1, 'ArrowRight': 1, 'ArrowUp': 1, 'ArrowDown': 1 };
+
+    function onKeyDown(e) {
+        keys[e.key] = true;
+        // Absorb ALL keydowns to prevent bubbling to terminal when active
+        if (gameActive && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }
+    function onKeyUp(e) {
+        keys[e.key] = false;
+        if (gameActive && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }
+    document.addEventListener('keydown', onKeyDown, true);
+    document.addEventListener('keyup', onKeyUp, true);
 
     // Shoot
     function shoot() {
+        if (window.PortfolioSound) window.PortfolioSound.playGameLaser();
         bullets.push({
             x: player.x,
             y: H - 40,
@@ -90,6 +107,7 @@ export function startHexInvaders(canvas, onScore, onGameOver) {
                 const a = aliens[j];
                 const b = bullets[i];
                 if (b && Math.abs(b.x - a.x) < a.w / 2 + 4 && Math.abs(b.y - a.y) < a.h / 2 + 4) {
+                    if (window.PortfolioSound) window.PortfolioSound.playGameExplosion();
                     if (a.color === targetColor) {
                         score += 10 * level;
                         onScore(score);
