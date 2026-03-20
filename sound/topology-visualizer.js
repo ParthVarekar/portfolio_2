@@ -1,10 +1,10 @@
 // sound/topology-visualizer.js — Interactive Architecture Traffic Visualizer
 
-(function() {
+(function () {
     const canvas = document.getElementById('topo-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
+
     // Scale canvas safely
     function resize() {
         const dpr = window.devicePixelRatio || 1;
@@ -90,16 +90,16 @@
 
     let currentType = 'reboxed';
     let particles = [];
-    
+
     function getNodes(layout) {
         return (window.innerWidth < 768 && layout.mobileNodes) ? layout.mobileNodes : layout.nodes;
     }
 
-    window.switchTopology = function(type) {
+    window.switchTopology = function (type) {
         if (!designs[type]) return;
         currentType = type;
         particles = []; // Flush old coordinates
-        
+
         // Update button UI state setup
         document.querySelectorAll('.topo-btn').forEach(btn => {
             btn.classList.remove('active', 'border-accent', 'text-accent');
@@ -158,7 +158,7 @@
             const from = nodes.find(n => n.id === p.edge.from);
             const to = nodes.find(n => n.id === p.edge.to);
             if (!from || !to) continue;
-            
+
             p.progress += p.speed;
             if (p.progress >= 1) {
                 particles.splice(i, 1);
@@ -183,13 +183,13 @@
             ctx.strokeStyle = node.color;
             ctx.lineWidth = 1.5;
             const w = 90, h = 34; // slightly slimmer for mobile compatibility
-            ctx.fillRect(node.x - w/2, node.y - h/2, w, h);
-            ctx.strokeRect(node.x - w/2, node.y - h/2, w, h);
+            ctx.fillRect(node.x - w / 2, node.y - h / 2, w, h);
+            ctx.strokeRect(node.x - w / 2, node.y - h / 2, w, h);
 
             // Shadow glow
             ctx.strokeStyle = `rgba(255, 255, 255, 0.02)`;
             ctx.lineWidth = 4;
-            ctx.strokeRect(node.x - w/2 - 2, node.y - h/2 - 2, w + 4, h + 4);
+            ctx.strokeRect(node.x - w / 2 - 2, node.y - h / 2 - 2, w + 4, h + 4);
 
             // label
             ctx.font = 'bold 9px "Fira Code", monospace';
