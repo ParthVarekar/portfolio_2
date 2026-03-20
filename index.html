@@ -332,7 +332,7 @@
                     </p>
                     <div class="mt-12 fade-up">
                         <button
-                            onclick="document.getElementById('cmd-input').focus(); document.getElementById('section-terminal').scrollIntoView({behavior:'smooth'})"
+                            onclick="document.getElementById('section-terminal').scrollIntoView({behavior:'smooth'}); setTimeout(() => { if (typeof $ !== 'undefined') $('.terminal').click(); }, 600);"
                             class="interactive group relative px-8 py-4 bg-white text-black font-bold uppercase tracking-wider overflow-hidden">
                             <span class="relative z-10">Access Terminal</span>
                             <div
@@ -683,13 +683,13 @@
                         </p>
                         <div class="font-mono text-sm text-gray-500 space-y-2">
                             <p>> Try command: <span class="text-accent interactive cursor-pointer"
-                                    onclick="document.getElementById('cmd-input').value='projects'; document.getElementById('cmd-input').focus();">projects</span>
+                                    onclick="if (typeof $ !== 'undefined') { $('.terminal').terminal().exec('projects'); }">projects</span>
                             </p>
                             <p>> Try command: <span class="text-accent interactive cursor-pointer"
-                                    onclick="document.getElementById('cmd-input').value='open reboxed'; document.getElementById('cmd-input').focus();">open
+                                    onclick="if (typeof $ !== 'undefined') { $('.terminal').terminal().exec('open reboxed'); }">open
                                     reboxed</span></p>
                             <p>> Try command: <span class="text-alert interactive cursor-pointer"
-                                    onclick="document.getElementById('cmd-input').value='contact'; document.getElementById('cmd-input').focus();">contact</span>
+                                    onclick="if (typeof $ !== 'undefined') { $('.terminal').terminal().exec('contact'); }">contact</span>
                             </p>
                         </div>
                     </div>
@@ -749,8 +749,8 @@
             <button onclick="window.closeSystemModal('modal-reboxed')"
                 class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
                 [X]</button>
-            <h4 class="font-mono text-accent mb-4 uppercase">Case Study // Reboxed</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12">Escrow <br>Marketplace.</h2>
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // Reboxed</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Escrow <br>Marketplace.</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
                 <div>
@@ -780,8 +780,8 @@
             <button onclick="window.closeSystemModal('modal-spendly')"
                 class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
                 [X]</button>
-            <h4 class="font-mono text-accent mb-4 uppercase">Case Study // Spendly</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12">Finance <br>Engine.</h2>
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // Spendly</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Finance <br>Engine.</h2>
             <p class="text-gray-400 font-light leading-relaxed mb-8 max-w-2xl">
                 A personal finance management system designed to process complex transaction data into readable,
                 actionable insights for smarter spending. Focus on data visualization, rapid categorization, and secure
@@ -800,8 +800,8 @@
             <button onclick="window.closeSystemModal('modal-gym')"
                 class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
                 [X]</button>
-            <h4 class="font-mono text-white mb-4 uppercase">Project Node // Gym Tracker</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8">Body <br>Telemetry.</h2>
+            <h4 class="font-mono text-white mb-4 uppercase pr-24">Project Node // Gym Tracker</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8 pr-24">Body <br>Telemetry.</h2>
             <p class="text-gray-400 font-light leading-relaxed mb-8">
                 A dedicated application for tracking physical output. Logs repetitions, calculates intensity, and graphs
                 workout statistics to ensure progressive overload is mathematically maintained.
@@ -817,8 +817,8 @@
             <button onclick="window.closeSystemModal('modal-spatial')"
                 class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
                 [X]</button>
-            <h4 class="font-mono text-white mb-4 uppercase">Project Node // Spatial Learning</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8">WebGL <br>Education.</h2>
+            <h4 class="font-mono text-white mb-4 uppercase pr-24">Project Node // Spatial Learning</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8 pr-24">WebGL <br>Education.</h2>
             <p class="text-gray-400 font-light leading-relaxed mb-8">
                 Moving beyond 2D interfaces for complex concepts. This app utilizes Three.js and React Three Fiber to
                 build layered, interactive 3D scenes that adapt to the user's learning pace.
@@ -1067,6 +1067,15 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .sound-toggles-container {
+                top: auto !important;
+                bottom: 16px !important;
+                transform: scale(0.82) !important;
+                transform-origin: bottom right !important;
+            }
         }
 
         .sound-toggle-row {
