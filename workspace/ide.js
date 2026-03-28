@@ -86,13 +86,13 @@ function buildFileTree(projects, problemLog) {
                 name: 'README.md',
                 type: 'file',
                 lang: 'markdown',
-                content: `# Parth Varekar — Portfolio\n\nAI Systems & Full-Stack Engineering.\nMumbai, India.\n\n## Quick Start\n\nType \`help\` in the terminal below to explore.\n\n## Projects\n- Reboxed (Escrow Marketplace) — LIVE\n- Spendly (Finance Engine) — LIVE\n- Gym Tracker (Body Telemetry) — LIVE\n- Spatial Learning (WebGL Education) — WIP\n- Motion Design Sys (Interaction Primitives) — LIVE\n- Fintech Onboard (KYC Compliance Flow) — LIVE\n\n## Contact\n- Email: parthvarekar27@gmail.com\n- Phone: +91 7400082627\n- GitHub: github.com/ParthVarekar\n- LinkedIn: linkedin.com/in/parth-varekar-601432344`
+                content: `# Parth Varekar — Portfolio\n\nAI Systems & Full-Stack Engineering.\nMumbai, India.\n\n## Passions & Tooling\nI am deeply passionate about engineering robust, distributed architectures and autonomous problem-solving AI systems. My primary focus revolves around constructing reliable vector space abstractions, local LLM integrations, and highly concurrent APIs where I can push system constraints effectively. I prioritize ruthless execution over endless theory.\n\n## Quick Start\n\nType \`help\` in the terminal below to explore.\n\n## Projects\n- Reboxed (Escrow Marketplace) — LIVE\n- Spendly (Finance Engine) — LIVE\n- Gym Tracker (Body Telemetry) — LIVE\n- Trippy (Travel Intelligence) — WIP\n- Autonomous AI IDE (Execution-Aware LLM) — WIP\n- Socio Influence (Authenticity Evaluator) — WIP`
             },
             {
                 name: '.env',
                 type: 'file',
                 lang: 'bash',
-                content: `PORTFOLIO_MODE=workspace\nACCENT_COLOR=#43BF6D\nDEBUG=false\nLOCATION=Mumbai, India`
+                content: `PORTFOLIO_MODE=workspace\nACCENT_COLOR=#43BF6D\nDEBUG=false\nLOCATION="Mumbai, India"\nPHONE="+91 74000 82627"\nEMAIL="parthvarekar27@gmail.com"\nLINKEDIN="linkedin.com/in/parth-varekar-601432344"\nGITHUB="github.com/ParthVarekar"\nLEETCODE="leetcode.com/u/P_R_T_H"`
             }
         ]
     };

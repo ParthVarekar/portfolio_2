@@ -45,6 +45,36 @@ export function getArchitectureSVG() {
                     <text y="-5" text-anchor="middle" fill="#fff" font-family="var(--font-mono)" font-size="12">PostgreSQL</text>
                     <text y="15" text-anchor="middle" fill="var(--accent)" font-family="var(--font-mono)" font-size="10">pg_vector</text>
                 </g>
+
+                <!-- Hazard Scene Under Investigation Tape Overlays -->
+                <defs>
+                    <pattern id="hazardStripes" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <rect width="30" height="60" fill="#1c1917" opacity="0.9"/>
+                        <rect x="30" width="30" height="60" fill="#facc15" opacity="0.9"/>
+                    </pattern>
+                </defs>
+
+                <!-- Diagonal Tape 1 -->
+                <g transform="translate(400, 300) rotate(-20)" pointer-events="none" filter="drop-shadow(0 15px 15px rgba(0,0,0,0.6))">
+                    <rect x="-800" y="-35" width="1600" height="70" fill="#facc15" stroke="#1c1917" stroke-width="4"/>
+                    <!-- Top and bottom thin striped borders -->
+                    <rect x="-800" y="-35" width="1600" height="10" fill="url(#hazardStripes)"/>
+                    <rect x="-800" y="25" width="1600" height="10" fill="url(#hazardStripes)"/>
+                    <!-- Repeating warning text -->
+                    <text x="-600" y="12" text-anchor="middle" fill="#000" font-family="'Courier New', monospace" font-size="36" font-weight="900" letter-spacing="4">UNDER INVESTIGATION</text>
+                    <text x="0" y="12" text-anchor="middle" fill="#000" font-family="'Courier New', monospace" font-size="36" font-weight="900" letter-spacing="4">UNDER INVESTIGATION</text>
+                    <text x="600" y="12" text-anchor="middle" fill="#000" font-family="'Courier New', monospace" font-size="36" font-weight="900" letter-spacing="4">UNDER INVESTIGATION</text>
+                </g>
+
+                <!-- Diagonal Tape 2 -->
+                <g transform="translate(400, 300) rotate(15)" pointer-events="none" filter="drop-shadow(0 15px 15px rgba(0,0,0,0.6))">
+                    <rect x="-800" y="-35" width="1600" height="70" fill="#facc15" stroke="#1c1917" stroke-width="4"/>
+                    <rect x="-800" y="-35" width="1600" height="10" fill="url(#hazardStripes)"/>
+                    <rect x="-800" y="25" width="1600" height="10" fill="url(#hazardStripes)"/>
+                    <text x="-600" y="12" text-anchor="middle" fill="#000" font-family="'Courier New', monospace" font-size="36" font-weight="900" letter-spacing="4">UNDER INVESTIGATION</text>
+                    <text x="0" y="12" text-anchor="middle" fill="#000" font-family="'Courier New', monospace" font-size="36" font-weight="900" letter-spacing="4">UNDER INVESTIGATION</text>
+                    <text x="600" y="12" text-anchor="middle" fill="#000" font-family="'Courier New', monospace" font-size="36" font-weight="900" letter-spacing="4">UNDER INVESTIGATION</text>
+                </g>
             </svg>
         </div>
         <div class="arch-details-panel bento-card" style="border-radius:0; border-top:none; border-right:none; border-bottom:none; margin:0;">

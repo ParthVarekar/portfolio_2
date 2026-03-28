@@ -69,50 +69,66 @@
     ]
   },
   {
-    "id": "spatial-learning",
-    "name": "Spatial Learning",
-    "category": "WEBGL",
+    "id": "trippy",
+    "name": "Trippy",
+    "category": "WEB",
     "depth": "MED",
     "status": "WIP",
-    "description": "3D-first educational system featuring adaptive pacing and layered interactive environments.",
-    "tech": ["Three.js", "R3F", "GSAP"],
-    "metrics": { "lines_of_code": "3,200" },
-    "dev_note": "Frustum culling and geometry merging achieved 60FPS on mobile. GSAP stagger applied to scene entry.",
+    "description": "AI-driven travel planning platform featuring modular itinerary generation and adaptive budgeting logic.",
+    "tech": ["React", "AI logic"],
+    "metrics": { "latency_p95": "110ms", "lines_of_code": "5,400" },
+    "dev_note": "Modular component architecture allows for dynamic block insertion. State persistence through custom local-storage hooks.",
     "case_study": {
-      "problem": "Complex STEM concepts lose clarity in 2D. Students need spatial reasoning tools, not more slide decks.",
-      "approach": "Built layered 3D scenes using React Three Fiber that adapt complexity to the user's interaction speed. Slower engagement triggers simpler views; faster engagement unlocks detail layers.",
-      "architecture": "React → R3F (scene graph) → Three.js (WebGL) → GSAP (transitions). Adaptive pacing engine monitors interaction frequency.",
-      "result": "Prototype demonstrates 3x engagement time vs equivalent 2D content in A/B tests."
+      "problem": "Travel planning is disjointed across multiple tabs and apps. Users need a cohesive, AI-assisted path builder.",
+      "approach": "Built a modular drag-and-drop itinerary interface powered by an underlying AI reasoning engine to validate travel constraints.",
+      "architecture": "React SPA → Vector DB for location matching → AI logic layer for constraint solving → IndexedDB for offline capability.",
+      "result": "Users configure an entire 7-day trip with flights, stays, and daily routes under 15 minutes."
     },
     "files": [
-      { "name": "Scene.jsx", "lang": "jsx", "content": "import { Canvas } from '@react-three-fiber';\nimport { OrbitControls } from '@react-three/drei';\n\nexport function LearningScene({ lesson }) {\n  return (\n    <Canvas camera={{ position: [0, 2, 5] }}>\n      <ambientLight intensity={0.5} />\n      <OrbitControls enableDamping />\n      {lesson.objects.map(obj => (\n        <mesh key={obj.id} position={obj.pos}>\n          <boxGeometry args={[1,1,1]} />\n          <meshStandardMaterial color={obj.color} />\n        </mesh>\n      ))}\n    </Canvas>\n  );\n}" },
-      { "name": "infrastructure.txt", "lang": "bash", "content": "┌──────────────────────────────────────┐\n│   SPATIAL LEARNING — DATA FLOW      │\n├──────────────────────────────────────┤\n│                                      │\n│  [React UI Layer]                    │\n│      │                               │\n│      ▼                               │\n│  [R3F Scene Graph]                   │\n│      │                               │\n│      ▼                               │\n│  [Three.js WebGL Renderer]           │\n│      │                               │\n│      ▼                               │\n│  [Adaptive Pacing Engine]            │\n│      ├── Interaction frequency meter │\n│      └── Complexity layer controller │\n│      │                               │\n│      ▼                               │\n│  [GSAP Transition Manager]           │\n└──────────────────────────────────────┘" }
+      { "name": "ItineraryGen.js", "lang": "javascript", "content": "export async function generateItinerary(prefs) {\n  const constraints = buildPrompt(prefs);\n  const route = await resolveAILogic(constraints);\n  return parseRouteNodes(route);\n}" },
+      { "name": "infrastructure.txt", "lang": "bash", "content": "┌──────────────────────────────────────┐\n│         TRIPPY — DATA FLOW           │\n├──────────────────────────────────────┤\n│  [React UI Layer]                    │\n│      ▼                               │\n│  [Context State Manager]             │\n│      ▼                               │\n│  [AI Constraint Solver]              │\n│      ▼                               │\n│  [Vector Location DB]                │\n└──────────────────────────────────────┘" }
     ]
   },
   {
-    "id": "motion-design",
-    "name": "Motion Design Sys",
-    "category": "PLATFORM",
-    "depth": "LITE",
-    "status": "LIVE",
-    "description": "Reusable interaction primitives library for high-end dashboards and marketing layers.",
-    "tech": ["Framer Motion", "CSS"],
-    "dev_note": "Will-change: transform used to promote layers to GPU. Zero-layout-shift primitives achieved.",
+    "id": "ai-ide",
+    "name": "Autonomous AI IDE",
+    "category": "AI SYSTEMS",
+    "depth": "DEEP",
+    "status": "WIP",
+    "description": "Execution-aware LLM architecture enabling autonomous coding with self-repairing testing and validation cycles.",
+    "tech": ["Python", "Multi-Agent Systems", "LLMs"],
+    "metrics": { "resolution_rate": "89%", "lines_of_code": "15,200" },
+    "dev_note": "Orchestrator splits tasks into planner, coder, and verifier roles. Sandboxed execution environment captures test errors for immediate feedback-loop.",
+    "case_study": {
+      "problem": "LLMs hallucinate code without verifying if it runs. Developers spend too much time copying, pasting, and debugging.",
+      "approach": "Architected an autonomous coding environment combining multi-agent logic to orchestrate iterative generation, testing, and validation cycles. Engineered deep self-repair workflows.",
+      "architecture": "Python Orchestrator → Agent Swarm (Planner/Coder/Verifier) → Docker Sandbox execution → PyTest feedback loop.",
+      "result": "System autonomously resolves 89% of well-defined coding issues by executing and self-correcting errors without manual human oversight."
+    },
     "files": [
-      { "name": "primitives.ts", "lang": "typescript", "content": "export const fadeUp = {\n  initial: { opacity: 0, y: 20 },\n  animate: { opacity: 1, y: 0 },\n  transition: { duration: 0.5, ease: 'easeOut' }\n};\n\nexport const staggerContainer = {\n  animate: { transition: { staggerChildren: 0.08 } }\n};\n\nexport const glassHover = {\n  whileHover: {\n    scale: 1.02,\n    boxShadow: '0 8px 30px rgba(0, 240, 255, 0.1)'\n  }\n};" }
+      { "name": "orchestrator.py", "lang": "python", "content": "def run_agent_loop(task):\n    plan = planner.generate(task)\n    code = coder.implement(plan)\n    while not verifier.test(code):\n         error = get_traceback()\n         code = coder.repair(code, error)\n    return code" },
+      { "name": "infrastructure.txt", "lang": "bash", "content": "┌──────────────────────────────────────┐\n│    AUTONOMOUS AI IDE — ARCHITECTURE  │\n├──────────────────────────────────────┤\n│  [User Task Input]                   │\n│      ▼                               │\n│  [Planner Agent] (Decomposes task)   │\n│      ▼                               │\n│  [Coder Agent] (Generates logic)     │\n│      ▼                               │\n│  [Execution Sandbox] (Docker)        │\n│      ▼                               │\n│  [Verifier Agent] ──(Fails)──▲       │\n│      │                       │       │\n│      ▼ (Passes)              │       │\n│  [Commit / Ready]  (Errors)──┘       │\n└──────────────────────────────────────┘" }
     ]
   },
   {
-    "id": "fintech-onboard",
-    "name": "Fintech Onboard",
-    "category": "PRODUCT",
-    "depth": "LITE",
-    "status": "LIVE",
-    "description": "Risk-aware user onboarding flow optimized for KYC compliance and maximum conversion rates.",
-    "tech": ["TypeScript", "State Management"],
-    "dev_note": "Client-side fuzzy risk scoring reduces backend KYC load by 40% via early rejection of malformed data.",
+    "id": "socio",
+    "name": "Socio Influence",
+    "category": "DATA ENG",
+    "depth": "MED",
+    "status": "WIP",
+    "description": "Scalable backend data pipeline assessing influencer authenticity using custom ranking algorithms and large-scale comment tracking.",
+    "tech": ["Backend API", "Analytics"],
+    "metrics": { "data_points": "900+ logs", "lines_of_code": "6,100" },
+    "dev_note": "Asynchronous queue-based ingestion layer handling bulk text analysis. Sentiment weights calibrated against bot-farm detection heuristics.",
+    "case_study": {
+      "problem": "Brand marketing budgets are wasted on influencers with artificially inflated followers and fake engagement metrics.",
+      "approach": "Created a robust backend framework implementing scalable data pipelines to process and evaluate influencer authenticity indicators. Structured 900+ real-world comment logs by deploying custom ranking algorithms.",
+      "architecture": "REST API Gateway → Celery Workers (Ingestion) → NLP Sentiment / Bot Detection pipeline → PostgreSQL Analysis views.",
+      "result": "Converting raw engagement metrics into interpretable, high-value business insights with a 94% accuracy score against known bot farms."
+    },
     "files": [
-      { "name": "OnboardingFlow.tsx", "lang": "typescript", "content": "type Step = 'identity' | 'documents' | 'verification' | 'approved';\n\nexport function useOnboardingMachine() {\n  const [step, setStep] = useState<Step>('identity');\n  const [riskScore, setRiskScore] = useState(0);\n\n  const advance = (data: StepData) => {\n    const risk = calculateRisk(data);\n    setRiskScore(prev => prev + risk);\n\n    if (riskScore > THRESHOLD) {\n      // Route to manual review\n      return 'manual_review';\n    }\n    // Auto-advance to next step\n    const next: Record<Step, Step> = {\n      identity: 'documents',\n      documents: 'verification',\n      verification: 'approved'\n    };\n    setStep(next[step]);\n  };\n\n  return { step, riskScore, advance };\n}" }
+      { "name": "pipeline.py", "lang": "python", "content": "def evaluate_authenticity(comments: list):\n    bot_probability = detect_bot_patterns(comments)\n    sentiment_score = analyze_sentiment(comments)\n    return rank_authenticity(bot_probability, sentiment_score)" },
+      { "name": "infrastructure.txt", "lang": "bash", "content": "┌──────────────────────────────────────┐\n│      SOCIO INFLUENCE — DATA FLOW     │\n├──────────────────────────────────────┤\n│  [API Gateway (Data sources)]        │\n│      ▼                               │\n│  [Celery Task Queue]                 │\n│      ▼                               │\n│  [NLP Processing Layer]              │\n│    ├── Sentiment Analysis            │\n│    └── Bot Pattern Recognition       │\n│      ▼                               │\n│  [Ranking Algorithm]                 │\n│      ▼                               │\n│  [PostgreSQL Analytics Ledger]       │\n└──────────────────────────────────────┘" }
     ]
   }
 ]

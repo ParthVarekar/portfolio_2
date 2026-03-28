@@ -182,6 +182,11 @@ function initTerminalBridge() {
   → LinkedIn: [[;#43BF6D;]linkedin.com/in/parth-varekar-601432344]`);
                 break;
 
+            case 'resume':
+                window.open('/Resume_Parth_Varekar.pdf', '_blank');
+                term.echo('[[;#43BF6D;]→ Opening CV Document...]');
+                break;
+
             case 'github':
                 window.open('https://github.com/ParthVarekar', '_blank');
                 term.echo('[[;#43BF6D;]→ Opening GitHub...]');
@@ -270,7 +275,7 @@ function initTerminalBridge() {
                         term.echo(`[[;#43BF6D;]→ Opening case study for ${projectId}...]`);
                         term.echo('[[;#43BF6D;]→ Infrastructure diagram loaded in second tab.]');
                     } else {
-                        term.echo(`[[;#FF5F56;]ERR: No case study found for '${projectId}'. Try: reboxed, spendly, gym-tracker, spatial-learning]`);
+                        term.echo(`[[;#FF5F56;]ERR: No case study found for '${projectId}'. Try: reboxed, spendly, gym-tracker, trippy, ai-ide, socio]`);
                     }
                 }
                 break;
@@ -423,7 +428,7 @@ function initTerminalBridge() {
         onFocus: function() {
             document.getElementById('terminal-container')?.classList.add('focused');
         },
-        completion: ['help', 'ls', 'cd', 'cat', 'pwd', 'projects', 'skills', 'contact', 'about', 'philosophy', 'case', 'system', 'collab', 'github', 'linkedin', 'play', 'blog', 'clear', 'whoami', 'neofetch', 'sudo', 'logs'],
+        completion: ['help', 'ls', 'cd', 'cat', 'pwd', 'projects', 'skills', 'contact', 'about', 'philosophy', 'case', 'system', 'collab', 'github', 'linkedin', 'resume', 'play', 'blog', 'clear', 'whoami', 'neofetch', 'sudo', 'logs'],
         checkArity: false,
         processArguments: false,
         keymap: {

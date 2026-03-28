@@ -149,7 +149,8 @@ function initTerminalClassic() {
                 break;
 
             case 'resume':
-                term.echo('[[;#FF5F56;]ERR: Document currently under revision. Contact directly for copy.]');
+                window.open('Resume_Parth_Varekar.pdf', '_blank');
+                term.echo('[[;#00F0FF;]Accessing curriculum vitae...]');
                 break;
 
             case 'play':
