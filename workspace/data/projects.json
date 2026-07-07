@@ -48,7 +48,7 @@
     "name": "StudyOS",
     "category": "FULL-STACK",
     "depth": "DEEP",
-    "status": "WIP",
+    "status": "LIVE",
     "description": "A local-first PWA that runs my GATE 2027 prep like a SaaS product — 13 Prisma models, test-runner state machine, offline-first.",
     "tech": [
       "Next.js 16",
@@ -58,6 +58,7 @@
       "PWA"
     ],
     "url": "https://github.com/ParthVarekar/studyos.git",
+    "demo_url": "https://gate-2027-tracker.space-z.ai",
     "metrics": {
       "prisma_models": "13",
       "subjects": "18",
