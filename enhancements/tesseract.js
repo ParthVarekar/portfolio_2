@@ -135,15 +135,14 @@ export function initHero3D() {
 
     // ── resize ────────────────────────────────────────────────────────
     const resize = () => {
-        const rect = canvas.getBoundingClientRect();
-        w = rect.width;
-        h = rect.height;
+        w = window.innerWidth;
+        h = window.innerHeight;
         canvas.width = Math.max(1, Math.floor(w * dpr));
         canvas.height = Math.max(1, Math.floor(h * dpr));
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         // Responsive position offset (centered on mobile, offset on desktop)
-        if (window.innerWidth < 768) {
+        if (w < 768) {
             cx = w / 2;
             cy = h / 2;
             R = Math.min(w, h) * 0.35;
@@ -156,9 +155,10 @@ export function initHero3D() {
 
     // ── input mouse triggers ──────────────────────────────────────────
     const onMove = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = (e.clientX - rect.left - rect.width / 2) / rect.width;
-        mouse.y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+        const rectWidth = window.innerWidth;
+        const rectHeight = window.innerHeight;
+        mouse.x = (e.clientX - rectWidth / 2) / rectWidth;
+        mouse.y = (e.clientY - rectHeight / 2) / rectHeight;
 
         // Hover proximity detection to trigger boost state
         const dx = e.clientX - cx;
@@ -170,6 +170,10 @@ export function initHero3D() {
     // ── render loop ───────────────────────────────────────────────────
     const render = () => {
         if (!is3dEnabled) return;
+        if (w === 0 || h === 0 || R === 0 || isNaN(R)) {
+            animationFrameId = requestAnimationFrame(render);
+            return;
+        }
         const dt = 0.016;
 
         // smooth boost interpolation
