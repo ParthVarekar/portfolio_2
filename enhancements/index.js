@@ -4,7 +4,8 @@
 // a recruiter would spot instantly. The remaining modules are real:
 //   - microinteractions: subtle hover/focus polish
 //   - hero3d: optional 3D hero toggle
-import { initHero3D } from './hero3d.js';
+// import { initHero3D } from './hero3d.js';
+import { initHero3D } from './tesseract.js';
 import { initMicrointeractions } from './microinteractions.js';
 
 // Wait for the main site bootstrap then apply enhancements
