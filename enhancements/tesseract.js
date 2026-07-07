@@ -181,7 +181,7 @@ export function initHero3D() {
         boostSmooth += (targetBoost - boostSmooth) * 0.05;
 
         // advance 4D angles
-        const base = 0.28;
+        const base = 0.168;
         const boostMul = 1 + boostSmooth * 1.8;
         angles.xw += (base * 1.0 + mouse.x * 0.35) * dt * boostMul;
         angles.yw += (base * 1.2 + mouse.y * 0.45) * dt * boostMul;
@@ -191,7 +191,7 @@ export function initHero3D() {
         angles.yz += base * 0.32 * dt * boostMul;
 
         // advance pulse position along Hamiltonian cycle
-        const pulseSpeed = 1.8 + boostSmooth * 2.2;
+        const pulseSpeed = 1.08 + boostSmooth * 1.32;
         pulseT += pulseSpeed * dt;
         if (pulseT >= 16) pulseT -= 16;
 
