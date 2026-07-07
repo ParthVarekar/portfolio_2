@@ -36,7 +36,7 @@ function initTerminalClassic() {
   open [id] Access deep case study
   skills    View tech topology
   contact   Display routing details
-  play [g]  Launch mini-game (hex)
+  play [g]  Launch mini-game (hex | kern | binary | dodge)
   github    Authenticate remote repo
   linkedin  Open professional network
   resume    Fetch CV file
@@ -67,9 +67,10 @@ function initTerminalClassic() {
 
             case 'cat':
                 if (args[0] === 'README.md') {
-                    term.echo(`[[;#00F0FF;]PARTH VAREKAR // AUDIT LOG]
-> System Framework v1.0 [Online]
-> Load balanced across programmatic canvas scopes.
+                    term.echo(`[[;#00F0FF;]PARTH VAREKAR // SYSTEM LOG]
+> Role: B.Tech CE student + AI systems builder
+> Location: Mumbai, India
+> Status: Open to internships & collaborations
 > Type 'help' to audit commands.`);
                 } else {
                     term.echo(`[[;#FF5F56;]cat: ${args[0] || ''}: No such file]`);
@@ -77,30 +78,33 @@ function initTerminalClassic() {
                 break;
 
             case 'neofetch':
-                term.echo(`[[;#00F0FF;]            ..              ]  [[;#00F0FF;]OS:] Classic Portfolio v1.0
-[[;#00F0FF;]          .oo.              ]  [[;#00F0FF;]Host:] Chrome/Firefox/Safari
-[[;#00F0FF;]        .ooooo.             ]  [[;#00F0FF;]Shell:] jQuery Terminal
-[[;#00F0FF;]      .ooooooo.            ]  [[;#00F0FF;]WM:] Vanilla JS + GSAP
-[[;#00F0FF;]    .ooooooooo.           ]  [[;#00F0FF;]CPU:] Interactive Runtime
-[[;#00F0FF;]  .ooooooooooo.          ]  [[;#00F0FF;]Memory:] 64MB Cache Allocation
+                term.echo(`[[;#00F0FF;]            ..              ]  [[;#00F0FF;]OS:] Browser (Chrome/Firefox/Safari)
+[[;#00F0FF;]          .oo.              ]  [[;#00F0FF;]Shell:] jQuery Terminal
+[[;#00F0FF;]        .ooooo.             ]  [[;#00F0FF;]Runtime:] Vanilla JS + GSAP
+[[;#00F0FF;]      .ooooooo.            ]  [[;#00F0FF;]Stack:] whisper.cpp, llama.cpp, Next.js
+[[;#00F0FF;]    .ooooooooo.           ]  [[;#00F0FF;]Status:] B.Tech CE student (2024-2028)
+[[;#00F0FF;]  .ooooooooooo.          ]  [[;#00F0FF;]Location:] Mumbai, India
 [[;#00F0FF;] .ooooooooooooo.        ]
 [[;#00F0FF;]  .ooooooooooo.          ]`);
                 break;
 
             case 'about':
                 term.echo(`[[;#00F0FF;]PARTH VAREKAR // MUMBAI]
-  > AI Systems & Full-Stack Engineering
-  > Designing complete architectures, from local LLM pipelines to high-performance React interfaces.`);
+  > B.Tech Computer Engineering student (Mumbai University, 2024-2028)
+  > Building local-first AI systems: speech pipelines, RAG, browser safety, games.
+  > Data Science intern @ Imarticus Learning (A+ grade, 2026).`);
                 break;
 
             case 'projects':
-                term.echo(`[[;#00F0FF;]DEPLOYED.NODES:]
-  [ [[;#00F0FF;]reboxed] ] : Escrow Based Second Hand Marketplace
-  [ [[;#00F0FF;]spendly] ] : Personal Finance Engine
-  [ [[;#00F0FF;]gym] ]     : Body Tracking & Overload App
-  [ [[;#00F0FF;]spatial] ] : WebGL Education System
+                term.echo(`[[;#00F0FF;]ACTIVE.NODES:]
+  [ [[;#00F0FF;]whisperflow]         ] : Offline STT + LLM pipeline (whisper.cpp + llama.cpp)
+  [ [[;#00F0FF;]studyos]             ] : Local-first GATE prep PWA (Next.js + Prisma)
+  [ [[;#00F0FF;]nexus-ai]            ] : Educational coding game (Pyodide/WASM)
+  [ [[;#00F0FF;]second-brain]        ] : Local RAG knowledge base (ChromaDB + SSE)
+  [ [[;#00F0FF;]agent-safety-net]    ] : Chrome MV3 AI agent safety layer
+  [ [[;#00F0FF;]shorts-intelligence] ] : Multi-agent YouTube Shorts analyzer
   
-  > Type 'open reboxed' to trigger telemetry.`);
+  > Type 'open whisperflow' to view the case study.`);
                 break;
 
             case 'open': {
@@ -109,16 +113,27 @@ function initTerminalClassic() {
                     break;
                 }
                 const target = args[0].toLowerCase();
-                const validModals = ['reboxed', 'spendly', 'gym', 'spatial'];
-                if (validModals.includes(target)) {
+                // Map short terminal IDs to full modal IDs.
+                const modalMap = {
+                    'whisperflow': 'modal-whisperflow',
+                    'studyos':     'modal-studyos',
+                    'nexus':       'modal-nexus-ai',
+                    'nexus-ai':    'modal-nexus-ai',
+                    'brain':       'modal-second-brain',
+                    'second-brain':'modal-second-brain',
+                    'safety':      'modal-agent-safety-net',
+                    'agent-safety-net': 'modal-agent-safety-net',
+                    'shorts':      'modal-shorts-intelligence',
+                    'shorts-intelligence': 'modal-shorts-intelligence'
+                };
+                if (modalMap[target]) {
                     if (window.openSystemModal) {
-                        window.openSystemModal(`modal-${target}`);
+                        window.openSystemModal(modalMap[target]);
                         term.echo(`[[;#00F0FF;]Accessing Node: ${target.toUpperCase()}...]`);
+                        if (window.__portfolioLogCommand) window.__portfolioLogCommand('open ' + target);
                     } else {
                         term.echo('[[;#FF5F56;]ERR: Modal system not available.]');
                     }
-                } else if (['motion', 'fintech'].includes(target)) {
-                    term.echo(`[[;#FF5F56;]Node '${target}' is classified LITE. Deep telemetry not available via terminal.]`);
                 } else {
                     term.echo('[[;#FF5F56;]Syntax Error: Invalid node ID. Type "projects".]');
                 }
@@ -144,18 +159,18 @@ function initTerminalClassic() {
                 break;
 
             case 'linkedin':
-                window.open('https://www.linkedin.com/in/parth-varekar-601432344/', '_blank');
+                window.open('https://www.linkedin.com/in/parth-varekar-a90b412b1/', '_blank');
                 term.echo('[[;#00F0FF;]Opening professional network...]');
                 break;
 
             case 'resume':
-                window.open('Resume_Parth_Varekar.pdf', '_blank');
+                window.open('/portfolio/Resume_Parth_Varekar.pdf', '_blank');
                 term.echo('[[;#00F0FF;]Accessing curriculum vitae...]');
                 break;
 
             case 'play':
                 if (!args[0]) {
-                    term.echo('[[;#FFBD2E;]Usage: play <hex>]');
+                    term.echo('[[;#FFBD2E;]Usage: play <hex | kern | binary | dodge>]');
                     break;
                 }
                 if (window.launchGame) {
@@ -183,13 +198,13 @@ function initTerminalClassic() {
         }
     }, {
         greetings: `[[;#00F0FF;]╔══════════════════════════════════════════╗
-║  PARTH VAREKAR — CLASSIC TERMINAL v1.0   ║
-║  Type 'help' to begin.                   ║
+║  PARTH VAREKAR — CLASSIC TERMINAL          ║
+║  Type 'help' to begin.                     ║
 ╚══════════════════════════════════════════╝]`,
-        prompt: function() { return `[[;#00F0FF;]guest@parth.dev] [[;#888;]$] `; },
+        prompt: function() { return `[[;#00F0FF;]guest@parthvarekar.vercel.app] [[;#888;]$] `; },
         name: 'classic_term',
         height: '100%',
-        completion: ['help', 'about', 'projects', 'open', 'skills', 'contact', 'play', 'github', 'linkedin', 'resume', 'clear'],
+        completion: ['help', 'about', 'projects', 'open', 'skills', 'contact', 'play', 'github', 'linkedin', 'resume', 'clear', 'neofetch', 'whisperflow', 'studyos', 'nexus-ai', 'second-brain', 'agent-safety-net', 'shorts-intelligence'],
         checkArity: false,
         processArguments: false
     });

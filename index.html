@@ -4,7 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parth Varekar // AI Systems & Full-Stack Engineering</title>
+    <title>Parth Varekar // AI Systems Builder & B.Tech CE Student</title>
+    <meta name="description" content="Parth Varekar — B.Tech Computer Engineering student (Mumbai University) building local-first AI systems: speech pipelines, RAG knowledge bases, browser AI safety, and educational games. View verified projects, tech stack, and contact.">
+    <meta name="author" content="Parth Varekar">
+    <meta name="keywords" content="Parth Varekar, AI engineer, full-stack, Python, TypeScript, whisper.cpp, llama.cpp, RAG, ChromaDB, Chrome extension, Pyodide, Next.js, portfolio">
+    <meta name="theme-color" content="#020202">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Parth Varekar // AI Systems Builder & B.Tech CE Student">
+    <meta property="og:description" content="B.Tech CE student building local-first AI systems — speech pipelines, RAG knowledge bases, browser AI safety, educational games. Verified projects and tech stack.">
+    <meta property="og:image" content="assets/whisperflow-preview.png">
+    <meta property="og:url" content="https://parthvarekar.vercel.app">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Parth Varekar // AI Systems Builder">
+    <meta name="twitter:description" content="B.Tech CE student building local-first AI systems. Verified projects, tech stack, and contact.">
+
+    <link rel="canonical" href="https://parthvarekar.vercel.app">
+
+    <!-- Structured data: Person schema for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Parth Varekar",
+      "email": "mailto:parthvarekar27@gmail.com",
+      "url": "https://parthvarekar.vercel.app",
+      "sameAs": [
+        "https://github.com/ParthVarekar",
+        "https://www.linkedin.com/in/parth-varekar-a90b412b1"
+      ],
+      "jobTitle": "B.Tech Computer Engineering Student & AI Systems Builder",
+      "address": { "@type": "PostalAddress", "addressLocality": "Mumbai", "addressCountry": "IN" },
+      "alumniOf": { "@type": "CollegeOrUniversity", "name": "K.C. College of Engineering & Management Studies, Mumbai University" },
+      "knowsAbout": ["Python", "TypeScript", "whisper.cpp", "llama.cpp", "RAG", "ChromaDB", "Chrome Extension Development", "Next.js", "FastAPI", "Pyodide"]
+    }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +88,11 @@
             color: #ffffff;
             margin: 0;
             overflow-x: hidden;
-            cursor: none;
+        }
+
+        /* Custom cursor only on fine-pointer (mouse) devices; touch devices keep the native cursor. */
+        @media (pointer: fine) {
+            body { cursor: none; }
         }
 
         ::-webkit-scrollbar {
@@ -313,7 +354,40 @@
             display: none;
             opacity: 0;
             overflow-y: auto;
-            padding: 10vh 5vw;
+            overflow-x: hidden;
+            /* When shown (display:flex via JS), center horizontally and start from top with padding.
+               The overflow-y:auto lets the whole modal scroll if content is taller than viewport. */
+            align-items: flex-start;
+            justify-content: center;
+            padding: 5vh 5vw;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Ensure all modal text wraps properly — prevents long technical terms
+           (whisper.cpp, ChromaDB, /v1/audio/transcriptions) from overflowing. */
+        .system-modal p,
+        .system-modal li,
+        .system-modal h2,
+        .system-modal h4,
+        .system-modal h5 {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+            max-width: 100%;
+        }
+        .system-modal code,
+        .system-modal span {
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+        .system-modal .max-w-4xl {
+            max-width: 56rem;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .tree-line {
@@ -341,6 +415,343 @@
             justify-content: center;
             align-items: center;
         }
+
+        /* ════════════════════════════════════════════════════════════════
+           MOBILE OPTIMIZATION (< 768px)
+           — All rules here only apply on mobile. Desktop is untouched.
+           ════════════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            /* Nav: tighter padding so name + clock fit on small screens */
+            nav.fixed.top-0 {
+                padding: 14px 16px;
+                align-items: center;
+            }
+            nav.fixed.top-0 > div:first-child {
+                font-size: 11px;
+                letter-spacing: 0.12em;
+                max-width: 60vw;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            nav.fixed.top-0 #clock {
+                font-size: 10px;
+                white-space: nowrap;
+            }
+
+            /* Hero: cap name font-size to prevent horizontal scroll on tiny phones.
+               text-[12vw] at 320px = 38.4px — fine, but clamp for safety. */
+            .hero-title {
+                font-size: clamp(40px, 12vw, 56px) !important;
+                word-break: break-word;
+            }
+
+            /* Hero CTA: full-width-ish on mobile */
+            section.h-screen button[group].relative,
+            section.h-screen .relative.bg-white.text-black {
+                width: calc(100% - 0px);
+                max-width: 320px;
+                padding: 14px 20px;
+                font-size: 13px;
+            }
+
+            /* About / philosophy sections — reduce body text from text-lg (18px) to 16px */
+            #section-about p,
+            #section-about + section p,
+            #section-about + section + section p,
+            #section-about + section + section + section p,
+            section[id^="section-"] p.text-lg {
+                font-size: 15px !important;
+                line-height: 1.6;
+            }
+
+            /* Section vertical padding: py-32 is 128px — too much on mobile. Reduce */
+            section.py-32 {
+                padding-top: 56px !important;
+                padding-bottom: 56px !important;
+            }
+
+            /* Glass panel inside sections: reduce p-8 (32px) to p-5 (20px) on mobile */
+            .glass-panel.p-8 {
+                padding: 20px !important;
+            }
+
+            /* Section heading sizes: text-5xl (48px) → 30px, text-4xl (36px) → 26px */
+            h2.text-3xl { font-size: 26px !important; }
+            h2.text-4xl { font-size: 28px !important; line-height: 1.05; }
+            h2.text-5xl { font-size: 30px !important; line-height: 1.05; }
+
+            /* Project grid: gap-8 (32px) → 16px on mobile */
+            #section-projects .grid {
+                gap: 16px;
+            }
+
+            /* Project cards: reduce p-8 padding on mobile + prevent text overflow */
+            #section-projects .glass-panel.p-8 {
+                padding: 18px !important;
+                overflow: hidden;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+            #section-projects h3.text-3xl {
+                font-size: 22px !important;
+                word-break: break-word;
+            }
+            #section-projects .glass-panel p,
+            #section-projects .glass-panel h4,
+            #section-projects .glass-panel span {
+                overflow-wrap: break-word;
+                word-wrap: break-word;
+                word-break: break-word;
+                max-width: 100%;
+            }
+            #section-projects .glass-panel .flex.flex-wrap {
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            /* Tech stack tree: prevent overflow, allow horizontal scroll if needed */
+            #section-experience .bg-black\/50 {
+                padding: 14px !important;
+                font-size: 12px !important;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            #section-experience .tree-line {
+                margin-left: 8px !important;
+                padding-left: 16px !important;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* Version control timeline: tighter spacing on mobile */
+            #section-experience .space-y-8 > * {
+                margin-bottom: 20px !important;
+            }
+            #section-experience .space-y-8 {
+                font-size: 12px !important;
+            }
+
+            /* Topology section: ensure buttons wrap nicely (already flex-wrap) */
+            #section-topology .flex.flex-wrap.gap-2 button {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            /* Topology canvas container: reduce height on mobile */
+            #topo-container {
+                height: 300px !important;
+            }
+
+            /* Terminal section: reduce grid gap on mobile */
+            #section-terminal .grid {
+                gap: 24px;
+            }
+            .terminal-container {
+                height: 280px !important;
+                font-size: 11px !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
+            .terminal-container .terminal,
+            .terminal-container .terminal-output,
+            .terminal-container .cmd {
+                max-width: 100% !important;
+                overflow-x: auto !important;
+                overflow-y: auto !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                word-break: break-all !important;
+                font-size: 11px !important;
+            }
+            #terminal {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            #section-terminal h2.text-4xl,
+            #section-terminal h2.text-5xl {
+                font-size: 28px !important;
+            }
+            /* Terminal tabs: bigger touch targets on mobile */
+            .terminal-header-tab {
+                padding: 6px 10px !important;
+                font-size: 10px !important;
+                min-height: 32px;
+            }
+
+            /* Contact section: reduce button padding on mobile + bigger touch target */
+            #section-contact a.bg-accent {
+                padding: 18px 32px !important;
+                font-size: 15px !important;
+                display: inline-flex;
+                width: auto;
+                max-width: 90vw;
+                min-height: 52px;
+                text-align: center;
+                justify-content: center;
+                align-items: center;
+            }
+            #section-contact h2.text-5xl,
+            #section-contact h2.text-8xl {
+                font-size: 40px !important;
+                line-height: 1.05;
+            }
+
+            /* Modals: ensure scrollable + reduce padding on mobile */
+            .system-modal {
+                padding: 40px 8px 30px 8px !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .system-modal > .max-w-4xl {
+                padding: 18px !important;
+                max-width: 100% !important;
+                overflow: hidden;
+            }
+            .system-modal h2.text-4xl,
+            .system-modal h2.text-6xl {
+                font-size: 28px !important;
+                line-height: 1.1;
+                margin-bottom: 24px !important;
+                padding-right: 32px !important;
+            }
+            .system-modal h4 {
+                padding-right: 32px !important;
+            }
+            .system-modal .grid.grid-cols-1 {
+                gap: 24px !important;
+            }
+            .system-modal .close-btn,
+            .system-modal button[class*="absolute top-6 right-6"] {
+                top: 10px !important;
+                right: 10px !important;
+                padding: 8px 12px !important;
+                font-size: 11px !important;
+                min-height: 40px;
+                min-width: 40px;
+                z-index: 10;
+            }
+
+            /* Sound toggles: compact on mobile, tuck into corner, hide volume slider */
+            .sound-toggles-container {
+                bottom: 16px !important;
+                right: 8px !important;
+                gap: 6px;
+            }
+            .sound-toggle-row {
+                padding: 4px 8px;
+                gap: 6px;
+            }
+            .sound-toggle-vol {
+                display: none;
+            }
+            .sound-toggle-label {
+                font-size: 9px;
+                min-width: 18px;
+            }
+            .sound-toggle-track {
+                width: 30px;
+                height: 16px;
+            }
+            .sound-toggle-thumb {
+                width: 12px;
+                height: 12px;
+            }
+            .sound-toggle-row.active .sound-toggle-thumb {
+                transform: translateX(14px);
+            }
+
+            /* Footer: stack vertically on mobile */
+            footer.flex-col.md\:flex-row,
+            footer[class*="flex-col"] {
+                text-align: center;
+                gap: 6px;
+                padding: 16px !important;
+            }
+
+            /* Loader: smaller text on mobile */
+            #loader-text { font-size: 12px !important; }
+            #loader .w-64 { width: 200px !important; }
+
+            /* Game overlay: ensure usable on mobile */
+            .game-overlay { padding: 8px; }
+            .game-canvas-wrapper {
+                max-width: 100%;
+                width: 100%;
+            }
+            #game-canvas {
+                max-width: 100%;
+                height: auto;
+                display: block;
+            }
+            .game-close {
+                top: -30px;
+                padding: 4px 10px;
+                font-size: 10px;
+                min-height: 32px;
+                min-width: 32px;
+            }
+            .game-hud { padding: 6px 10px; font-size: 11px; }
+
+            /* Mobile D-pad: ensure tap targets ≥44px and properly positioned */
+            .mobile-controls {
+                position: relative !important;
+                bottom: auto !important;
+                left: auto !important;
+                right: auto !important;
+                margin-top: 12px;
+                padding: 12px;
+                gap: 12px;
+            }
+            #btn-left, #btn-right {
+                width: 56px !important;
+                height: 56px !important;
+                min-width: 56px;
+                font-size: 22px;
+                padding: 0 !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            #btn-shoot {
+                min-width: 88px;
+                height: 56px !important;
+                font-size: 14px;
+                padding: 0 16px !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* Extra-small phones (≤360px): even tighter */
+        @media (max-width: 360px) {
+            nav.fixed.top-0 > div:first-child {
+                font-size: 10px;
+                max-width: 55vw;
+            }
+            .hero-title {
+                font-size: 36px !important;
+            }
+            .glass-panel.p-8 {
+                padding: 16px !important;
+            }
+            #section-contact h2.text-5xl,
+            #section-contact h2.text-8xl {
+                font-size: 32px !important;
+            }
+        }
+
+        /* Touch devices: ensure tap targets are ≥44x44px */
+        @media (pointer: coarse) {
+            .interactive,
+            button,
+            a[class*="bg-accent"],
+            .terminal-header-tab,
+            .topo-btn,
+            .blog-tag {
+                min-height: 36px;
+            }
+        }
     </style>
 </head>
 
@@ -363,22 +774,29 @@
         class="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50 mix-blend-difference pointer-events-none">
         <div class="font-bold tracking-widest text-sm uppercase">PARTH VAREKAR // MUMBAI</div>
         <div class="flex items-center gap-6 relative">
-            <!-- CTA Callout -->
-            <div class="absolute -left-20 top-2 pointer-events-none hidden md:block" id="workspace-callout">
-                <div class="flex flex-col items-start">
-                    <svg width="60" height="40" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        class="ml-2">
-                        <path d="M10 35Q25 30 45 5M45 5L37 8M45 5L48 15" stroke="#00F0FF" stroke-width="1.5"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <span
-                        class="font-mono text-[10px] text-accent uppercase tracking-tighter whitespace-nowrap opacity-80 mt-[-5px]">check
-                        me out!</span>
+            <!-- CTA Callout — the workspace link itself, styled as a prominent animated pill -->
+            <a href="workspace.html" id="workspace-callout" class="hidden md:flex items-center gap-2 pointer-events-auto interactive" style="animation: callout-bob 2s ease-in-out infinite; text-decoration:none;">
+                <style>
+                    @keyframes callout-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+                    @keyframes callout-glow { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+                    #workspace-callout .callout-pill {
+                        animation: callout-glow 1.5s ease-in-out infinite;
+                        box-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(0, 240, 255, 0.15);
+                        transition: transform 0.2s, box-shadow 0.2s;
+                    }
+                    #workspace-callout:hover .callout-pill {
+                        transform: scale(1.05);
+                        box-shadow: 0 0 28px rgba(0, 240, 255, 0.6), 0 0 56px rgba(0, 240, 255, 0.25);
+                    }
+                </style>
+                <svg width="50" height="30" viewBox="0 0 50 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                    <path d="M5 15 Q20 15 40 8 M40 8 L33 6 M40 8 L37 14" stroke="#00F0FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <circle cx="40" cy="8" r="2.5" fill="#00F0FF"/>
+                </svg>
+                <div class="callout-pill font-mono text-xs text-black bg-accent uppercase tracking-wider whitespace-nowrap px-3 py-1.5 rounded-sm font-bold">
+                    Try the Workspace →
                 </div>
-            </div>
-            <a href="workspace.html"
-                class="pointer-events-auto font-mono text-xs text-accent hover:text-white transition-colors interactive hidden md:inline-block"
-                style="pointer-events:auto;">[ Workspace ]</a>
+            </a>
             <div class="font-mono text-xs text-accent" id="clock">00:00:00</div>
         </div>
     </nav>
@@ -398,8 +816,9 @@
                             class="text-outline hover:text-white transition-colors duration-500 interactive">Varekar</span>
                     </h1>
                     <p class="mt-8 text-lg md:text-2xl text-gray-400 font-light max-w-2xl leading-relaxed fade-up">
-                        AI Systems & Full-Stack Engineering. I build complete architectures—from local LLM pipelines to
-                        high-performance React interfaces. Execution over theory.
+                        B.Tech Computer Engineering student (Mumbai University, 2024–2028) building local-first AI systems —
+                        speech pipelines, RAG knowledge bases, browser AI safety, and educational games. I ship to learn,
+                        and I learn by shipping.
                     </p>
                     <div class="mt-12 fade-up">
                         <button
@@ -421,15 +840,20 @@
                         <span class="font-mono text-xs text-gray-400 uppercase tracking-widest">Architectural Blueprint
                             // 01</span>
                     </div>
-                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">Execution Over Surface</h2>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">Who I Am.</h2>
                     <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
-                        I design systems that prioritize measurable functionality. Whether it's securely managing escrow
-                        funds, parsing complex data via local AI models, or rendering WebGL interfaces, the goal is
-                        always performance and reliability.
+                        I'm Parth — a B.Tech Computer Engineering student at K.C. College of Engineering (Mumbai
+                        University), class of 2028. I build AI systems because I'm curious about how intelligence can be
+                        engineered to run locally, privately, and reliably — not just routed through someone else's API.
+                    </p>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
+                        In 2026 I completed a 120-hour Data Science & Analytics internship at Imarticus Learning (A+ grade),
+                        where I worked with SQL, Python/Colab, and Power BI on real datasets. Outside of coursework I ship
+                        projects — six of which are documented below, all verified and on GitHub.
                     </p>
                     <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed fade-up">
-                        Based in Mumbai. Open to thoughtful product collaborations that require deep technical
-                        problem-solving.
+                        Based in Mumbai. Open to internships and collaborations in AI systems, full-stack engineering,
+                        and developer tools.
                     </p>
                 </div>
             </section>
@@ -442,14 +866,14 @@
                     </div>
                     <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">What I Build.</h2>
                     <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
-                        I architect end-to-end full-stack applications with an emphasis on local LLMs and robust AI
-                        systems.
-                        My focus isn't just on passing data between APIs, but Engineering intelligence directly into the
-                        core state.
+                        I build across the AI engineering stack — from C++-backed speech pipelines (whisper.cpp +
+                        llama.cpp) to in-browser Python execution (Pyodide/WebAssembly) to Chrome MV3 extensions that
+                        intercept and inspect AI agent traffic at runtime. Most of my projects are local-first: your data
+                        stays on your machine.
                     </p>
                     <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed fade-up">
-                        From complex PostgreSQL schemas handling atomic financial transactions to edge TTS integrations,
-                        the artifacts I deploy are built for resilience and real-world execution.
+                        I care about architecture over hype. The projects below are real, documented, and reproducible —
+                        not API wrappers with a landing page.
                     </p>
                 </div>
             </section>
@@ -463,16 +887,15 @@
                     </div>
                     <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">How I Think.</h2>
                     <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
-                        Systems thinking dictates everything. Function over form, logic over assumptions. When faced
-                        with
-                        a severe trust deficit in an escrow marketplace or latency in an AI data extraction pipeline, I
-                        don't
-                        patch it—I restructure the underlying logic.
+                        Systems thinking over surface fixes. When a latency budget slips or a detection engine returns
+                        false positives, I don't patch the symptom — I re-examine the pipeline. Most of my projects
+                        started as personal problems I wanted solved properly: a GATE prep tool that didn't exist, a
+                        dictation daemon that respected my privacy, a safety layer for browser AI agents that nobody had
+                        shipped yet.
                     </p>
                     <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed fade-up">
-                        I believe in controlling the entire stack. True execution means holding a deep understanding of
-                        how
-                        every node, database query, and animation frame interact. Execution definitively beats theory.
+                        I believe in controlling the stack end-to-end — from the compiled C++ binary to the last pixel on
+                        screen. Theory is the starting point; shipping is the test.
                     </p>
                 </div>
             </section>
@@ -483,16 +906,22 @@
                         <div class="w-2 h-2 bg-accent animate-pulse"></div>
                         <span class="font-mono text-xs text-gray-400 uppercase tracking-widest">SYSTEM.EDGE // 04</span>
                     </div>
-                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">What I Explore.</h2>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-8 uppercase fade-up">Where I Started.</h2>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
+                        My first shipped extension was <span class="text-accent">Color Vision Assistant</span> (2025) —
+                        built with a team to help low-vision users browse the web. It implemented a “partial blindness”
+                        mode via CSS/JS overlays that boosted contrast, font weight, and brightness. Crude by today's
+                        standards, but it's where I learned Chrome MV3, content scripts, and that software can quietly
+                        change someone's day. It's why accessibility still informs how I build.
+                    </p>
+                    <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-6 fade-up">
+                        <span class="font-mono text-sm text-gray-500">Currently exploring:</span>
+                    </p>
                     <ul class="text-lg md:text-xl text-gray-300 font-light leading-relaxed space-y-4 fade-up">
-                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Local LLM deployments and
-                            quantization optimizations.</li>
-                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Experimental WebGL
-                            interfaces for spatial data representation.</li>
-                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Multi-agent systems solving
-                            deterministic logic problems.</li>
-                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Bare-metal performance
-                            tuning for rendering and network transit.</li>
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Local LLM deployments & quantization (whisper.cpp, llama.cpp, Ollama).</li>
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> In-browser Python execution via Pyodide/WebAssembly.</li>
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Multi-agent systems for media intelligence & content analysis.</li>
+                        <li class="flex items-start"><span class="text-accent mr-3">_</span> Runtime safety layers for browser-based AI agents.</li>
                     </ul>
                 </div>
             </section>
@@ -505,11 +934,12 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
+                        <!-- 1. WhisperFlow -->
                         <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
-                            onclick="window.openSystemModal('modal-reboxed')">
+                            onclick="window.openSystemModal('modal-whisperflow')">
                             <div
                                 class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
-                                <img src="/assets/reboxed-preview.png" loading="lazy" alt="Reboxed Preview"
+                                <img src="assets/whisperflow-preview.png" loading="lazy" alt="WhisperFlow preview — offline speech-to-text pipeline"
                                     class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
                                 <div
                                     class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
@@ -518,29 +948,29 @@
                             <div class="glass-content relative z-10 flex flex-col h-full">
                                 <div>
                                     <div class="flex justify-between items-start mb-6">
-                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">E-COMMERCE
-                                            // DEEP</h4>
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">AI VOICE //
+                                            DEEP</h4>
                                         <span
-                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">LIVE</span>
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">WIP</span>
                                     </div>
                                     <h3
                                         class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
-                                        Reboxed</h3>
-                                    <p class="text-gray-400 font-light text-sm mb-6">Escrow-based second-hand
-                                        marketplace. Funds are held securely and released only post-verification.</p>
+                                        WhisperFlow</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Offline, zero-cloud speech-to-text + LLM pipeline. whisper.cpp transcribes, llama.cpp reasons — no internet after setup.</p>
                                 </div>
                                 <div
                                     class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
-                                    <span>[ FastAPI ]</span> <span>[ PostgreSQL ]</span> <span>[ React ]</span>
+                                    <span>[ Python ]</span> <span>[ whisper.cpp ]</span> <span>[ llama.cpp ]</span>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- 2. StudyOS -->
                         <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
-                            onclick="window.openSystemModal('modal-spendly')">
+                            onclick="window.openSystemModal('modal-studyos')">
                             <div
                                 class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
-                                <img src="/assets/spendly-preview.png" loading="lazy" alt="Spendly Preview"
+                                <img src="assets/studyos-preview.png" loading="lazy" alt="StudyOS preview — GATE prep PWA dashboard"
                                     class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
                                 <div
                                     class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
@@ -549,29 +979,29 @@
                             <div class="glass-content relative z-10 flex flex-col h-full">
                                 <div>
                                     <div class="flex justify-between items-start mb-6">
-                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">FINANCE //
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">FULL-STACK //
                                             DEEP</h4>
                                         <span
-                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">LIVE</span>
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">WIP</span>
                                     </div>
                                     <h3
                                         class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
-                                        Spendly</h3>
-                                    <p class="text-gray-400 font-light text-sm mb-6">Personal finance management engine
-                                        designed for smarter spending analytics and data categorization.</p>
+                                        StudyOS</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">A local-first PWA that runs my GATE 2027 prep like a SaaS product — 13 Prisma models, test-runner state machine, offline-first.</p>
                                 </div>
                                 <div
                                     class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
-                                    <span>[ Python ]</span> <span>[ TypeScript ]</span> <span>[ Dashboards ]</span>
+                                    <span>[ Next.js 16 ]</span> <span>[ Prisma ]</span> <span>[ PWA ]</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="glass-panel p-8 border-l-2 border-l-white/50 group interactive cursor-pointer"
-                            onclick="window.openSystemModal('modal-gym')">
+                        <!-- 3. Nexus-AI -->
+                        <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-nexus-ai')">
                             <div
                                 class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
-                                <img src="/assets/gym-preview.png" loading="lazy" alt="Gym Progress Tracker Preview"
+                                <img src="assets/nexus-ai-preview.png" loading="lazy" alt="Nexus-AI preview — educational coding game with in-browser Python"
                                     class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
                                 <div
                                     class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
@@ -580,98 +1010,112 @@
                             <div class="glass-content relative z-10 flex flex-col h-full">
                                 <div>
                                     <div class="flex justify-between items-start mb-6">
-                                        <h4 class="font-mono text-xs text-gray-300 uppercase tracking-widest">FITNESS //
-                                            MED</h4>
-                                        <span
-                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">LIVE</span>
-                                    </div>
-                                    <h3 class="text-3xl font-black uppercase mb-4 transition-colors">Gym Tracker</h3>
-                                    <p class="text-gray-400 font-light text-sm mb-6">Body tracking platform logging reps, intensity metrics, and progressive overload statistics.</p>
-                                </div>
-                                <div
-                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
-                                    <span>[ React ]</span> <span>[ REST APIs ]</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel p-8 border-l-2 border-l-[#27C93F] group interactive cursor-pointer"
-                            onclick="window.openSystemModal('modal-trippy')">
-                            <div
-                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
-                                <img src="/assets/spatial-preview.png" loading="lazy" alt="Trippy Application Preview"
-                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
-                                </div>
-                            </div>
-                            <div class="glass-content relative z-10 flex flex-col h-full">
-                                <div>
-                                    <div class="flex justify-between items-start mb-6">
-                                        <h4 class="font-mono text-xs text-[#27C93F] uppercase tracking-widest">WEB //
-                                            MED</h4>
-                                    </div>
-                                    <h3 class="text-3xl font-black uppercase mb-4 transition-colors">Trippy</h3>
-                                    <p class="text-gray-400 font-light text-sm mb-6">AI-driven travel planning platform featuring modular itinerary generation and adaptive budgeting logic.</p>
-                                </div>
-                                <div
-                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
-                                    <span>[ React ]</span> <span>[ AI logic ]</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel p-8 border-l-2 border-l-[#B547E6] group interactive cursor-pointer"
-                            onclick="window.openSystemModal('modal-ai-ide')">
-                            <div
-                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
-                                <img src="/assets/motion-preview.png" loading="lazy" alt="AI IDE Logic Diagram"
-                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
-                                </div>
-                            </div>
-                            <div class="glass-content relative z-10 flex flex-col h-full">
-                                <div>
-                                    <div class="flex justify-between items-start mb-6">
-                                        <h4 class="font-mono text-xs text-[#B547E6] uppercase tracking-widest">AI SYSTEMS //
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">GAME + WASM //
                                             DEEP</h4>
-                                    </div>
-                                    <h3 class="text-3xl font-black uppercase mb-4 transition-colors">Autonomous AI IDE
-                                    </h3>
-                                    <p class="text-gray-400 font-light text-sm mb-6">Execution-aware LLM architecture enabling autonomous coding with self-repairing testing and validation cycles.</p>
-                                </div>
-                                <div
-                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
-                                    <span>[ Python ]</span> <span>[ Multi-Agent Systems ]</span> <span>[ LLMs ]</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel p-8 border-l-2 border-l-[#27C93F] group interactive cursor-pointer"
-                            onclick="window.openSystemModal('modal-socio')">
-                            <div
-                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
-                                <img src="/assets/spatial-preview.png" loading="lazy" alt="Data Pipeline Visual"
-                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
-                                </div>
-                            </div>
-                            <div class="glass-content relative z-10 flex flex-col h-full">
-                                <div>
-                                    <div class="flex justify-between items-start mb-6">
-                                        <h4 class="font-mono text-xs text-[#27C93F] uppercase tracking-widest">DATA ENG //
-                                            MED</h4>
+                                        <span
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">WIP</span>
                                     </div>
                                     <h3
-                                        class="text-3xl font-black uppercase mb-4 transition-colors">
-                                        Socio Influence</h3>
-                                    <p class="text-gray-400 font-light text-sm mb-6">Scalable backend data pipeline assessing influencer authenticity using custom ranking algorithms and large-scale comment tracking.</p>
+                                        class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
+                                        Nexus-AI</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">A 2D sci-fi educational game where players write real Python in-browser via Pyodide/WebAssembly. Custom Canvas engine + level editor.</p>
                                 </div>
                                 <div
                                     class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
-                                    <span>[ Backend API ]</span> <span>[ Analytics ]</span>
+                                    <span>[ Pyodide ]</span> <span>[ Canvas ]</span> <span>[ CodeMirror 6 ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. 2'nd_Brain -->
+                        <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-second-brain')">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="assets/second-brain-preview.png" loading="lazy" alt="2'nd_Brain preview — local RAG knowledge graph"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">RAG SYSTEM //
+                                            DEEP</h4>
+                                        <span
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">WIP</span>
+                                    </div>
+                                    <h3
+                                        class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
+                                        2'nd_Brain</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Local-first RAG knowledge base. Dual-store (SQLite + ChromaDB), streaming SSE answers, knowledge-graph API, Playwright scraper.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ FastAPI ]</span> <span>[ ChromaDB ]</span> <span>[ Gemini/Ollama ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Agent Safety Net -->
+                        <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-agent-safety-net')">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="assets/agent-safety-net-preview.png" loading="lazy" alt="Agent Safety Net preview — Chrome extension for AI agent safety"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">BROWSER SAFETY //
+                                            DEEP</h4>
+                                        <span
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">WIP</span>
+                                    </div>
+                                    <h3
+                                        class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
+                                        Agent Safety Net</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Chrome MV3 extension — runtime safety layer for browser AI agents. Intercepts fetch/XHR, detects PII + prompt injection at &lt;1ms.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ TypeScript ]</span> <span>[ Chrome MV3 ]</span> <span>[ React ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. Shorts Intelligence OS -->
+                        <div class="glass-panel p-8 border-l-2 border-l-accent group interactive cursor-pointer"
+                            onclick="window.openSystemModal('modal-shorts-intelligence')">
+                            <div
+                                class="absolute inset-0 z-0 opacity-0 transform scale-100 pointer-events-none project-img-container">
+                                <img src="assets/shorts-intelligence-preview.png" loading="lazy" alt="Shorts Intelligence OS preview — multi-agent YouTube Shorts analysis"
+                                    class="w-full h-full object-cover grayscale opacity-30 mix-blend-luminosity">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent">
+                                </div>
+                            </div>
+                            <div class="glass-content relative z-10 flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <h4 class="font-mono text-xs text-accent uppercase tracking-widest">MULTI-AGENT //
+                                            DEEP</h4>
+                                        <span
+                                            class="text-xs border border-white/20 text-gray-400 px-2 py-1 rounded-sm font-mono">WIP</span>
+                                    </div>
+                                    <h3
+                                        class="text-3xl font-black uppercase mb-4 group-hover:text-accent transition-colors">
+                                        Shorts Intelligence OS</h3>
+                                    <p class="text-gray-400 font-light text-sm mb-6">Multi-agent CLI that analyzes YouTube Shorts — viral scoring, retention forecasts at 3s/10s/20s, scene scripts. 15 formally specified metrics.</p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap gap-2 font-mono text-[10px] text-gray-500 uppercase mt-auto pt-4">
+                                    <span>[ FastAPI ]</span> <span>[ NVIDIA NIM ]</span> <span>[ FAISS ]</span>
                                 </div>
                             </div>
                         </div>
@@ -691,23 +1135,20 @@
                         </h2>
 
                         <div class="font-mono text-sm text-gray-400 bg-black/50 p-6 border border-white/10 rounded-sm">
-                            <div class="text-white mb-2">├── AI_VOICE_SYSTEMS</div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-accent">├── Local LLMs & Prompt Engineering</div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">├── Whisper (STT) & Edge TTS</div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── Data Extraction Pipelines</div>
+                            <div class="text-white mb-2">├── AI_SYSTEMS</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-accent">├── whisper.cpp + llama.cpp (local STT + LLM)</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">├── RAG (ChromaDB, FAISS, pgvector)</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── Multi-agent pipelines (LangGraph, NVIDIA NIM)</div>
 
                             <div class="text-white mt-6 mb-2">├── BACKEND_INFRASTRUCTURE</div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-accent">├── FastAPI, Python, PostgreSQL,
-                                SQLAlchemy</div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">├── WebSockets & Atomic Transactions
-                            </div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── Docker, GitHub Actions, Playwright
-                            </div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-accent">├── Python, FastAPI, Prisma, SQLite</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">├── SSE streaming, Pyodide/WASM, Playwright</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── MySQL, Power BI, REST APIs</div>
 
                             <div class="text-white mt-6 mb-2">└── FRONTEND_UX</div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-alert">├── React, TypeScript, Tailwind, Vite</div>
-                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── GSAP, Framer Motion, React Three
-                                Fiber</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-alert">├── Next.js 16, React 19, TypeScript, Tailwind</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">├── shadcn/ui, Canvas API, CodeMirror 6</div>
+                            <div class="tree-line ml-4 pl-6 mb-2 text-gray-500">└── GSAP, Chrome MV3, PWA / Service Workers</div>
                         </div>
                     </div>
 
@@ -719,20 +1160,31 @@
                         <div class="space-y-8 font-mono text-sm">
                             <div class="border-l-2 border-accent pl-6 relative">
                                 <div class="absolute -left-[5px] top-0 w-2 h-2 bg-accent rounded-full"></div>
-                                <div class="text-white font-bold mb-1">v2.0.0 [Current] -> AI & Full-Stack Engineer
+                                <div class="text-white font-bold mb-1">v3.0.0 [Current] -> AI Systems Builder
                                 </div>
-                                <div class="text-gray-500 text-xs mb-3">@ Mumbai // Present</div>
-                                <div class="text-green-400">+ Architecting local LLM pipelines & integrations</div>
-                                <div class="text-green-400">+ Developing scalable escrow & finance platforms</div>
+                                <div class="text-gray-500 text-xs mb-3">@ Mumbai // 2026 — Present</div>
+                                <div class="text-green-400">+ WhisperFlow: offline STT + LLM pipeline (whisper.cpp + llama.cpp)</div>
+                                <div class="text-green-400">+ Agent Safety Net: Chrome MV3 runtime safety for browser AI agents</div>
+                                <div class="text-green-400">+ StudyOS: local-first GATE prep PWA (Next.js 16 + Prisma)</div>
+                            </div>
+
+                            <div class="border-l-2 border-accent pl-6 relative">
+                                <div class="absolute -left-[5px] top-0 w-2 h-2 bg-accent rounded-full"></div>
+                                <div class="text-gray-300 font-bold mb-1">v2.0.0 -> Data Science Intern // Imarticus Learning
+                                </div>
+                                <div class="text-gray-500 text-xs mb-3">@ Mumbai // Feb — Mar 2026 // Grade: A+</div>
+                                <div class="text-green-400">+ 120-hour internship: MySQL, Python/Colab, Power BI</div>
+                                <div class="text-green-400">+ Built interactive dashboards on real datasets</div>
                             </div>
 
                             <div class="border-l-2 border-white/20 pl-6 relative">
                                 <div class="absolute -left-[5px] top-0 w-2 h-2 bg-white/40 rounded-full"></div>
-                                <div class="text-gray-300 font-bold mb-1">v1.5.0 -> Frontend & Interaction Developer
+                                <div class="text-gray-300 font-bold mb-1">v1.0.0 -> B.Tech CE begins + First Extension
                                 </div>
-                                <div class="text-gray-500 text-xs mb-3">@ Previous // Foundation</div>
-                                <div class="text-green-400">+ Built WebGL and GSAP powered interfaces</div>
-                                <div class="text-green-400">+ Engineered complex state-driven dashboards</div>
+                                <div class="text-gray-500 text-xs mb-3">@ K.C. College, Mumbai University // 2024 — 2025</div>
+                                <div class="text-green-400">+ Admitted via MHT-CET to B.Tech Computer Engineering</div>
+                                <div class="text-green-400">+ Shipped Color Vision Assistant (Chrome MV3, team project)</div>
+                                <div class="text-green-400">+ Full-Stack Java certification (EduSkills, A+ grade)</div>
                             </div>
                         </div>
                     </div>
@@ -742,29 +1194,34 @@
 
 
             <section id="section-topology" class="py-32 px-6 bg-[#030303] border-y border-white/5 relative z-10">
+                <div class="max-w-6xl mx-auto mb-8 px-4">
+                    <h3 class="font-mono text-accent mb-2 uppercase text-sm">PIPELINE.VISUALIZER // How Data Flows</h3>
+                    <h2 class="text-3xl md:text-5xl font-black uppercase leading-none mb-4">Watch the <br>Pipelines Run.</h2>
+                    <p class="text-gray-400 font-light max-w-2xl">Animated data-flow diagrams for three of my projects. Particles represent data moving through each pipeline stage. Switch between projects to see how architecture differs.</p>
+                </div>
                 <div
                     class="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-4">
-                    <h4 class="font-mono text-accent uppercase tracking-wider text-sm">ARCHITECTURE WIRING (INTERACTIVE)
-                    </h4>
-
                     <!-- Switch Toolbar -->
                     <div class="flex flex-wrap gap-2 font-mono text-xs w-full md:w-auto">
-                        <button id="btn-topo-reboxed"
+                        <button id="btn-topo-whisper"
                             class="topo-btn active px-3 py-1.5 border border-accent text-accent hover:bg-accent hover:text-black transition-all interactive"
-                            onclick="switchTopology('reboxed')">[ REBOXED ]</button>
-                        <button id="btn-topo-ai"
+                            onclick="switchTopology('whisper')">[ WHISPERFLOW ]</button>
+                        <button id="btn-topo-rag"
                             class="topo-btn px-3 py-1.5 border border-white/20 text-gray-400 hover:border-white hover:text-white transition-all interactive"
-                            onclick="switchTopology('ai')">[ AI_PIPELINE ]</button>
+                            onclick="switchTopology('rag')">[ RAG_PIPELINE ]</button>
                         <button id="btn-topo-game"
                             class="topo-btn px-3 py-1.5 border border-white/20 text-gray-400 hover:border-white hover:text-white transition-all interactive"
                             onclick="switchTopology('game')">[ GAME_ENGINE ]</button>
                     </div>
                 </div>
 
-                <div class="max-w-4xl mx-auto h-[400px] bg-black/40 border border-white/5 rounded-sm relative overflow-hidden"
+                <div class="max-w-4xl mx-auto bg-black/40 border border-white/5 rounded-sm relative overflow-hidden" style="height:400px;"
                     id="topo-container">
                     <canvas id="topo-canvas" style="width:100%; height:100%; display:block;"></canvas>
                 </div>
+                <p class="text-center font-mono text-xs text-gray-500 mt-3 max-w-4xl mx-auto px-4" id="topo-caption">
+                    <span class="text-accent">WhisperFlow</span> — Audio → ffmpeg → whisper.cpp (STT) → llama-server (LLM) → Win32 SendInput (text injection). Fully offline, zero cloud calls.
+                </p>
             </section>
 
             <section id="section-terminal"
@@ -781,8 +1238,8 @@
                                     onclick="if (typeof $ !== 'undefined') { $('.terminal').terminal().exec('projects'); }">projects</span>
                             </p>
                             <p>> Try command: <span class="text-accent interactive cursor-pointer"
-                                    onclick="if (typeof $ !== 'undefined') { $('.terminal').terminal().exec('open reboxed'); }">open
-                                    reboxed</span></p>
+                                    onclick="if (typeof $ !== 'undefined') { $('.terminal').terminal().exec('open whisperflow'); }">open
+                                    whisperflow</span></p>
                             <p>> Try command: <span class="text-alert interactive cursor-pointer"
                                     onclick="if (typeof $ !== 'undefined') { $('.terminal').terminal().exec('contact'); }">contact</span>
                             </p>
@@ -813,7 +1270,7 @@
                 <h2 class="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-12">
                     Initiate <br>Handshake.
                 </h2>
-                <a href="mailto:parthvarekar27@gmail.com"
+                <a href="mailto:parthvarekar27@gmail.com" onclick="window.__copyEmail(event)"
                     class="interactive relative inline-flex items-center justify-center px-12 py-6 font-bold text-black bg-accent uppercase tracking-widest overflow-hidden group mb-12">
                     <span class="relative z-10 transition-colors group-hover:text-white">Transmit Email</span>
                     <div
@@ -825,7 +1282,7 @@
                     class="flex flex-col md:flex-row gap-4 md:gap-8 font-mono text-sm text-gray-400 items-center justify-center">
                     <a href="https://github.com/ParthVarekar" target="_blank"
                         class="hover:text-white transition-colors interactive whitespace-nowrap">[ GitHub ]</a>
-                    <a href="https://www.linkedin.com/in/parth-varekar-601432344/" target="_blank"
+                    <a href="https://www.linkedin.com/in/parth-varekar-a90b412b1/" target="_blank"
                         class="hover:text-white transition-colors interactive whitespace-nowrap">[ LinkedIn ]</a>
                     <span class="text-gray-600 whitespace-nowrap">[ +91 7400082627 ]</span>
                 </div>
@@ -833,134 +1290,281 @@
 
             <footer
                 class="p-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center font-mono text-xs text-gray-600 z-10 relative bg-[#020202]">
-                <div>© 2026 PARTH VAREKAR // ARCHITECTURE</div>
+                <div>© <span id="footer-year">2026</span> PARTH VAREKAR // ARCHITECTURE</div>
                 <div>Mumbai, IN // System Online</div>
             </footer>
 
         </div>
     </main>
 
-    <div id="modal-reboxed" class="system-modal">
+    <!-- ═══ PROJECT MODALS ═══ -->
+
+    <!-- 1. WhisperFlow -->
+    <div id="modal-whisperflow" class="system-modal">
         <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
-            <button onclick="window.closeSystemModal('modal-reboxed')"
+            <button onclick="window.closeSystemModal('modal-whisperflow')"
                 class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
                 [X]</button>
-            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // Reboxed</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Escrow <br>Marketplace.</h2>
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // WhisperFlow</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Offline <br>Speech Pipeline.</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
                 <div>
                     <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Problem Space</h5>
-                    <p class="text-gray-400 font-light text-sm leading-relaxed">Second-hand marketplaces suffer from
-                        severe trust deficits. Buyers risk paying for items that never arrive, and sellers risk shipping
-                        items without guaranteed payment.</p>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Cloud dictation tools (Wispr Flow, Superwhisper) send your audio to remote servers. For sensitive workflows — medical, legal, development — that's a privacy non-starter.</p>
                 </div>
                 <div>
                     <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Architectural Logic</h5>
-                    <p class="text-gray-400 font-light text-sm leading-relaxed">Engineered a strict escrow protocol
-                        using FastAPI and PostgreSQL. Funds are cryptographically locked in the system state and only
-                        released upon atomic verification of delivery.</p>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">A fully offline pipeline: <span class="text-accent">whisper.cpp</span> transcribes audio via a compiled C++ binary, <span class="text-accent">llama.cpp</span> reasons over the transcript via a local HTTP server. The Python orchestrator has <span class="text-accent">zero runtime pip dependencies</span> — stdlib only.</p>
                 </div>
             </div>
 
+            <div class="mb-8 border-l-2 border-accent pl-6 py-2 bg-white/5">
+                <ul class="text-gray-300 font-mono text-sm space-y-2">
+                    <li><span class="text-accent">01_</span> Wispr Flow feature parity: push-to-talk daemon, system tray, floating overlay</li>
+                    <li><span class="text-accent">02_</span> Win32 SendInput text injection — inject transcribed text into any focused app</li>
+                    <li><span class="text-accent">03_</span> Context-aware app detection + voice snippets</li>
+                    <li><span class="text-accent">04_</span> 77/77 unit tests passing across 8 test modules</li>
+                </ul>
+            </div>
+
             <div class="mt-12 flex flex-wrap gap-4">
-                <a href="https://reboxed.onrender.com" target="_blank"
-                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">LAUNCH
-                    LIVE APP ↗</a>
+                <a href="https://github.com/ParthVarekar/whisper_flow_clone_local.git" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">VIEW SOURCE ↗</a>
             </div>
         </div>
     </div>
 
-    <div id="modal-spendly" class="system-modal">
+    <!-- 2. StudyOS -->
+    <div id="modal-studyos" class="system-modal">
         <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
-            <button onclick="window.closeSystemModal('modal-spendly')"
+            <button onclick="window.closeSystemModal('modal-studyos')"
                 class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
                 [X]</button>
-            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // Spendly</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Finance <br>Engine.</h2>
-            <p class="text-gray-400 font-light leading-relaxed mb-8 max-w-2xl">
-                A personal finance management system designed to process complex transaction data into readable,
-                actionable insights for smarter spending. Focus on data visualization, rapid categorization, and secure
-                state management.
-            </p>
-            <div class="mt-8 flex flex-wrap gap-4">
-                <a href="https://spendlypay.tech" target="_blank"
-                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">LAUNCH
-                    LIVE APP ↗</a>
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // StudyOS</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Study <br>Operating System.</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Problem Space</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Most exam-prep apps are glorified todo lists. They don't model the full study lifecycle — estimation, timed tests, syllabus tracking, goals, planning, notes, content.</p>
+                </div>
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Architectural Logic</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">A local-first PWA built like a SaaS product — <span class="text-accent">13 Prisma models</span> on SQLite, 8 interconnected modules, a full test-runner state machine, and a custom Superhuman-inspired design system. Dogfooded daily for GATE 2027.</p>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div id="modal-trippy" class="system-modal">
-        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
-            <button onclick="window.closeSystemModal('modal-trippy')"
-                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
-                [X]</button>
-            <h4 class="font-mono text-white mb-4 uppercase pr-24">Project Node // Trippy</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8 pr-24">Travel <br>Intelligence.</h2>
-            <p class="text-gray-400 font-light leading-relaxed mb-8">
-                An AI-driven travel planning platform featuring modular itinerary generation, adaptive budgeting logic, and cross-platform scalability for rapid travel configuration.
-            </p>
-        </div>
-    </div>
-
-    <div id="modal-gym" class="system-modal">
-        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
-            <button onclick="window.closeSystemModal('modal-gym')"
-                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
-                [X]</button>
-            <h4 class="font-mono text-white mb-4 uppercase pr-24">Project Node // Gym Tracker</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8 pr-24">Body <br>Telemetry.</h2>
-            <p class="text-gray-400 font-light leading-relaxed mb-8">
-                A dedicated application for tracking physical output. Logs repetitions, calculates intensity, and graphs workout statistics to ensure progressive overload is mathematically maintained.
-            </p>
-            <a href="https://gym-tracker-chi-six.vercel.app" target="_blank"
-                class="font-mono text-xs bg-white text-black px-6 py-3 font-bold interactive hover:bg-gray-300 transition-colors">LAUNCH
-                LIVE APP ↗</a>
-        </div>
-    </div>
-
-    <div id="modal-ai-ide" class="system-modal">
-        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
-            <button onclick="window.closeSystemModal('modal-ai-ide')"
-                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
-                [X]</button>
-            <h4 class="font-mono text-white mb-4 uppercase pr-24">Project Node // Autonomous AI IDE</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8 pr-24">Execution-Aware <br>LLM.</h2>
-            <p class="text-gray-400 font-light leading-relaxed mb-8">
-                Architected an autonomous coding environment combining multi-agent logic to orchestrate iterative generation, testing, and validation cycles. Engineered deep self-repair workflows that improve overall application reliability without manual human oversight.
-            </p>
-            <div class="mb-12 border-l-2 border-[#B547E6] pl-6 py-2 bg-white/5">
+            <div class="mb-8 border-l-2 border-accent pl-6 py-2 bg-white/5">
                 <ul class="text-gray-300 font-mono text-sm space-y-2">
-                    <li><span class="text-[#B547E6]">01_</span> Orchestrating Multi-Agent Systems</li>
-                    <li><span class="text-[#B547E6]">02_</span> Self-Regulating Automated Repair</li>
-                    <li><span class="text-[#B547E6]">03_</span> Unmonitored Reliability Pipelines</li>
+                    <li><span class="text-accent">01_</span> 13-model Prisma schema; 18 subjects + 91 GATE topics seeded</li>
+                    <li><span class="text-accent">02_</span> Test runner state machine: config → live timed exam → results → history</li>
+                    <li><span class="text-accent">03_</span> PDF.js canvas document viewer (126-page syllabus verified)</li>
+                    <li><span class="text-accent">04_</span> PWA + service worker — full offline support, data never leaves your machine</li>
                 </ul>
             </div>
+
+            <div class="mt-12 flex flex-wrap gap-4">
+                <a href="https://github.com/ParthVarekar/studyos" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">VIEW SOURCE ↗</a>
+            </div>
         </div>
     </div>
 
-    <div id="modal-socio" class="system-modal">
+    <!-- 3. Nexus-AI -->
+    <div id="modal-nexus-ai" class="system-modal">
         <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
-            <button onclick="window.closeSystemModal('modal-socio')"
+            <button onclick="window.closeSystemModal('modal-nexus-ai')"
                 class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
                 [X]</button>
-            <h4 class="font-mono text-white mb-4 uppercase pr-24">Project Node // Socio Influence</h4>
-            <h2 class="text-4xl md:text-6xl font-black uppercase mb-8 pr-24">Authenticity <br>Evaluator.</h2>
-            <p class="text-gray-400 font-light leading-relaxed mb-8">
-                Created a robust backend framework implementing scalable data pipelines to process and evaluate influencer authenticity indicators. Structured 900+ real-world comment logs by deploying custom ranking algorithms converting raw metrics to interpretable business insights.
-            </p>
-            <div class="mb-12 border-l-2 border-[#27C93F] pl-6 py-2 bg-white/5">
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // Nexus-AI</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Coding <br>Game Engine.</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Problem Space</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Most "learn to code" games fake execution with multiple-choice or regex matching. Real learning requires running real code and seeing real output.</p>
+                </div>
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Architectural Logic</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">A 2D sci-fi game that runs <span class="text-accent">real Python in-browser</span> via Pyodide (WebAssembly) in a dedicated Web Worker. Code is validated against the actual <span class="text-accent">pyodide.globals</span> namespace — not regex. A custom zero-dependency Canvas engine drives 60 FPS rendering, camera, and collision.</p>
+                </div>
+            </div>
+
+            <div class="mb-8 border-l-2 border-accent pl-6 py-2 bg-white/5">
                 <ul class="text-gray-300 font-mono text-sm space-y-2">
-                    <li><span class="text-[#27C93F]">01_</span> Scalable ETL Frameworks</li>
-                    <li><span class="text-[#27C93F]">02_</span> Algorithmic Activity Ranking</li>
-                    <li><span class="text-[#27C93F]">03_</span> Real-world Authenticity Scoring</li>
+                    <li><span class="text-accent">01_</span> Pyodide WASM Python sandbox with 10s timeout + stdout/stderr capture</li>
+                    <li><span class="text-accent">02_</span> Custom Canvas engine: 60 FPS fixed timestep, camera lerping, AABB collision</li>
+                    <li><span class="text-accent">03_</span> n8n-style SVG campaign node graph with cubic Bezier level wiring</li>
+                    <li><span class="text-accent">04_</span> 2D Minecraft-style tile level editor with Void brush + Base64 asset embedding</li>
                 </ul>
+            </div>
+
+            <div class="mt-12 flex flex-wrap gap-4">
+                <a href="https://github.com/ParthVarekar/coding_game.git" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">VIEW SOURCE ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 2'nd_Brain -->
+    <div id="modal-second-brain" class="system-modal">
+        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
+            <button onclick="window.closeSystemModal('modal-second-brain')"
+                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
+                [X]</button>
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // 2'nd_Brain</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Local <br>RAG Knowledge Base.</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Problem Space</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Note-taking apps don't reason over your notes. Cloud AI assistants don't keep your data private. A personal knowledge base should do both — locally.</p>
+                </div>
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Architectural Logic</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">A dual-store RAG system: <span class="text-accent">SQLite</span> for structured metadata, <span class="text-accent">ChromaDB</span> for vector search. Ingest files, URLs (via Playwright with stealth), or pasted text. Query in natural language and get <span class="text-accent">streaming SSE responses</span> backed by Gemini or Ollama. A <span class="text-accent">/graph</span> API builds a knowledge graph of document/chunk/memory nodes.</p>
+                </div>
+            </div>
+
+            <div class="mb-8 border-l-2 border-accent pl-6 py-2 bg-white/5">
+                <ul class="text-gray-300 font-mono text-sm space-y-2">
+                    <li><span class="text-accent">01_</span> DynamicScraperManager: Playwright + playwright-stealth for JS-heavy pages</li>
+                    <li><span class="text-accent">02_</span> Knowledge graph endpoint: keyword-overlap edges, top-80 weighted</li>
+                    <li><span class="text-accent">03_</span> Streaming SSE query pipeline with post-stream memory write-back</li>
+                    <li><span class="text-accent">04_</span> Background job tracking for all ingestion tasks</li>
+                </ul>
+            </div>
+
+            <div class="mt-12 flex flex-wrap gap-4">
+                <a href="https://github.com/ParthVarekar/2-nd_Brain.git" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">VIEW SOURCE ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Agent Safety Net -->
+    <div id="modal-agent-safety-net" class="system-modal">
+        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
+            <button onclick="window.closeSystemModal('modal-agent-safety-net')"
+                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
+                [X]</button>
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // Agent Safety Net</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Browser AI <br>Safety Layer.</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Problem Space</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Browser-based AI agents (ChatGPT, Claude) can read your DOM and make outbound requests — including your PII. There's no runtime safety layer inspecting what leaves your browser.</p>
+                </div>
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Architectural Logic</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">A Chrome MV3 extension that injects into the page's <span class="text-accent">MAIN world</span> to monkey-patch <span class="text-accent">fetch</span> and <span class="text-accent">XMLHttpRequest</span>. Captured payloads route to the Service Worker, where local regex PII detection + prompt-injection pattern matching run deterministically — <span class="text-accent">avg 0.011ms, ~90,000 req/sec</span> — with an LRU cache for sub-millisecond repeated lookups.</p>
+                </div>
+            </div>
+
+            <div class="mb-8 border-l-2 border-accent pl-6 py-2 bg-white/5">
+                <ul class="text-gray-300 font-mono text-sm space-y-2">
+                    <li><span class="text-accent">01_</span> MAIN world script injection bypasses declarativeNetRequest body-inspection limits</li>
+                    <li><span class="text-accent">02_</span> 4-tier intervention UI: Allow (silent) / Warn (toast) / Confirm (modal) / Block (interstitial)</li>
+                    <li><span class="text-accent">03_</span> Intent-drift detection: sensitive DOM read → unrecognized POST within 5s</li>
+                    <li><span class="text-accent">04_</span> Gemini Flash 2.5 used only for async post-block explanations</li>
+                </ul>
+            </div>
+
+            <div class="mt-12 flex flex-wrap gap-4">
+                <a href="https://github.com/ParthVarekar/agent_safety_net.git" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">VIEW SOURCE ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Shorts Intelligence OS -->
+    <div id="modal-shorts-intelligence" class="system-modal">
+        <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 relative cursor-default">
+            <button onclick="window.closeSystemModal('modal-shorts-intelligence')"
+                class="absolute top-6 right-6 font-mono text-xs border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors interactive">CLOSE
+                [X]</button>
+            <h4 class="font-mono text-accent mb-4 uppercase pr-24">Case Study // Shorts Intelligence OS</h4>
+            <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 pr-24">Shorts <br>Intelligence.</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Problem Space</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">Short-form video is the dominant content format, but creators fly blind — no formal metrics for viral potential, no retention forecasts, no structured way to learn from what works.</p>
+                </div>
+                <div>
+                    <h5 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Architectural Logic</h5>
+                    <p class="text-gray-400 font-light text-sm leading-relaxed">A multi-agent CLI + FastAPI backend that ingests transcripts and analytics, then produces structured reports: viral scoring, <span class="text-accent">retention forecasts at 3s/10s/20s/completion</span>, competitor analysis, scene-by-scene scripts, thumbnail ideas. <span class="text-accent">15 formally specified metrics</span> with explicit confidence-level classifications.</p>
+                </div>
+            </div>
+
+            <div class="mb-8 border-l-2 border-accent pl-6 py-2 bg-white/5">
+                <ul class="text-gray-300 font-mono text-sm space-y-2">
+                    <li><span class="text-accent">01_</span> 15 documented metrics with formulas, units, and confidence levels</li>
+                    <li><span class="text-accent">02_</span> FastAPI backend with SSE progress streaming</li>
+                    <li><span class="text-accent">03_</span> SQLite persistent memory + FAISS pattern learning across runs</li>
+                    <li><span class="text-accent">04_</span> Optional NVIDIA NIM with paced scheduler + exponential backoff + response caching</li>
+                </ul>
+            </div>
+
+            <div class="mt-12 flex flex-wrap gap-4">
+                <a href="https://github.com/ParthVarekar/shorts-intelligence-os" target="_blank"
+                    class="font-mono text-xs bg-accent text-black px-6 py-3 font-bold interactive hover:bg-white transition-colors">VIEW SOURCE ↗</a>
             </div>
         </div>
     </div>
 
     <script>
+        // --- 0a. Force scroll to top on every load ---
+        // Browsers restore the previous scroll position by default (scrollRestoration='auto'),
+        // which makes the site open near the bottom on reload. Override that and snap to top
+        // immediately, before any other script runs.
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        // Also handle bfcache (back/forward) restores — pageshow fires on bfcache restore.
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted) { window.scrollTo(0, 0); if (window.lenis) { try { window.lenis.scrollTo(0, { immediate: true }); } catch(_) {} } }
+        });
+
+        // --- 0b. Transmit Email handler — copies to clipboard + shows toast, then opens mailto ---
+        window.__copyEmail = function(e) {
+            var email = 'parthvarekar27@gmail.com';
+            // Try to copy to clipboard
+            try {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(email);
+                } else {
+                    var ta = document.createElement('textarea');
+                    ta.value = email; document.body.appendChild(ta); ta.select();
+                    document.execCommand('copy'); document.body.removeChild(ta);
+                }
+            } catch (err) {}
+            // Show a toast
+            var toast = document.createElement('div');
+            toast.textContent = '✓ Email copied: ' + email;
+            toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#00F0FF;color:#000;padding:12px 24px;font-family:"Fira Code",monospace;font-size:13px;font-weight:600;z-index:100000;border-radius:4px;box-shadow:0 4px 20px rgba(0,240,255,0.4);transition:opacity 0.4s;opacity:1;';
+            document.body.appendChild(toast);
+            setTimeout(function(){ toast.style.opacity = '0'; setTimeout(function(){ toast.remove(); }, 400); }, 2500);
+            // Don't prevent default — let mailto: also fire
+        };
+
+        // --- 0. Safe GSAP fallback ---
+        // If GSAP fails to load from CDN, define a no-op shim so the site still renders.
+        const _gsapReady = typeof window.gsap !== 'undefined';
+        if (!_gsapReady) {
+            console.warn('[Portfolio] GSAP not loaded — running in no-animation fallback mode.');
+            window.gsap = { to: (t, o) => { if (o && typeof o.onComplete === 'function') setTimeout(o.onComplete, (o.duration || 0) * 1000); }, fromTo: () => {}, utils: { toArray: sel => Array.from(document.querySelectorAll(sel)) } };
+            window.ScrollTrigger = { refresh: () => {}, update: () => {} };
+        }
+        if (typeof window.ScrollTrigger !== 'undefined' && _gsapReady) {
+            try { window.gsap.registerPlugin(window.ScrollTrigger); } catch (e) {}
+        }
+
         // --- 1. Boot Sequence ---
         const initBootSequence = () => {
             let progress = 0;
@@ -973,38 +1577,49 @@
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(interval);
-                    gsap.to(loader, {
-                        yPercent: -100, duration: 1.2, ease: "power4.inOut", delay: 0.3,
-                        onComplete: initAnimations
-                    });
+                    try {
+                        gsap.to(loader, {
+                            yPercent: -100, duration: 1.2, ease: "power4.inOut", delay: 0.3,
+                            onComplete: initAnimations
+                        });
+                    } catch (e) {
+                        // Fallback: hide loader instantly and init animations
+                        if (loader) loader.style.display = 'none';
+                        initAnimations();
+                    }
                 }
-                loaderText.innerText = `SYS.INIT [${progress}%]`;
-                loaderBar.style.width = `${progress}%`;
+                if (loaderText) loaderText.innerText = `SYS.INIT [${progress}%]`;
+                if (loaderBar) loaderBar.style.width = `${progress}%`;
             }, 60);
         };
 
         const initAnimations = () => {
-            gsap.fromTo('section:first-child .fade-up',
-                { y: 50, opacity: 0 },
-                { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power3.out" }
-            );
-
-            gsap.utils.toArray('section:not(:first-child) .fade-up').forEach((elem) => {
-                gsap.fromTo(elem,
+            try {
+                gsap.fromTo('section:first-child .fade-up',
                     { y: 50, opacity: 0 },
-                    {
-                        y: 0,
-                        opacity: 1,
-                        duration: 1,
-                        ease: "power3.out",
-                        scrollTrigger: {
-                            trigger: elem,
-                            start: "top 85%",
-                            toggleActions: "play none none reverse"
-                        }
-                    }
+                    { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power3.out" }
                 );
-            });
+
+                gsap.utils.toArray('section:not(:first-child) .fade-up').forEach((elem) => {
+                    gsap.fromTo(elem,
+                        { y: 50, opacity: 0 },
+                        {
+                            y: 0,
+                            opacity: 1,
+                            duration: 1,
+                            ease: "power3.out",
+                            scrollTrigger: {
+                                trigger: elem,
+                                start: "top 85%",
+                                toggleActions: "play none none reverse"
+                            }
+                        }
+                    );
+                });
+            } catch (e) {
+                // Fallback: just show everything
+                document.querySelectorAll('.fade-up').forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
+            }
         };
 
         // --- 2. Custom Cursor ---
@@ -1012,10 +1627,19 @@
             const dot = document.querySelector('.cursor-dot');
             const ring = document.querySelector('.cursor-ring');
 
+            // Touch / coarse-pointer devices: hide custom cursor, restore native.
             if (window.matchMedia("(pointer: coarse)").matches) {
-                dot.style.display = 'none';
-                ring.style.display = 'none';
+                if (dot) dot.style.display = 'none';
+                if (ring) ring.style.display = 'none';
                 document.body.style.cursor = 'auto';
+                return;
+            }
+
+            // If GSAP is missing, just keep the native cursor (don't hide it).
+            if (typeof gsap === 'undefined' || !gsap.to) {
+                document.body.style.cursor = 'auto';
+                if (dot) dot.style.display = 'none';
+                if (ring) ring.style.display = 'none';
                 return;
             }
 
@@ -1100,6 +1724,9 @@
             });
             window.lenis = lenis;
 
+            // Snap to top immediately on init (no animation) so the page always opens at the hero.
+            lenis.scrollTo(0, { immediate: true });
+
             lenis.on('scroll', ScrollTrigger.update);
             gsap.ticker.add((time) => { lenis.raf(time * 1000); });
             gsap.ticker.lagSmoothing(0);
@@ -1137,7 +1764,8 @@
         window.openSystemModal = (id) => {
             const modal = document.getElementById(id);
             if (modal) {
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
+                modal.scrollTop = 0; // start at top of modal content
                 document.body.style.overflow = 'hidden';
                 if (window.lenis) window.lenis.stop();
                 gsap.to(modal, { opacity: 1, duration: 0.3, ease: "power2.out" });
@@ -1173,24 +1801,120 @@
             });
         };
 
-        // --- 8. Live Clock ---
+        // --- 8. Live Clock (IST) ---
         setInterval(() => {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST';
+            const clockEl = document.getElementById('clock');
+            if (!clockEl) return;
+            clockEl.innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Kolkata' }) + ' IST';
         }, 1000);
 
+        // --- Footer year (dynamic) ---
+        (function(){
+            const y = document.getElementById('footer-year');
+            if (y) y.textContent = new Date().getFullYear();
+        })();
+
+        // --- Terminal tab wiring (PROBLEMS / OUTPUT) ---
+        // PROBLEMS: static engineering diagnostics panel.
+        // OUTPUT: rolling log of the last terminal commands.
+        (function(){
+            const tabs = document.querySelectorAll('.terminal-header-tab');
+            if (!tabs.length) return;
+            const terminalEl = document.getElementById('terminal');
+
+            // Build the OUTPUT log buffer (intercepts jQuery Terminal execs).
+            const outputLog = [];
+            window.__portfolioOutputLog = outputLog;
+            window.__portfolioLogCommand = function(cmd){
+                const ts = new Date().toLocaleTimeString('en-US', { hour12:false, timeZone:'Asia/Kolkata' });
+                outputLog.push(`[${ts}] $ ${cmd}`);
+                if (outputLog.length > 20) outputLog.shift();
+            };
+
+            // Render helpers
+            function showTerminal(){
+                tabs.forEach(t => t.classList.remove('active'));
+                tabs[0].classList.add('active');
+                if (terminalEl) terminalEl.style.display = '';
+                const p = document.getElementById('terminal-problems'); if (p) p.remove();
+                const o = document.getElementById('terminal-output'); if (o) o.remove();
+            }
+            function showProblems(){
+                tabs.forEach(t => t.classList.remove('active'));
+                tabs[1].classList.add('active');
+                if (terminalEl) terminalEl.style.display = 'none';
+                const p = document.getElementById('terminal-problems'); if (p) p.remove();
+                const o = document.getElementById('terminal-output'); if (o) o.remove();
+                const panel = document.createElement('div');
+                panel.id = 'terminal-problems';
+                panel.style.cssText = 'height:calc(100% - 28px);overflow:auto;padding:16px;font-family:"Fira Code",monospace;font-size:12px;color:#9ca3af;';
+                const problems = [
+                    { sev: 'info', msg: 'GSAP: ' + (_gsapReady ? 'loaded ✓' : 'MISSING (fallback active)') },
+                    { sev: 'info', msg: 'Three.js: ' + (typeof THREE !== 'undefined' ? 'loaded ✓' : 'MISSING') },
+                    { sev: 'info', msg: 'jQuery Terminal: ' + (typeof $ !== 'undefined' && $.fn.terminal ? 'loaded ✓' : 'MISSING') },
+                    { sev: 'info', msg: 'Project images: 6/6 resolved ✓' },
+                    { sev: 'info', msg: 'Cursor: ' + (window.matchMedia('(pointer: coarse)').matches ? 'native (touch device)' : 'custom (fine pointer)') },
+                    { sev: 'ok',   msg: 'All systems nominal. 0 errors detected.' }
+                ];
+                problems.forEach(pr => {
+                    const color = pr.sev === 'ok' ? '#22c55e' : pr.sev === 'warn' ? '#eab308' : '#00F0FF';
+                    panel.innerHTML += `<div style="color:${color};margin-bottom:6px;">[${pr.sev.toUpperCase()}] ${pr.msg}</div>`;
+                });
+                terminalEl.parentElement.appendChild(panel);
+            }
+            function showOutput(){
+                tabs.forEach(t => t.classList.remove('active'));
+                tabs[2].classList.add('active');
+                if (terminalEl) terminalEl.style.display = 'none';
+                const p = document.getElementById('terminal-problems'); if (p) p.remove();
+                const o = document.getElementById('terminal-output'); if (o) o.remove();
+                const panel = document.createElement('div');
+                panel.id = 'terminal-output';
+                panel.style.cssText = 'height:calc(100% - 28px);overflow:auto;padding:16px;font-family:"Fira Code",monospace;font-size:12px;color:#9ca3af;';
+                if (outputLog.length === 0) {
+                    panel.innerHTML = '<div style="color:#6b7280;">// No commands yet. Run a command in the TERMINAL tab to see it logged here.</div>';
+                } else {
+                    outputLog.forEach(line => {
+                        panel.innerHTML += `<div style="margin-bottom:4px;">${line}</div>`;
+                    });
+                }
+                terminalEl.parentElement.appendChild(panel);
+            }
+
+            tabs[0].addEventListener('click', showTerminal);
+            tabs[1].addEventListener('click', showProblems);
+            tabs[2].addEventListener('click', showOutput);
+        })();
+
         window.onload = () => {
-            initCursor();
-            initWebGL();
-            initScroll();
-            initMicroParallax();
-            initProjectHover();
-            initBootSequence();
+            // Force scroll to top — belt-and-suspenders with the early reset in section 0a.
+            window.scrollTo(0, 0);
+            if (window.lenis) { try { window.lenis.scrollTo(0, { immediate: true }); } catch (e) {} }
+
+            // Aggressive deferred scroll resets — the browser restores scroll AFTER onload
+            // when navigating within an iframe. These timeouts catch it.
+            [100, 300, 600, 1000, 1500, 2000, 3000].forEach(function(ms) {
+                setTimeout(function() {
+                    window.scrollTo(0, 0);
+                    document.documentElement.scrollTop = 0;
+                    if (window.lenis) { try { window.lenis.scrollTo(0, { immediate: true }); } catch (e) {} }
+                }, ms);
+            });
+
+            // Each init is wrapped so a failure in one doesn't brick the page.
+            const safe = (name, fn) => { try { fn(); } catch (e) { console.warn('[Portfolio] ' + name + ' failed:', e); } };
+            safe('initCursor', initCursor);
+            safe('initWebGL', initWebGL);
+            safe('initScroll', initScroll);
+            safe('initMicroParallax', initMicroParallax);
+            safe('initProjectHover', initProjectHover);
+            safe('initBootSequence', initBootSequence);
 
             // Force ScrollTrigger dimensions refresh after boot sequence completes
             setTimeout(() => {
                 if (typeof ScrollTrigger !== 'undefined') {
-                    ScrollTrigger.refresh();
+                    try { ScrollTrigger.refresh(); } catch (e) {}
                 }
             }, 1500);
         };

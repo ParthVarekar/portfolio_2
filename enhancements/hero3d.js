@@ -11,14 +11,14 @@ export function initHero3D() {
     
     // Fallback Image
     const poster = document.createElement('img');
-    poster.src = 'https://picsum.photos/1920/1080?random=1'; // placeholder fallback
+    poster.src = 'assets/whisperflow-preview.png';
     poster.className = 'hero-poster-fallback';
     heroCanvasContainer.appendChild(poster);
     
     // Performance Mode Toggle
     const prefToggle = document.createElement('button');
     prefToggle.className = 'font-mono text-[10px] text-gray-500 hover:text-white transition-colors absolute bottom-8 right-8 z-50';
-    prefToggle.innerHTML = '[ High Performance 3D : ON ]';
+    prefToggle.innerHTML = '[ 3D Hero : ON ]';
     parent.appendChild(prefToggle);
 
     let is3dEnabled = true;
@@ -27,7 +27,7 @@ export function initHero3D() {
     // Check prefers-reduced-motion
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         is3dEnabled = false;
-        prefToggle.innerHTML = '[ High Performance 3D : OFF ]';
+        prefToggle.innerHTML = '[ 3D Hero : OFF ]';
     }
 
     if (is3dEnabled) {
@@ -88,7 +88,7 @@ export function initHero3D() {
     prefToggle.addEventListener('click', () => {
         is3dEnabled = !is3dEnabled;
         if(is3dEnabled) {
-            prefToggle.innerHTML = '[ High Performance 3D : ON ]';
+            prefToggle.innerHTML = '[ 3D Hero : ON ]';
             if(!renderer) setupThreeJS();
             else {
                 poster.style.display = 'none';
@@ -96,7 +96,7 @@ export function initHero3D() {
                 animate();
             }
         } else {
-            prefToggle.innerHTML = '[ High Performance 3D : OFF ]';
+            prefToggle.innerHTML = '[ 3D Hero : OFF ]';
             if(animationFrameId) cancelAnimationFrame(animationFrameId);
             if(renderer) renderer.domElement.style.display = 'none';
             poster.style.display = 'block';

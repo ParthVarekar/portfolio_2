@@ -1,32 +1,56 @@
 [
   {
-    "id": "escrow-race-condition",
-    "title": "Double-Spend Race Condition in Escrow Release",
-    "severity": "CRITICAL",
-    "project": "reboxed",
-    "problem": "Two concurrent HTTP requests could trigger duplicate fund releases when buyer and seller confirmed delivery simultaneously. PostgreSQL row-level locks weren't sufficient because the ORM was reading stale state between transaction boundaries.",
-    "approach": "Replaced optimistic locking with PostgreSQL advisory locks keyed to the escrow transaction ID. Wrapped the entire release flow in a serializable isolation level transaction. Added an idempotency key to the API endpoint to reject duplicate confirmations at the HTTP layer before hitting the database.",
-    "result": "Zero double-spend incidents post-deploy. P99 latency for release endpoint increased by 12ms (acceptable trade-off for financial correctness). Added a regression test that fires 50 concurrent release requests against the same escrow ID.",
-    "file_content": "-- Problem: Concurrent escrow releases cause double-spend\n-- Root Cause: ORM reads stale state between TX boundaries\n\n-- Fix: Advisory lock + serializable isolation\nBEGIN;\nSET TRANSACTION ISOLATION LEVEL SERIALIZABLE;\n\nSELECT pg_advisory_xact_lock(escrow_id);\n\nUPDATE escrow_transactions\n  SET status = 'RELEASED',\n      released_at = NOW()\n  WHERE id = $1\n    AND status = 'PENDING';  -- guard clause\n\n-- Idempotency: if status != PENDING, no rows affected\n-- Application checks affected_rows == 1 before proceeding\nCOMMIT;"
+    "id": "pyodide-timeout-race",
+    "title": "Pyodide Worker hangs on infinite loops in Nexus-AI",
+    "severity": "High",
+    "project": "nexus-ai",
+    "problem": "Nexus-AI runs player-written Python inside a Pyodide Web Worker. The first time a player submitted `while True: pass`, the worker blocked forever — no message ever came back, the Canvas engine kept ticking at 60 FPS but the level never resolved or failed. The challenge UI just sat there. Killing the tab was the only escape, which obviously reset all unsaved level progress.",
+    "approach": "Wrapped every Pyodide run in a 10-second timeout guard on the host side. The host posts the player's code to the worker with a taskId, then races that promise against a setTimeout. If the timeout wins, the host terminates the worker (worker.terminate()) and spins up a fresh Pyodide instance for the next attempt — Pyodide is too heavy to reuse safely after a forced kill. The error then gets classified into one of three buckets — syntax error, runtime error, or timeout — so the player sees a useful message instead of a generic 'something went wrong'.",
+    "result": "Infinite loops now fail loudly at the 10-second mark with a 'timeout — possible infinite loop' message instead of hanging the game. The terminate-and-respawn path is heavier than I'd like (Pyodide cold load is ~1.5s), so future work is a warm-worker pool. But the player is never stuck, and the Canvas engine never freezes."
   },
   {
-    "id": "llm-context-overflow",
-    "title": "LLM Context Window Overflow in Data Extraction",
-    "severity": "HIGH",
-    "project": "ai-pipeline",
-    "problem": "Local Mistral-7B model was silently truncating input when processing large PDF documents, causing incomplete data extraction. The tokenizer was counting tokens differently than the model's actual context window, leading to off-by-200 token errors on documents over 6000 tokens.",
-    "approach": "Built a sliding-window chunking system with overlap. Each chunk is exactly 3800 tokens (leaving 200-token buffer for the system prompt and response). Chunks overlap by 15% to prevent entity splitting at boundaries. Added a post-processing merge step that deduplicates extracted entities using fuzzy string matching (Levenshtein distance < 3).",
-    "result": "Extraction accuracy jumped from 72% to 94% on documents over 10 pages. Processing time increased linearly (expected) but total pipeline latency stayed under 8 seconds for a 30-page PDF on RTX 3060 hardware.",
-    "file_content": "# Context Window Overflow — Chunking Strategy\n\nMAX_TOKENS = 3800  # Model limit: 4096 - 200 buffer - 96 system\nOVERLAP = 0.15     # 15% overlap to prevent entity splitting\n\ndef chunk_document(tokens: list[str]) -> list[list[str]]:\n    chunks = []\n    step = int(MAX_TOKENS * (1 - OVERLAP))\n    for i in range(0, len(tokens), step):\n        chunk = tokens[i:i + MAX_TOKENS]\n        chunks.append(chunk)\n    return chunks\n\ndef merge_extractions(results: list[dict]) -> dict:\n    seen = {}\n    for r in results:\n        for entity in r['entities']:\n            key = entity['name'].lower()\n            if key not in seen or levenshtein(key, seen[key]) < 3:\n                seen[key] = entity\n    return list(seen.values())"
+    "id": "main-world-messaging",
+    "title": "Relaying intercepted payloads from MAIN world to Service Worker",
+    "severity": "Medium",
+    "project": "agent-safety-net",
+    "problem": "Agent Safety Net monkey-patches window.fetch and XMLHttpRequest from inside the page's MAIN world. The Service Worker, where PII detection and prompt-injection checks actually run, can't talk to MAIN-world scripts directly — they don't share a context. Captured request bodies were piling up in the page with no clean way to reach the analysis layer.",
+    "approach": "Built a 3-hop relay. The MAIN-world script calls window.postMessage with the intercepted payload. An isolated content script (which CAN listen to window messages and CAN call chrome.runtime) picks it up and forwards it via chrome.runtime.sendMessage to the Service Worker. The Service Worker runs vard (prompt-injection check, <0.5ms), openredaction (regex PII), and tiny-lru (O(1) cache) before returning a verdict. The verdict flows back through the same hops and the MAIN-world patcher decides whether to let the request through.",
+    "result": "End-to-end relay overhead stays well under a millisecond on average (~0.011ms per request across the test corpus). The 3-hop shape is verbose but it's the only path MV3 allows — there's no shortcut from MAIN world to Service Worker. Caching repeated URLs in tiny-lru keeps the burst path cheap."
   },
   {
-    "id": "websocket-reconnect-storm",
-    "title": "WebSocket Reconnection Storm on Deploy",
-    "severity": "HIGH",
-    "project": "spendly",
-    "problem": "Every server restart during deployment caused all connected clients to simultaneously reconnect, creating a thundering herd that crashed the new instance within seconds. The default exponential backoff wasn't jittered, so all clients retried at identical intervals.",
-    "approach": "Implemented a jittered exponential backoff with decorrelated randomization. Base delay starts at 500ms, doubles each attempt up to 30s max, with ±40% jitter. Added a server-side connection rate limiter (token bucket, 50 connections/second) that returns HTTP 503 with a Retry-After header when capacity is exceeded.",
-    "result": "Reconnection storms eliminated. Deploy-time CPU spike dropped from 100% to 35%. Mean time to full reconnection for all clients went from 45s (with crashes) to 8s (smooth). Zero dropped connections in the last 3 months of deploys.",
-    "file_content": "// WebSocket Reconnection — Jittered Exponential Backoff\n\nclass ResilientSocket {\n  constructor(url) {\n    this.url = url;\n    this.attempt = 0;\n    this.maxDelay = 30000;\n    this.connect();\n  }\n\n  getDelay() {\n    const base = Math.min(500 * Math.pow(2, this.attempt), this.maxDelay);\n    const jitter = base * (0.6 + Math.random() * 0.8); // ±40%\n    return Math.round(jitter);\n  }\n\n  connect() {\n    this.ws = new WebSocket(this.url);\n    this.ws.onopen = () => { this.attempt = 0; };\n    this.ws.onclose = () => {\n      const delay = this.getDelay();\n      this.attempt++;\n      console.log(`[WS] Retry #${this.attempt} in ${delay}ms`);\n      setTimeout(() => this.connect(), delay);\n    };\n  }\n}"
+    "id": "sse-writeback-race",
+    "title": "Race between SSE streaming and SQLite memory write-back in 2'nd_Brain",
+    "severity": "Medium",
+    "project": "second-brain",
+    "problem": "2'nd_Brain's /query endpoint is a streaming SSE pipeline — tokens flow to the React frontend as the model generates them. My first version tried to write each turn into SQLite conversation memory inside the same async generator that was yielding tokens. On long answers, the write-back would occasionally interleave with the next chunk's yield and corrupt the SSE framing, or the SQLite write would block the event loop long enough to cause a visible stall in the stream.",
+    "approach": "Decoupled the two concerns entirely. The SSE generator now does one thing: yield tokens as they arrive. Only after the generator is exhausted (the stream is closed) does a separate pipeline.stream_writeback() call fire to persist the full turn into SQLite. The write happens outside the streaming context, so it can block briefly without affecting the user-facing stream, and the conversation memory is written as a single atomic row instead of being interleaved with token yields.",
+    "result": "SSE streams no longer stall or mis-frame on long answers. Conversation memory is written as one row per turn, which is also easier to reason about for the /graph endpoint that later walks these rows. The cost is that a write-back failure can't surface to the user mid-stream — but that's an acceptable trade-off, since the stream itself is the user-facing artifact."
+  },
+  {
+    "id": "whisper-subprocess-encoding",
+    "title": "whisper.cpp subprocess output had inconsistent encoding across Windows/Linux",
+    "severity": "Low",
+    "project": "whisperflow",
+    "problem": "WhisperFlow drives whisper-cli as a subprocess and reads its stdout. On Windows, the binary's default code page occasionally mangled non-ASCII characters (em-dashes, accented names, copied URLs) into mojibake, and CRLF vs LF line endings differed between the Windows and Linux builds of the same binary. Test fixtures captured both shapes, so assertions kept flapping depending on which machine ran the suite.",
+    "approach": "Forced UTF-8 explicitly on the subprocess call by passing `encoding='utf-8', errors='replace'` to subprocess.run and setting `PYTHONIOENCODING=utf-8` in the child's environment. Normalized all line endings with a single `.replace('\\r\\n', '\\n').replace('\\r', '\\n')` immediately after capture, before any parsing touched the transcript. Re-recorded the fixtures once in the canonical LF + UTF-8 form.",
+    "result": "Tests pass identically on Windows and Linux with no platform branching in the orchestrator. Transcript text containing em-dashes and accented characters round-trips cleanly through the subprocess boundary. The fix is two lines; no regression in the 77/77 suite."
+  },
+  {
+    "id": "prisma-sqlite-migration",
+    "title": "Prisma migration locked SQLite during seeding in StudyOS",
+    "severity": "Medium",
+    "project": "studyos",
+    "problem": "StudyOS's seed script inserts 18 subjects and 91 topics in a single transaction. On SQLite, that transaction held a write lock for the full duration, and Prisma's migration introspection — which runs at dev server boot — kept colliding with the seed. The dev server would either time out waiting for the lock, or the migration would silently skip schema changes. Seeding the syllabus during a fresh `prisma migrate dev` would intermittently leave the DB in a half-seeded state.",
+    "approach": "Split the seed into batches of 10 inserts per `$transaction([...])` call, with a short delay between batches so the migration could grab the lock in the gaps. Wrapped the seed entrypoint in a guard that checks the `_prisma_migrations` table exists and is non-empty first, and refused to seed until migrations were fully applied. Used explicit batch arrays rather than a single bulk insert so each batch fit comfortably inside SQLite's lock window.",
+    "result": "`prisma migrate dev` followed by `prisma db seed` now runs back-to-back without lock collisions on a fresh clone. The batch size was tuned empirically — 10 is small enough to never hold the lock for more than ~50ms, large enough to finish the 109-row seed in under a second. The 18-subject / 91-topic syllabus now seeds deterministically every time."
+  },
+  {
+    "id": "nim-rate-limit-backoff",
+    "title": "NVIDIA NIM rate limits during multi-agent bursts in Shorts Intelligence OS",
+    "severity": "High",
+    "project": "shorts-intelligence",
+    "problem": "Shorts Intelligence OS runs a 6-agent pipeline where multiple agents fire NVIDIA NIM calls in quick succession during a single analysis. The first burst of analyses hit NIM's per-minute rate limit hard — agents would fail mid-pipeline, the SSE progress stream would stall, and the user-facing report came back half-populated. Worse, two agents analyzing overlapping transcripts would request the same NIM endpoint with the same prompt, burning quota on duplicate work.",
+    "approach": "Built a paced scheduler that gates every NIM call through a single queue with a configurable inter-call delay (default 1.1s, just under the 60-req/min cap). Added exponential backoff (base 2s, cap 60s, jitter ±10%) on 429 responses, with full retry-and-resume on the paused queue so prior agent state isn't lost. Layered a response cache keyed by hash(prompt + model + temperature) so two agents asking the same thing in the same run get the cached JSON instead of a second billable call.",
+    "result": "Burst analyses no longer trip the rate limit; 429s back off cleanly and the pipeline resumes without losing prior agent state. Cache hit rate during back-to-back analyses sits around 30–40%, which directly reduces NIM spend. The scheduler added ~30 lines and lives in one module — no agent code had to change."
   }
 ]

@@ -263,8 +263,9 @@ export function startHexInvaders(canvas, onScore, onGameOver) {
     // Cleanup function
     return function cleanup() {
         cancelAnimationFrame(animId);
-        document.removeEventListener('keydown', onKeyDown);
-        document.removeEventListener('keyup', onKeyUp);
+        // NOTE: must match the capture flag used in addEventListener (true) or the listener is never removed.
+        document.removeEventListener('keydown', onKeyDown, true);
+        document.removeEventListener('keyup', onKeyUp, true);
         document.removeEventListener('keydown', onRestartKey);
     };
 }

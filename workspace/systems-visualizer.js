@@ -31,28 +31,29 @@ function initSystemsVisualizer() {
 }
 
 const NODES = [
-    { id: 'user', x: 50, y: 230, w: 100, h: 40, label: 'User Query', color: '#43BF6D', detail: 'Natural language input from the user interface. Can be text or voice (via Whisper STT).' },
-    { id: 'embed', x: 200, y: 130, w: 110, h: 40, label: 'Embedder', color: '#43BF6D', detail: 'Converts query into a 384-dimensional vector using sentence-transformers (all-MiniLM-L6-v2). Runs locally on CPU in ~15ms.' },
-    { id: 'chunk', x: 200, y: 330, w: 110, h: 40, label: 'Chunker', color: '#FFBD2E', detail: 'Splits documents into 3800-token chunks with 15% overlap. Prevents context window overflow. Preserves sentence boundaries.' },
-    { id: 'vectordb', x: 380, y: 130, w: 120, h: 40, label: 'Vector Store', color: '#43BF6D', detail: 'ChromaDB or FAISS index. Stores document embeddings. Cosine similarity search returns top-k=5 relevant chunks in <50ms.' },
-    { id: 'rerank', x: 380, y: 230, w: 110, h: 40, label: 'Re-Ranker', color: '#FFBD2E', detail: 'Cross-encoder model scores query-chunk pairs for semantic relevance. Filters top-k=5 down to top-k=3. Adds ~100ms but dramatically improves answer quality.' },
-    { id: 'prompt', x: 560, y: 230, w: 120, h: 40, label: 'Prompt Builder', color: '#43BF6D', detail: 'Assembles system prompt + retrieved context + user query. Enforces token budget: system(200) + context(3200) + query(400) + response(296) = 4096.' },
-    { id: 'llm', x: 720, y: 230, w: 100, h: 40, label: 'Local LLM', color: '#FF5F56', detail: 'Mistral-7B-GGUF (Q4_K_M quantization). Runs on llama.cpp with GPU offloading (35 layers on RTX 3060). Inference: ~800ms for 200 tokens.' },
-    { id: 'response', x: 720, y: 370, w: 110, h: 40, label: 'Response', color: '#43BF6D', detail: 'Streamed output via Server-Sent Events. Includes source attribution from retrieved chunks. Latency: first token in ~200ms.' },
-    { id: 'feedback', x: 560, y: 370, w: 110, h: 40, label: 'Feedback Loop', color: '#FFBD2E', detail: 'User corrections feed back into the vector store as annotated examples. Improves retrieval relevance over time without retraining the LLM.' }
+    { id: 'user', x: 50, y: 230, w: 100, h: 40, label: 'User Query', color: '#43BF6D', detail: 'Natural language input from the React frontend. Sent as a POST to /query.' },
+    { id: 'embed', x: 200, y: 130, w: 110, h: 40, label: 'Embedder', color: '#43BF6D', detail: 'Converts the query into a vector using tiktoken for token counting. ChromaDB handles embedding internally.' },
+    { id: 'chunk', x: 200, y: 330, w: 110, h: 40, label: 'Chunker', color: '#FFBD2E', detail: 'Splits ingested documents into chunks for vector storage. Used during ingestion (file/URL/pasted text).' },
+    { id: 'vectordb', x: 380, y: 130, w: 120, h: 40, label: 'ChromaDB', color: '#43BF6D', detail: 'Vector store. Cosine similarity search returns relevant chunks for the query.' },
+    { id: 'sqlite', x: 380, y: 330, w: 110, h: 40, label: 'SQLite', color: '#FFBD2E', detail: 'Structured metadata store. Holds document records, conversation memory, and job tracking state.' },
+    { id: 'prompt', x: 560, y: 230, w: 120, h: 40, label: 'Prompt Builder', color: '#43BF6D', detail: 'Assembles system prompt + retrieved context + user query. Routes to the configured LLM backend.' },
+    { id: 'llm', x: 720, y: 230, w: 100, h: 40, label: 'Gemini / Ollama', color: '#FF5F56', detail: 'LLM backend. Gemini (cloud) or Ollama (local) — configurable. Streams tokens back via SSE.' },
+    { id: 'response', x: 720, y: 370, w: 110, h: 40, label: 'SSE Response', color: '#43BF6D', detail: 'Streamed output via Server-Sent Events to the React frontend. Source attribution included.' },
+    { id: 'writeback', x: 560, y: 370, w: 110, h: 40, label: 'Memory Write-back', color: '#FFBD2E', detail: 'After the stream ends, conversation memory + retrieved sources are persisted to SQLite. Decoupled from the live stream.' }
 ];
 
 const EDGES = [
     { from: 'user', to: 'embed', label: 'encode' },
     { from: 'user', to: 'chunk', label: 'if new doc' },
     { from: 'chunk', to: 'vectordb', label: 'store' },
+    { from: 'chunk', to: 'sqlite', label: 'metadata' },
     { from: 'embed', to: 'vectordb', label: 'query' },
-    { from: 'vectordb', to: 'rerank', label: 'top-k=5' },
-    { from: 'rerank', to: 'prompt', label: 'top-k=3' },
+    { from: 'vectordb', to: 'prompt', label: 'context' },
+    { from: 'sqlite', to: 'prompt', label: 'history' },
     { from: 'prompt', to: 'llm', label: 'infer' },
     { from: 'llm', to: 'response', label: 'stream' },
-    { from: 'response', to: 'feedback', label: 'correct' },
-    { from: 'feedback', to: 'vectordb', label: 'retrain' }
+    { from: 'response', to: 'writeback', label: 'after stream' },
+    { from: 'writeback', to: 'sqlite', label: 'persist' }
 ];
 
 function renderSVG() {

@@ -1,69 +1,47 @@
 [
   {
-    "id": "escrow-architecture",
-    "title": "Engineering Trust: How I Built an Escrow System from Scratch",
-    "excerpt": "A deep dive into atomic transactions, PostgreSQL advisory locks, and the state machine that powers Reboxed's payment verification pipeline.",
-    "date": "2026-02-15",
-    "readTime": "8 min",
-    "tags": ["#systems", "#backend", "#postgresql"],
-    "type": "article",
-    "content": "Building a marketplace where strangers exchange money requires more than just a Stripe integration. It requires a trust protocol embedded into the database itself..."
+    "id": "offline-stt-pipeline",
+    "title": "Building a Zero-Cloud Speech-to-Text Pipeline",
+    "excerpt": "Why I built WhisperFlow offline, the whisper.cpp + llama.cpp split, and a stdlib-only Python orchestrator.",
+    "content": "When building WhisperFlow, I wanted to avoid third-party APIs to keep transcription entirely offline. I decided to use a Python orchestrator to connect whisper.cpp with a local llama.cpp server. The transcription engine calls whisper-cli via subprocesses to output JSON data (-oj), which is parsed to extract segment arrays and millisecond timestamps. By writing the orchestrator using only Python's standard library, I avoided heavy dependencies while still supporting subtitle outputs like SRT and VTT. It runs sub-30-second audio files quickly and securely on consumer hardware, and no audio ever leaves the machine.",
+    "date": "2026-03-12",
+    "tags": ["Python", "C++", "Speech-To-Text"],
+    "project": "whisperflow"
   },
   {
-    "id": "local-llm-pipeline",
-    "title": "Running LLMs Locally: A Practical Performance Guide",
-    "excerpt": "Benchmarks, quantization strategies, and the real-world tradeoffs of deploying Mistral and Llama on consumer hardware.",
-    "date": "2026-01-28",
-    "readTime": "12 min",
-    "tags": ["#ai", "#performance", "#systems"],
-    "type": "article",
-    "content": "The promise of local LLMs is sovereignty over your data. The reality is navigating VRAM limits, choosing between GGUF and GPTQ quantization, and accepting that speed and quality sit on opposite ends of a slider..."
+    "id": "pyodide-in-browser",
+    "title": "Synchronous Inputs in a Sandboxed Browser Environment",
+    "excerpt": "Running real Python in Nexus-AI via Pyodide/WASM — the SharedArrayBuffer + Atomics bridge for synchronous input().",
+    "content": "In Nexus-AI, running user-written Python code in the browser meant compiling Pyodide into a Web Worker. However, supporting Python's synchronous input() function within the browser's asynchronous architecture presented a challenge. To solve this, I built a shared memory channel using SharedArrayBuffer and Atomics between the main thread and the worker. The worker calls Atomics.wait() on a control array, pausing execution until the user submits text. The Node server uses COOP and COEP headers to enable shared memory access while keeping scripts isolated. A 10-second timeout guard terminates runaway scripts so an infinite loop can't freeze the game.",
+    "date": "2026-04-05",
+    "tags": ["WASM", "JavaScript", "Web-Workers"],
+    "project": "nexus-ai"
   },
   {
-    "id": "gsap-scroll-mastery",
-    "title": "GSAP ScrollTrigger: The Motion Design Playbook",
-    "excerpt": "How to build scroll-driven animations that feel cinematic without destroying your Lighthouse score.",
-    "date": "2025-12-10",
-    "readTime": "6 min",
-    "tags": ["#frontend", "#animation", "#performance"],
-    "type": "article",
-    "content": "ScrollTrigger changed how I think about web pages. Instead of static sections, every element becomes an actor in a scene, entering and exiting based on the user's scroll position..."
+    "id": "main-world-interception",
+    "title": "Intercepting Agent Payloads in the MAIN World",
+    "excerpt": "Why Agent Safety Net needs MAIN world injection — declarativeNetRequest can't see request bodies, so we monkey-patch fetch/XHR.",
+    "content": "While developing Agent Safety Net, I found that Chrome's Manifest V3 declarativeNetRequest API cannot inspect request bodies. To check outgoing agent prompts for prompt injection, I had to patch the connection interface. I wrote a script that mounts to the page's MAIN execution world and monkey-patches window.fetch and XMLHttpRequest.prototype.open. Outgoing payloads are captured and routed via window.postMessage to an isolated content script, which passes them to a background Service Worker. This three-hop pipeline evaluates prompts for PII and prompt injection in under a millisecond, then surfaces a four-tier intervention UI (allow, warn, confirm, block) based on the verdict.",
+    "date": "2026-05-18",
+    "tags": ["Manifest-V3", "Security", "Chrome-Extension"],
+    "project": "agent-safety-net"
   },
   {
-    "id": "react-state-patterns",
-    "title": "State Management Patterns I Actually Use in Production",
-    "excerpt": "Forget Redux vs Zustand debates. Here are the patterns that survive contact with real users and real deadlines.",
-    "date": "2025-11-20",
-    "readTime": "9 min",
-    "tags": ["#frontend", "#react", "#systems"],
-    "type": "article",
-    "content": "Every state management article starts with a todo app. This one starts with a real problem: syncing optimistic UI updates with a WebSocket-driven backend while handling race conditions..."
+    "id": "dual-store-rag",
+    "title": "Balancing SQLite and ChromaDB in Local RAG",
+    "excerpt": "Why 2'nd_Brain uses SQLite + ChromaDB (not one or the other) — and the SSE write-back race I had to solve.",
+    "content": "For 2'nd_Brain, I designed a hybrid dual-store architecture using SQLite and ChromaDB. SQLite stores conversation records and document metadata, while ChromaDB manages semantic vector indexes. When a user asks a question, the backend queries ChromaDB for relevant text chunks, while SQLite fetches historical facts to build the context. After the LLM streams its answer via Server-Sent Events, a background worker extracts new memories and writes them back to SQLite. Decoupling the write-back from the live stream solved a race condition — the user sees their answer immediately, and memory persistence happens after the stream closes. A /graph endpoint also builds a knowledge graph of document, chunk, and memory nodes connected by keyword-overlap edges.",
+    "date": "2026-06-22",
+    "tags": ["FastAPI", "Vector-Database", "SQLite"],
+    "project": "second-brain"
   },
   {
-    "id": "qt-advisory-locks",
-    "title": "PostgreSQL advisory locks are underrated. Solved a double-spend race condition in Reboxed's escrow release by combining them with serializable isolation. 12ms latency cost for financial correctness — always worth it.",
-    "excerpt": "",
-    "date": "2026-03-10",
-    "readTime": "1 min",
-    "tags": ["#quick-take", "#postgresql", "#backend"],
-    "type": "quick-take"
-  },
-  {
-    "id": "qt-gguf-vs-gptq",
-    "title": "GGUF vs GPTQ for local inference: GGUF wins on CPU, GPTQ wins on GPU. If you have <8GB VRAM, use GGUF Q4_K_M. Above 12GB, GPTQ 4-bit with ExLlama is 2x faster. Tested on Mistral-7B.",
-    "excerpt": "",
-    "date": "2026-03-05",
-    "readTime": "1 min",
-    "tags": ["#quick-take", "#ai", "#performance"],
-    "type": "quick-take"
-  },
-  {
-    "id": "qt-jittered-backoff",
-    "title": "Stop using exponential backoff without jitter. Every reconnection storm I've debugged traces back to correlated retry timing. Add ±40% random jitter. It costs one line of code and saves hours of debugging.",
-    "excerpt": "",
-    "date": "2026-02-28",
-    "readTime": "1 min",
-    "tags": ["#quick-take", "#systems", "#backend"],
-    "type": "quick-take"
+    "id": "gate-prep-as-saas",
+    "title": "Building StudyOS as a Local GATE Prep PWA",
+    "excerpt": "A local-first PWA with 13 Prisma models, a test-runner state machine, and a local LLM for answer evaluation — dogfooded daily for GATE 2027.",
+    "content": "I built StudyOS as a local progressive web app to track my prep for the GATE 2027 exam. Using Next.js 16 and Prisma, I mapped out the exam syllabus into 13 relational tables in SQLite covering subjects, topics, test attempts, study sessions, notes, and documents. The dashboard tracks progress across topics using Recharts, calculating completion rates based on mock exam scores. I integrated a local LLM instance via llama.cpp to evaluate my answers and explain complex questions offline — no API keys, no cloud calls. Drag-and-drop topic prioritization is built with dnd-kit, and the whole app is installable as a PWA with offline support. Serving this setup locally keeps my study data private and easily accessible on the go.",
+    "date": "2026-07-02",
+    "tags": ["Next.js", "SQLite", "Prisma"],
+    "project": "studyos"
   }
 ]

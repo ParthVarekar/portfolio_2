@@ -20,7 +20,7 @@ export const AppState = {
 window.AppState = AppState;
 
 // ── File Tree Data Structure ──
-function buildFileTree(projects, problemLog) {
+function buildFileTree(projects, problemLog, posts) {
     return {
         name: '~',
         type: 'dir',
@@ -32,16 +32,10 @@ function buildFileTree(projects, problemLog) {
                 open: false,
                 children: [
                     {
-                        name: 'infrastructure',
+                        name: 'visualizations',
                         type: 'dir',
                         open: false,
-                        children: [{ name: 'architecture.svg', type: 'file', lang: 'svg', content: '<!-- Open to view interactive architecture map -->', parent: 'infrastructure' }]
-                    },
-                    {
-                        name: 'ai-audits',
-                        type: 'dir',
-                        open: false,
-                        children: [{ name: 'refactor_log_v3.md', type: 'file', lang: 'markdown', content: '<!-- View in editor for split diff -->', parent: 'ai-audits' }]
+                        children: [{ name: 'skills.svg', type: 'file', lang: 'svg', content: '<!-- Open to view interactive Skill Constellation -->', parent: 'visualizations' }]
                     },
                     ...projects.map(p => ({
                         name: p.id,
@@ -74,25 +68,74 @@ function buildFileTree(projects, problemLog) {
                 name: 'blog',
                 type: 'dir',
                 open: false,
-                children: [] // Populated by blog.js/init
+                children: (posts || []).map(post => ({
+                    name: `${post.id}.md`,
+                    type: 'file',
+                    lang: 'markdown',
+                    content: `# ${post.title}\n\n*${post.date} · Tags: ${post.tags.join(', ')}*\n\n${post.content}`,
+                    parent: 'blog'
+                }))
             },
             {
                 name: 'evolution.log',
                 type: 'file',
                 lang: 'bash',
-                content: `# PARADIGM SHIFT LOG\n# Parth Varekar — Engineering Evolution\n\n[v1.0] IMPERATIVE LOGIC\n  ├── Python scripts, Flask monoliths\n  ├── MySQL queries, synchronous pipelines\n  └── "Make it work" era\n\n[v1.5] COMPONENT ARCHITECTURE\n  ├── React SPAs, component composition\n  ├── REST APIs, JWT auth flows\n  └── "Make it modular" era\n\n[v2.0] FUNCTIONAL PURITY\n  ├── TypeScript strict mode, immutable state\n  ├── React hooks, composable abstractions\n  ├── PostgreSQL schemas, atomic transactions\n  └── "Make it correct" era\n\n[v2.5] SYSTEMS THINKING\n  ├── Full-stack ownership (DB → UI)\n  ├── WebSocket real-time, GSAP motion systems\n  ├── Docker, CI/CD, Playwright e2e\n  └── "Make it resilient" era\n\n[v3.0] AGENTIC WORKFLOWS  ← CURRENT\n  ├── Local LLM pipelines (Mistral, Llama)\n  ├── RAG architectures, tool-use chains\n  ├── Multi-agent orchestration\n  ├── Voice interfaces (Whisper + Edge TTS)\n  └── "Make it intelligent" era\n\n# EOF`
+                content: `# CAREER EVOLUTION LOG
+# Parth Varekar — B.Tech CE Student & AI Systems Builder
+
+[v1] 2024 — FOUNDATIONS  ← B.Tech begins
+  ├── Admitted to K.C. College of Engineering (Mumbai University) via MHT-CET
+  ├── Data Structures, Web Dev, Database Systems coursework
+  └── Python, Java, JavaScript fundamentals
+
+[v2] 2025 — FIRST SHIPPED SOFTWARE
+  ├── Color Vision Assistant — first Chrome MV3 extension (team project)
+  ├── Full-Stack Java certification (EduSkills Academy, A+ grade)
+  └── Started building AI tools with local LLMs
+
+[v3] 2026 — LOCAL-FIRST AI SYSTEMS  ← CURRENT
+  ├── Data Science internship @ Imarticus Learning (A+ grade, 120h)
+  ├── WhisperFlow: offline STT + LLM pipeline (whisper.cpp + llama.cpp)
+  ├── Agent Safety Net: Chrome MV3 runtime safety for browser AI agents
+  ├── StudyOS: local-first GATE prep PWA (Next.js 16 + Prisma)
+  ├── 2'nd_Brain: local RAG knowledge base (ChromaDB + SSE)
+  ├── Nexus-AI: educational coding game (Pyodide/WASM)
+  └── Shorts Intelligence OS: multi-agent YouTube Shorts analyzer
+
+# Status: B.Tech CE student (2024-2028). Open to internships.
+# EOF`
             },
             {
                 name: 'README.md',
                 type: 'file',
                 lang: 'markdown',
-                content: `# Parth Varekar — Portfolio\n\nAI Systems & Full-Stack Engineering.\nMumbai, India.\n\n## Passions & Tooling\nI am deeply passionate about engineering robust, distributed architectures and autonomous problem-solving AI systems. My primary focus revolves around constructing reliable vector space abstractions, local LLM integrations, and highly concurrent APIs where I can push system constraints effectively. I prioritize ruthless execution over endless theory.\n\n## Quick Start\n\nType \`help\` in the terminal below to explore.\n\n## Projects\n- Reboxed (Escrow Marketplace) — LIVE\n- Spendly (Finance Engine) — LIVE\n- Gym Tracker (Body Telemetry) — LIVE\n- Trippy (Travel Intelligence) — WIP\n- Autonomous AI IDE (Execution-Aware LLM) — WIP\n- Socio Influence (Authenticity Evaluator) — WIP`
+                content: `# Parth Varekar — Portfolio
+
+B.Tech Computer Engineering student (Mumbai University, 2024-2028) building local-first AI systems.
+Mumbai, India.
+
+## Quick Start
+
+Type \`help\` in the terminal below to explore.
+
+## Projects
+- **WhisperFlow** — offline STT + LLM pipeline (whisper.cpp + llama.cpp)
+- **StudyOS** — local-first GATE prep PWA (Next.js 16 + Prisma)
+- **Nexus-AI** — educational coding game (Pyodide/WASM)
+- **2'nd_Brain** — local RAG knowledge base (ChromaDB + SSE)
+- **Agent Safety Net** — Chrome MV3 runtime safety for browser AI agents
+- **Shorts Intelligence OS** — multi-agent YouTube Shorts analyzer
+
+## Contact
+- Email: parthvarekar27@gmail.com
+- GitHub: github.com/ParthVarekar
+- LinkedIn: linkedin.com/in/parth-varekar-a90b412b1`
             },
             {
                 name: '.env',
                 type: 'file',
                 lang: 'bash',
-                content: `PORTFOLIO_MODE=workspace\nACCENT_COLOR=#43BF6D\nDEBUG=false\nLOCATION="Mumbai, India"\nPHONE="+91 74000 82627"\nEMAIL="parthvarekar27@gmail.com"\nLINKEDIN="linkedin.com/in/parth-varekar-601432344"\nGITHUB="github.com/ParthVarekar"\nLEETCODE="leetcode.com/u/P_R_T_H"`
+                content: `PORTFOLIO_MODE=workspace\nACCENT_COLOR=#43BF6D\nDEBUG=false\nLOCATION="Mumbai, India"\nPHONE="+91 74000 82627"\nEMAIL="parthvarekar27@gmail.com"\nLINKEDIN="linkedin.com/in/parth-varekar-a90b412b1"\nGITHUB="github.com/ParthVarekar"\nLEETCODE="leetcode.com/u/Parth_Sucks_At_Coding"`
             }
         ]
     };
@@ -276,48 +319,9 @@ function showEditor(tab) {
     };
     const langClass = langMap[tab.lang] || 'language-markup';
 
-    if (tab.name === 'architecture.svg') {
+    if (tab.name === 'skills.svg') {
         editorContent.innerHTML = getArchitectureSVG();
         setTimeout(bindArchitectureInteraction, 100);
-        lineNumbers.innerHTML = '';
-        return;
-    }
-
-    if (tab.name === 'refactor_log_v3.md') {
-        editorContent.innerHTML = `
-            <div style="padding: 24px;">
-                <h1 style="color:#fff; font-family:var(--font-mono); font-size:20px; margin-bottom:8px;">Retroactive AI Audit // Refactor v3</h1>
-                <p style="color:var(--accent); font-family:var(--font-mono); font-size:12px; margin-bottom:24px; text-transform:uppercase; letter-spacing:1px;">Optimized for context-window efficiency.</p>
-                <div class="split-diff-container">
-                    <div class="split-diff-panel diff-old">
-                        <div class="diff-header" style="background:#2a1414; padding:8px 12px; font-size:12px; font-family:var(--font-mono); color:#ff5f56; border-bottom:1px solid #ff5f56;">2023 Legacy (Manual)</div>
-                        <pre style="margin:0;"><code class="language-python"># Manually processing large files
-def extract_metadata(file_path):
-    with open(file_path, 'r') as f:
-        data = f.read()
-        # regex nightmare
-        imports = re.findall(r'^import .*', data, re.M)
-        classes = re.findall(r'^class .*', data, re.M)
-        funcs = re.findall(r'^def .*', data, re.M)
-        return {'imports': imports, 'classes': classes, 'funcs': funcs}</code></pre>
-                    </div>
-                    <div class="split-diff-panel diff-new">
-                        <div class="diff-header" style="background:#142a1b; padding:8px 12px; font-size:12px; font-family:var(--font-mono); color:#43bf6d; border-bottom:1px solid #43bf6d;">2026 Optimized (Agentic)</div>
-                        <pre style="margin:0;"><code class="language-python"># AST parsing via agentic generation
-def extract_metadata(file_path: Path) -> dict:
-    tree = ast.parse(file_path.read_text())
-    return {
-        'imports': [n.names[0].name for n in ast.walk(tree) if isinstance(n, ast.Import)],
-        'classes': [n.name for n in ast.walk(tree) if isinstance(n, ast.ClassDef)],
-        'funcs': [n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
-    }</code></pre>
-                    </div>
-                </div>
-            </div>
-        `;
-        if (window.Prism) {
-            Prism.highlightAllUnder(editorContent);
-        }
         lineNumbers.innerHTML = '';
         return;
     }
@@ -343,6 +347,25 @@ def extract_metadata(file_path: Path) -> dict:
             }
         });
         return;
+    }
+
+    // Render markdown files as formatted HTML (using marked.js), not as raw code.
+    if (tab.lang === 'markdown' && window.marked) {
+        try {
+            // Configure marked for GitHub-flavored markdown
+            window.marked.setOptions({ breaks: true, gfm: true });
+            const html = window.marked.parse(tab.content);
+            editorContent.innerHTML = `<div class="markdown-body">${html}</div>`;
+            // Re-highlight any code blocks inside the rendered markdown with Prism
+            if (window.Prism) {
+                Prism.highlightAllUnder(editorContent);
+            }
+            lineNumbers.innerHTML = '';
+            return;
+        } catch (e) {
+            console.warn('[IDE] Markdown render failed, falling back to raw:', e);
+            // fall through to raw display below
+        }
     }
 
     editorContent.innerHTML = `<pre><code class="${langClass}">${escapeHtml(tab.content)}</code></pre>`;
@@ -471,26 +494,33 @@ function renderProjectCards(projects) {
     const container = document.getElementById('bento-projects');
     if (!container) return;
 
-    container.innerHTML = projects.map(p => `
-        <div class="bento-card blog-card" onclick="window.navigateToPath('projects/${p.id}')" role="button" tabindex="0" aria-label="Open ${p.name}">
+    container.innerHTML = projects.map(p => {
+        // Build a compact metrics string from the real keys in projects.json.
+        // Each project has different metrics (tests, prisma_models, avg_latency, etc.)
+        // so we join whatever exists into a single honest line.
+        const metricParts = [];
+        if (p.metrics) {
+            for (const [k, v] of Object.entries(p.metrics)) {
+                metricParts.push(`${k.replace(/_/g, ' ')}: ${v}`);
+            }
+        }
+        const metricsLine = metricParts.length ? metricParts.join(' · ') : '';
+        return `
+        <div class="bento-card blog-card" onclick="window.navigateToPath('projects/${p.id}/README.md')" role="button" tabindex="0" aria-label="Open ${p.name}">
             <div class="bento-card-label">${p.category} // ${p.depth}</div>
             <div class="bento-card-title">${p.name}</div>
             <div class="bento-card-body">${p.description}</div>
-            ${p.metrics ? `<div style="display:flex; gap:12px; margin-top:10px; font-family:var(--font-mono); font-size:10px; color:#888;">
-                ${p.metrics.uptime ? `<span>↑ ${p.metrics.uptime}</span>` : ''}
-                ${p.metrics.latency_p95 ? `<span>⚡ ${p.metrics.latency_p95}</span>` : ''}
-                ${p.metrics.lines_of_code ? `<span>≡ ${p.metrics.lines_of_code} LOC</span>` : ''}
-            </div>` : ''}
+            ${metricsLine ? `<div style="display:flex; gap:12px; margin-top:10px; font-family:var(--font-mono); font-size:10px; color:#888; flex-wrap:wrap;">${metricParts.map(m => `<span>${m}</span>`).join('')}</div>` : ''}
             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
                 ${p.tech.map(t => `<span class="bento-tag">${t}</span>`).join('')}
             </div>
-            ${p.url ? `<a href="${p.url}" target="_blank" style="display:inline-block; margin-top:12px; font-family:var(--font-mono); font-size:11px; color:var(--accent); text-decoration:none;">LAUNCH ↗</a>` : ''}
+            ${p.url ? `<a href="${p.url}" target="_blank" style="display:inline-block; margin-top:12px; font-family:var(--font-mono); font-size:11px; color:var(--accent); text-decoration:none;">VIEW SOURCE ↗</a>` : ''}
             
             <div class="dev-note">
-                <strong>[DEV_LOG]</strong> ${p.dev_note || 'Optimized for context-window efficiency. Memory leak fixed in v2.4.1.'}
+                <strong>[DEV_LOG]</strong> ${p.dev_note || ''}
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 // ── GSAP Animations ──
@@ -517,7 +547,7 @@ function renderPhilosophy(data) {
             </ul>
         </div>
         <div class="dev-note">
-            <strong>[SYSTEM_NOTE]</strong> Philosophy layer injected from /data/philosophy.json. Decision style is immutable by default.
+            <strong>[NOTE]</strong> Loaded from /data/philosophy.json
         </div>
     `;
 }
@@ -551,23 +581,27 @@ function openCaseStudy(projectId) {
     return true;
 }
 window.openCaseStudy = openCaseStudy;
+window.openFileInEditor = openFileInEditor;
 
 // ── Init ──
 async function initIDE() {
     try {
-        const [projRes, philRes, plRes] = await Promise.all([
+        const [projRes, philRes, plRes, postsRes] = await Promise.all([
             fetch('workspace/data/projects.json'),
             fetch('workspace/data/philosophy.json').catch(() => null),
-            fetch('workspace/data/problem-log.json').catch(() => null)
+            fetch('workspace/data/problem-log.json').catch(() => null),
+            fetch('workspace/data/posts.json').catch(() => null)
         ]);
         const projects = await projRes.json();
         const philosophy = philRes ? await philRes.json() : null;
         const problemLog = plRes ? await plRes.json() : null;
+        const posts = postsRes ? await postsRes.json() : null;
 
         AppState.projectData = projects;
         AppState.philosophy = philosophy;
         AppState.problemLog = problemLog;
-        AppState.fileTree = buildFileTree(projects, problemLog);
+        AppState.posts = posts;
+        AppState.fileTree = buildFileTree(projects, problemLog, posts);
 
         const treeContainer = document.getElementById('file-tree');
         renderTree(AppState.fileTree, treeContainer);
@@ -575,7 +609,7 @@ async function initIDE() {
         renderPhilosophy(philosophy);
         animateDashboard();
 
-        console.log('[IDE] File explorer initialized with', projects.length, 'projects');
+        console.log('[IDE] File explorer initialized with', projects.length, 'projects,', (posts || []).length, 'blog posts');
     } catch (e) {
         console.error('[IDE] Init error:', e);
     }

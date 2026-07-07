@@ -2,7 +2,7 @@
 
 All modifications strictly adhere to a non-destructive philosophy. No original `.html` logic was removed.
 
-### Modifications to `portfolio.html`
+### Modifications to `index.html`
 1. **HEAD Section**: Added `<link>` for `typography.css` and `enhancements.css`.
 2. **BODY Section**: Appended `enhanced` and `enhanced-typography` classes dynamically via JS.
 3. **Hero Title**: Appended `hero-title` class to target the specific variable font override without affecting default fonts elsewhere.
@@ -12,7 +12,5 @@ All modifications strictly adhere to a non-destructive philosophy. No original `
 ### Injected via DOM Manipulation (JS)
 - **3D Hero**: Prepended `<div id="hero-canvas">` to the first `<section>`.
 - **Microinteractions**: Hooked `.btn-spring` to buttons, overlaid custom cursors on `.glass-panel` items.
-- **Playgrounds**: Inserted `<div class="playground-sandbox">` dynamically into project cards `.glass-content`.
 - **Interactive Map**: Injected `<section class="architecture-container">` after `#section-experience`.
-- **Reproducibility Widget**: Injected fixed div at the end of the body.
-- **Mock Telemetry**: Inserted telemetry toggles after `#section-projects h2` and badges on cards.
+- **Hero 3D**: Optional spinning icosahedron toggle in the hero section.

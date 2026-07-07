@@ -1,5 +1,5 @@
 {
-  "why_i_build": "I build because I believe software should solve hard problems, not just exist. Every system I ship is designed to handle real-world edge cases — race conditions in financial transactions, latency in LLM inference, trust in anonymous marketplaces. Execution over theory.",
+  "why_i_build": "Every system I ship is designed to handle real-world edge cases — sub-millisecond PII detection in browser AI agents, context-window overflow in local LLMs, offline-first data integrity in study tools, and retention-forecast calibration in multi-agent pipelines.",
   "principles": [
     "State is the source of truth — UI is a projection, not the data.",
     "Latency is a feature — optimize for perceived speed, not just benchmarks.",
@@ -7,5 +7,5 @@
     "Ship atomic units — every commit should be deployable and reversible.",
     "Complexity is debt — if you can't explain it in one sentence, refactor it."
   ],
-  "decision_style": "I navigate trade-offs by anchoring to user impact. When choosing between architectural purity and shipping velocity, I ask: 'What breaks for the user if I defer this?' If the answer is 'nothing visible,' I ship now and refactor later. If the answer involves data integrity or trust, I engineer it correctly the first time, no exceptions."
+  "decision_style": "I navigate trade-offs by anchoring to user impact. When choosing between architectural purity and shipping velocity, I ask: 'What breaks for the user if I defer this?' If the answer is 'nothing visible,' I ship now and refactor later. If the answer involves data integrity or user safety, I engineer it correctly the first time, no exceptions."
 }

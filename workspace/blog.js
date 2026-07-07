@@ -1,4 +1,6 @@
 // blog.js — Blog Engine with Tag Filtering
+// Renders short-form posts from workspace/data/posts.json.
+// Clicking a card opens the full post content in the workspace editor.
 
 async function initBlog() {
     try {
@@ -48,29 +50,40 @@ function renderBlogCards(posts) {
     const container = document.getElementById('bento-blog');
     if (!container) return;
 
-    container.innerHTML = posts.map(post => {
-        if (post.type === 'quick-take') {
-            return `
-                <article class="bento-card blog-card fade-in-up" data-tags="${post.tags.join(',')}" role="article" tabindex="0" aria-label="Quick Take">
-                    <div class="blog-card-date">${post.date} · ${post.readTime} · <span style="color:var(--accent);">Quick Take</span></div>
-                    <div class="bento-card-body" style="font-family:var(--font-mono); font-size:12px; line-height:1.7; color:#ccc;">${post.title}</div>
-                    <div class="blog-card-tags">
-                        ${post.tags.map(t => `<span class="bento-tag">${t}</span>`).join('')}
-                    </div>
-                </article>
-            `;
-        }
-        return `
-            <article class="bento-card blog-card fade-in-up" data-tags="${post.tags.join(',')}" role="article" tabindex="0" aria-label="${post.title}">
-                <div class="blog-card-date">${post.date} · ${post.readTime}</div>
-                <div class="bento-card-title" style="font-size:clamp(16px, calc(20 * 1vw / 14.4), 22px);">${post.title}</div>
-                <div class="bento-card-body">${post.excerpt}</div>
-                <div class="blog-card-tags">
-                    ${post.tags.map(t => `<span class="bento-tag">${t}</span>`).join('')}
-                </div>
-            </article>
-        `;
-    }).join('');
+    container.innerHTML = posts.map(post => `
+        <article class="bento-card blog-card fade-in-up" data-tags="${post.tags.join(',')}" data-post-id="${post.id}" role="article" tabindex="0" aria-label="${post.title}" style="cursor:pointer;">
+            <div class="blog-card-date">${post.date}</div>
+            <div class="bento-card-title" style="font-size:clamp(16px, calc(20 * 1vw / 14.4), 22px);">${post.title}</div>
+            <div class="bento-card-body">${post.excerpt}</div>
+            <div class="blog-card-tags">
+                ${post.tags.map(t => `<span class="bento-tag">${t}</span>`).join('')}
+            </div>
+            <div style="font-family:var(--font-mono); font-size:10px; color:var(--accent); margin-top:8px;">▶ READ POST</div>
+        </article>
+    `).join('');
+
+    // Click handler: open the full post content in the workspace editor.
+    container.querySelectorAll('.blog-card').forEach(card => {
+        const openPost = () => {
+            const id = card.dataset.postId;
+            const post = posts.find(p => p.id === id);
+            if (!post) return;
+            // Use the workspace editor's openFileInEditor if available.
+            if (window.openFileInEditor) {
+                window.openFileInEditor({
+                    name: `${post.id}.md`,
+                    type: 'file',
+                    lang: 'markdown',
+                    content: `# ${post.title}\n\n*${post.date} · Tags: ${post.tags.join(', ')}*\n\n${post.content}`,
+                    parent: 'blog'
+                });
+            }
+        };
+        card.addEventListener('click', openPost);
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPost(); }
+        });
+    });
 }
 
 function filterBlogCards(tag, posts) {

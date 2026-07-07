@@ -18,53 +18,52 @@
 
     // --- 1. Topologies Datasets ---
     const designs = {
-        reboxed: {
+        whisper: {
             nodes: [
-                { id: 'client', x: 120, y: 200, label: 'CLIENT', color: '#00F0FF' },
-                { id: 'apigw', x: 280, y: 200, label: 'API GW', color: '#FF0055' },
-                { id: 'app', x: 480, y: 130, label: 'FASTAPI', color: '#FF0055' },
-                { id: 'redis', x: 480, y: 270, label: 'REDIS', color: '#FFBD2E' },
-                { id: 'postgres', x: 680, y: 130, label: 'POSTGRES', color: '#27C93F' },
-                { id: 'escrow', x: 680, y: 270, label: 'ESCROW', color: '#FFBD2E' }
+                { id: 'audio', x: 120, y: 200, label: 'AUDIO IN', color: '#00F0FF' },
+                { id: 'ffmpeg', x: 300, y: 200, label: 'FFMPEG', color: '#FFBD2E' },
+                { id: 'whisper', x: 500, y: 130, label: 'WHISPER.CPP', color: '#FF0055' },
+                { id: 'llama', x: 500, y: 270, label: 'LLAMA-SERVER', color: '#B547E6' },
+                { id: 'inject', x: 700, y: 200, label: 'SENDINPUT', color: '#27C93F' }
             ],
             mobileNodes: [
-                { id: 'client', x: 180, y: 40, label: 'CLIENT', color: '#00F0FF' },
-                { id: 'apigw', x: 180, y: 110, label: 'API GW', color: '#FF0055' },
-                { id: 'app', x: 110, y: 200, label: 'FASTAPI', color: '#FF0055' },
-                { id: 'redis', x: 250, y: 200, label: 'REDIS', color: '#FFBD2E' },
-                { id: 'postgres', x: 110, y: 290, label: 'POSTGRES', color: '#27C93F' },
-                { id: 'escrow', x: 250, y: 290, label: 'ESCROW', color: '#FFBD2E' }
+                { id: 'audio', x: 180, y: 40, label: 'AUDIO IN', color: '#00F0FF' },
+                { id: 'ffmpeg', x: 180, y: 120, label: 'FFMPEG', color: '#FFBD2E' },
+                { id: 'whisper', x: 100, y: 210, label: 'WHISPER', color: '#FF0055' },
+                { id: 'llama', x: 260, y: 210, label: 'LLAMA', color: '#B547E6' },
+                { id: 'inject', x: 180, y: 300, label: 'SENDINPUT', color: '#27C93F' }
             ],
             edges: [
-                { from: 'client', to: 'apigw', speed: 0.006 },
-                { from: 'apigw', to: 'app', speed: 0.008 },
-                { from: 'apigw', to: 'redis', speed: 0.009 },
-                { from: 'app', to: 'postgres', speed: 0.007 },
-                { from: 'redis', to: 'app', speed: 0.012 },
-                { from: 'app', to: 'escrow', speed: 0.005 }
+                { from: 'audio', to: 'ffmpeg', speed: 0.008 },
+                { from: 'ffmpeg', to: 'whisper', speed: 0.006 },
+                { from: 'whisper', to: 'llama', speed: 0.005 },
+                { from: 'llama', to: 'inject', speed: 0.009 }
             ]
         },
-        ai: {
+        rag: {
             nodes: [
-                { id: 'user', x: 120, y: 200, label: 'USER', color: '#00F0FF' },
-                { id: 'ctrl', x: 300, y: 200, label: 'CONTROLLER', color: '#FF0055' },
-                { id: 'embed', x: 480, y: 130, label: 'EMBEDDINGS', color: '#B547E6' },
-                { id: 'vector', x: 480, y: 270, label: 'VECTOR DB', color: '#27C93F' },
-                { id: 'llm', x: 680, y: 200, label: 'LOCAL LLM', color: '#00F0FF' }
+                { id: 'input', x: 100, y: 200, label: 'QUERY', color: '#00F0FF' },
+                { id: 'embed', x: 280, y: 200, label: 'EMBED', color: '#B547E6' },
+                { id: 'chroma', x: 460, y: 130, label: 'CHROMADB', color: '#27C93F' },
+                { id: 'sqlite', x: 460, y: 270, label: 'SQLITE', color: '#FFBD2E' },
+                { id: 'llm', x: 660, y: 130, label: 'GEMINI', color: '#FF0055' },
+                { id: 'sse', x: 660, y: 270, label: 'SSE OUT', color: '#00F0FF' }
             ],
             mobileNodes: [
-                { id: 'user', x: 180, y: 40, label: 'USER', color: '#00F0FF' },
-                { id: 'ctrl', x: 180, y: 110, label: 'CONTROLLER', color: '#FF0055' },
-                { id: 'embed', x: 110, y: 200, label: 'EMBEDDINGS', color: '#B547E6' },
-                { id: 'vector', x: 250, y: 200, label: 'VECTOR DB', color: '#27C93F' },
-                { id: 'llm', x: 180, y: 290, label: 'LOCAL LLM', color: '#00F0FF' }
+                { id: 'input', x: 180, y: 40, label: 'QUERY', color: '#00F0FF' },
+                { id: 'embed', x: 180, y: 110, label: 'EMBED', color: '#B547E6' },
+                { id: 'chroma', x: 100, y: 200, label: 'CHROMA', color: '#27C93F' },
+                { id: 'sqlite', x: 260, y: 200, label: 'SQLITE', color: '#FFBD2E' },
+                { id: 'llm', x: 100, y: 290, label: 'GEMINI', color: '#FF0055' },
+                { id: 'sse', x: 260, y: 290, label: 'SSE', color: '#00F0FF' }
             ],
             edges: [
-                { from: 'user', to: 'ctrl', speed: 0.006 },
-                { from: 'ctrl', to: 'embed', speed: 0.008 },
-                { from: 'embed', to: 'vector', speed: 0.008 },
-                { from: 'vector', to: 'llm', speed: 0.009 },
-                { from: 'llm', to: 'ctrl', speed: 0.005 }
+                { from: 'input', to: 'embed', speed: 0.007 },
+                { from: 'embed', to: 'chroma', speed: 0.008 },
+                { from: 'embed', to: 'sqlite', speed: 0.006 },
+                { from: 'chroma', to: 'llm', speed: 0.005 },
+                { from: 'llm', to: 'sse', speed: 0.009 },
+                { from: 'sse', to: 'sqlite', speed: 0.004 }
             ]
         },
         game: {
@@ -88,12 +87,19 @@
         }
     };
 
-    let currentType = 'reboxed';
+    let currentType = 'whisper';
     let particles = [];
 
     function getNodes(layout) {
         return (window.innerWidth < 768 && layout.mobileNodes) ? layout.mobileNodes : layout.nodes;
     }
+
+    // Captions for each topology — explains what the visitor is looking at.
+    const captions = {
+        whisper: '<span class="text-accent">WhisperFlow</span> — Audio → ffmpeg → whisper.cpp (STT) → llama-server (LLM) → Win32 SendInput (text injection). Fully offline, zero cloud calls.',
+        rag: '<span class="text-accent">2\'nd_Brain</span> — Query → Embed → ChromaDB (vector search) + SQLite (metadata) → Prompt Builder → Gemini/Ollama → SSE stream → Memory write-back.',
+        game: '<span class="text-accent">Nexus-AI</span> — Input (CodeMirror 6) → Web Worker → Pyodide (WASM Python) → pyodide.globals validation → Canvas renderer (60 FPS). COOP/COEP headers enable SharedArrayBuffer.'
+    };
 
     window.switchTopology = function (type) {
         if (!designs[type]) return;
@@ -110,6 +116,9 @@
             activeBtn.classList.add('active', 'border-accent', 'text-accent');
             activeBtn.classList.remove('border-white/20', 'text-gray-400');
         }
+        // Update caption
+        const cap = document.getElementById('topo-caption');
+        if (cap) cap.innerHTML = captions[type] || '';
     };
 
     // --- 2. Particle spawner loop ---

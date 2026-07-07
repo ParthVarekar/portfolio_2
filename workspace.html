@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parth Varekar // Virtual Workspace</title>
     <meta name="description" content="Interactive developer portfolio — VS Code-themed workspace with terminal bridge, code explorer, and mini-games.">
+    <script>
+        // Prevent the browser from restoring the previous scroll position on reload.
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+        window.scrollTo(0, 0);
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +42,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js" defer></script>
 
+    <!-- marked.js — markdown renderer for .md files (README, ARCHITECTURE, etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <!-- jQuery Terminal -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.38.0/js/jquery.terminal.min.js"></script>
@@ -49,14 +57,50 @@
     <link rel="stylesheet" href="workspace/styles.css">
 </head>
 <body>
+    <!-- ═══ MOBILE SIDEBAR TOGGLE (visible only < 768px) ═══ -->
+    <button id="mobile-sidebar-toggle"
+            aria-label="Toggle file explorer"
+            class="fixed top-[52px] left-2 z-[200] md:hidden font-mono text-[10px] tracking-wider px-2 py-1 rounded border border-[#43BF6D]/50 text-[#43BF6D] bg-black/70 backdrop-blur hover:bg-[#43BF6D]/15 hover:shadow-[0_0_12px_rgba(67,191,109,0.4)] transition-colors">
+        [ &#9776; FILES ]
+    </button>
+    <script>
+        (function() {
+            function init() {
+                var btn = document.getElementById('mobile-sidebar-toggle');
+                var sidebar = document.getElementById('sidebar');
+                if (!btn || !sidebar) return;
+                // Create a backdrop element so taps outside the sidebar close it.
+                var backdrop = document.createElement('div');
+                backdrop.id = 'mobile-sidebar-backdrop';
+                backdrop.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99; backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);';
+                document.body.appendChild(backdrop);
+                backdrop.addEventListener('click', function() { btn.click(); });
+
+                btn.addEventListener('click', function() {
+                    var isOpen = sidebar.classList.toggle('mobile-open');
+                    btn.innerHTML = isOpen ? '[ &#10005; CLOSE ]' : '[ &#9776; FILES ]';
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    backdrop.style.display = isOpen ? 'block' : 'none';
+                    // Prevent background scroll when sidebar is open
+                    document.body.style.overflow = isOpen ? 'hidden' : '';
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+
     <div class="workspace-shell" id="app">
         <!-- ═══ TITLE BAR ═══ -->
         <header class="titlebar" role="banner">
             <div class="titlebar-left">
                 <div class="titlebar-dots" aria-hidden="true">
                     <a href="index.html" class="titlebar-dot close" title="Back to Classic Portfolio"></a>
-                    <button class="titlebar-dot minimize" aria-label="Minimize"></button>
-                    <button class="titlebar-dot maximize" aria-label="Maximize"></button>
+                    <div class="titlebar-dot minimize" title="Scroll to top" onclick="document.getElementById('content-area').scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer;"></div>
+                    <div class="titlebar-dot maximize" title="Reload workspace" onclick="location.reload()" style="cursor:pointer;"></div>
                 </div>
                 <span>PARTH VAREKAR</span>
             </div>
@@ -92,7 +136,7 @@
                                     <div class="bento-card-label">System.Identity</div>
                                     <div class="bento-card-title">Parth Varekar</div>
                                     <div class="bento-card-body">
-                                        AI Systems & Full-Stack Engineering. I build complete architectures — from local LLM pipelines to high-performance React interfaces. Execution over theory.<br><br>
+                                        B.Tech Computer Engineering student (Mumbai University, 2024-2028) building local-first AI systems — speech pipelines, RAG, browser safety, educational games. Execution over theory.<br><br>
                                         <span style="color:var(--accent);">Mumbai, India</span> · 
                                         <a href="mailto:parthvarekar27@gmail.com" style="color:var(--accent);">parthvarekar27@gmail.com</a> ·
                                         <span style="color:var(--text-muted);">+91 7400082627</span>
@@ -102,7 +146,7 @@
                                     <div class="bento-card-label">Quick Commands</div>
                                     <div style="font-family:var(--font-mono); font-size:13px; line-height:2; color:var(--text-secondary);">
                                         <div><span style="color:var(--accent);">$</span> ls <span style="color:var(--text-muted);">— list projects</span></div>
-                                        <div><span style="color:var(--accent);">$</span> cd reboxed <span style="color:var(--text-muted);">— explore</span></div>
+                                        <div><span style="color:var(--accent);">$</span> cd whisperflow <span style="color:var(--text-muted);">— explore</span></div>
                                         <div><span style="color:var(--accent);">$</span> contact <span style="color:var(--text-muted);">— reach out</span></div>
                                         <div><span style="color:var(--accent);">$</span> play hex <span style="color:var(--text-muted);">— mini-game</span></div>
                                     </div>
@@ -117,33 +161,33 @@
                             <!-- Skills Bento -->
                             <div class="bento-grid" id="bento-skills" style="margin-bottom:var(--gap);">
                                 <div class="bento-card">
-                                    <div class="bento-card-label">AI & Voice Systems</div>
+                                    <div class="bento-card-label">AI Systems</div>
                                     <div class="bento-card-body" style="font-family:var(--font-mono); font-size:12px; line-height:2;">
-                                        Local LLMs · Prompt Engineering<br>
-                                        Whisper (STT) · Edge TTS<br>
-                                        Data Extraction Pipelines
+                                        whisper.cpp + llama.cpp (local STT + LLM)<br>
+                                        RAG (ChromaDB, FAISS, pgvector)<br>
+                                        Multi-agent pipelines (NVIDIA NIM)
                                     </div>
                                 </div>
                                 <div class="bento-card">
                                     <div class="bento-card-label">Backend Infrastructure</div>
                                     <div class="bento-card-body" style="font-family:var(--font-mono); font-size:12px; line-height:2;">
-                                        FastAPI · Python · PostgreSQL<br>
-                                        WebSockets · Atomic Transactions<br>
-                                        Docker · GitHub Actions
+                                        Python · FastAPI · Prisma · SQLite<br>
+                                        SSE streaming · Pyodide/WASM · Playwright<br>
+                                        MySQL · Power BI · REST APIs
                                     </div>
                                 </div>
                                 <div class="bento-card">
                                     <div class="bento-card-label">Frontend & UX</div>
                                     <div class="bento-card-body" style="font-family:var(--font-mono); font-size:12px; line-height:2;">
-                                        React · TypeScript · Tailwind<br>
-                                        GSAP · Framer Motion<br>
-                                        Three.js · React Three Fiber
+                                        Next.js 16 · React 19 · TypeScript · Tailwind<br>
+                                        shadcn/ui · Canvas API · CodeMirror 6<br>
+                                        GSAP · Chrome MV3 · PWA / Service Workers
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Projects Bento -->
-                            <h2 style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;">Deployed Architecture</h2>
+                            <h2 style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;">Active Projects</h2>
                             <div class="bento-grid" id="bento-projects" style="margin-bottom:var(--gap);"></div>
 
                             <!-- Games Bento -->
@@ -159,24 +203,34 @@
                                     <div class="bento-card-title">Kern Type</div>
                                     <div class="bento-card-body">Drag letters to fix kerning spacing. Tests your typographic intuition.</div>
                                 </div>
+                                <div class="bento-card" style="cursor:pointer;" onclick="window.launchGame('binary')" role="button" tabindex="0" aria-label="Launch Binary Blitz">
+                                    <div class="bento-card-label" style="color:#00F0FF;">Mini-Game</div>
+                                    <div class="bento-card-title">Binary Blitz</div>
+                                    <div class="bento-card-body">Convert decimal to binary against the clock. Tests a real developer fundamental.</div>
+                                </div>
+                                <div class="bento-card" style="cursor:pointer;" onclick="window.launchGame('dodge')" role="button" tabindex="0" aria-label="Launch Data Dodge">
+                                    <div class="bento-card-label" style="color:#B547E6;">Mini-Game</div>
+                                    <div class="bento-card-title">Data Dodge</div>
+                                    <div class="bento-card-body">Pilot a data packet through incoming viruses and firewalls. Speed increases over time.</div>
+                                </div>
                             </div>
 
                             <!-- Systems Thinking Bento -->
                             <h2 style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;">Systems Thinking</h2>
                             <div class="bento-grid" style="margin-bottom:var(--gap);">
-                                <div class="bento-card span-2" style="cursor:pointer;" onclick="window.openSystemsVisualizer && window.openSystemsVisualizer()" role="button" tabindex="0" aria-label="Launch Systems Visualizer">
-                                    <div class="bento-card-label">Visualizer</div>
-                                    <div class="bento-card-title">LLM RAG Pipeline</div>
-                                    <div class="bento-card-body">Interactive SVG flow diagram of a Retrieval-Augmented Generation architecture. Click to explore each node.</div>
-                                    <div style="font-family:var(--font-mono); font-size:10px; color:var(--accent); margin-top:8px;">▶ LAUNCH VISUALIZER</div>
+                                <div class="bento-card span-2" style="cursor:pointer;" onclick="window.navigateToPath && window.navigateToPath('projects/visualizations/skills.svg')" role="button" tabindex="0" aria-label="Launch Skill Constellation">
+                                    <div class="bento-card-label">Interactive Map</div>
+                                    <div class="bento-card-title">✦ Skill Constellation</div>
+                                    <div class="bento-card-body">Interactive night-sky map of all my skills, grouped into constellations (AI Systems, Backend, Frontend, Platform). Click a star to see which projects use it.</div>
+                                    <div style="font-family:var(--font-mono); font-size:10px; color:var(--accent); margin-top:8px;">▶ OPEN IN EDITOR</div>
                                 </div>
                                 <div class="bento-card" style="cursor:pointer;" onclick="window.navigateToPath && window.navigateToPath('evolution.log')" role="button" tabindex="0" aria-label="View Evolution Log">
-                                    <div class="bento-card-label">Paradigm Shifts</div>
+                                    <div class="bento-card-label">Career Timeline</div>
                                     <div class="bento-card-title">evolution.log</div>
                                     <div class="bento-card-body" style="font-family:var(--font-mono); font-size:11px; line-height:1.8;">
-                                        v1.0 → Imperative Logic<br>
-                                        v2.0 → Functional Purity<br>
-                                        v3.0 → Agentic Workflows ←
+                                        v1 2024 → Foundations<br>
+                                        v2 2025 → First shipped software<br>
+                                        v3 2026 → Local-first AI systems ←
                                     </div>
                                 </div>
                             </div>
@@ -185,12 +239,12 @@
                             <div class="bento-grid" style="margin-bottom:var(--gap);">
                                 <div class="bento-card span-3" style="text-align:center; padding:clamp(24px, calc(40 * 1vw / 14.4), 48px);">
                                     <div class="bento-card-label" style="color:var(--accent);">05 // Conversion Protocol</div>
-                                    <div class="bento-card-title" style="font-size:clamp(20px, calc(32 * 1vw / 14.4), 36px); margin-bottom:12px;">Initialize Collaboration.</div>
-                                    <div class="bento-card-body" style="max-width:500px; margin:0 auto 16px;">Request system access for high-scale projects. Optimized for high-concurrency environments.</div>
+                                    <div class="bento-card-title" style="font-size:clamp(20px, calc(32 * 1vw / 14.4), 36px); margin-bottom:12px;">Open to Collaboration.</div>
+                                    <div class="bento-card-body" style="max-width:500px; margin:0 auto 16px;">Open to internships and collaborations in AI systems, full-stack engineering, and developer tools.</div>
                                     <a href="mailto:parthvarekar27@gmail.com" style="display:inline-block; font-family:var(--font-mono); font-size:12px; background:var(--accent); color:#000; padding:10px 24px; text-decoration:none; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Build With Me →</a>
                                     <div style="display:flex; justify-content:center; gap:16px; margin-top:16px; font-family:var(--font-mono); font-size:11px;">
                                         <a href="https://github.com/ParthVarekar" target="_blank" style="color:var(--text-muted); text-decoration:none;">[ GitHub ]</a>
-                                        <a href="https://www.linkedin.com/in/parth-varekar-601432344/" target="_blank" style="color:var(--text-muted); text-decoration:none;">[ LinkedIn ]</a>
+                                        <a href="https://www.linkedin.com/in/parth-varekar-a90b412b1/" target="_blank" style="color:var(--text-muted); text-decoration:none;">[ LinkedIn ]</a>
                                         <span style="color:var(--text-muted);">[ +91 7400082627 ]</span>
                                     </div>
                                 </div>

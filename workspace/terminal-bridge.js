@@ -38,8 +38,8 @@ function initTerminalBridge() {
             'clear',
             'whoami',
             'neofetch',
-            'sudo',
-            'logs'
+            'logs',
+            'resume'
         ]);
         const isKnownCommand = !!cmd && knownCommands.has(cmd);
 
@@ -50,22 +50,23 @@ function initTerminalBridge() {
   cd [dir]        Change directory (syncs IDE sidebar)
   cat [file]      Open file in editor
   pwd             Print working directory
-  projects        List deployed projects
+  projects        List active projects
   skills          Show tech stack
   contact         Display contact info
   about           System identity (glitch transition)
   philosophy      Print engineering principles
   case [id]       Open case study + wiring diagram
   system          Launch systems thinking visualizer
-  collab          Initialize collaboration CTA
+  collab          Open collaboration CTA
   github          Open GitHub profile
   linkedin        Open LinkedIn profile
-  play [game]     Launch mini-game (hex | kern)
+  resume          Open CV / resume PDF
+  play [game]     Launch mini-game (hex | kern | binary | dodge)
   blog            Show latest posts
   clear           Clear terminal
   help            Show this menu
 
-  [[;#555;]Easter eggs: sudo, logs, neofetch, whoami]`);
+  [[;#555;]Easter eggs: logs, neofetch, whoami]`);
                 break;
 
             case 'ls': {
@@ -83,9 +84,11 @@ function initTerminalBridge() {
             }
 
             case 'cd': {
-                if (!args[0]) {
+                if (!args[0] || args[0] === '~' || args[0] === '~/') {
                     cwd = '~';
                     updatePrompt(term);
+                    if (window.navigateToPath) window.navigateToPath('~');
+                    if (args[0]) term.echo(`[[;#43BF6D;]→ ~]`);
                     break;
                 }
                 if (args[0] === '..') {
@@ -93,6 +96,22 @@ function initTerminalBridge() {
                     parts.pop();
                     cwd = parts.join('/') || '~';
                     updatePrompt(term);
+                    if (window.navigateToPath) window.navigateToPath(cwd);
+                    break;
+                }
+
+                // Absolute-from-home paths like ~/projects/whisperflow
+                if (args[0].startsWith('~/')) {
+                    const stripped = args[0].slice(2).replace(/\/$/, '');
+                    const check = window.listDirectory ? window.listDirectory(stripped) : null;
+                    if (check !== null) {
+                        cwd = stripped === '' ? '~' : `~/${stripped}`;
+                        updatePrompt(term);
+                        if (window.navigateToPath) window.navigateToPath(cwd);
+                        term.echo(`[[;#43BF6D;]→ ${cwd}]`);
+                    } else {
+                        term.echo(`[[;#FF5F56;]ERR: Directory '${args[0]}' not found.]`);
+                    }
                     break;
                 }
 
@@ -158,19 +177,20 @@ function initTerminalBridge() {
             case 'skills':
                 term.echo(`[[;#43BF6D;]SYSTEM.CAPABILITIES:]
 
-  [[;#fff;]├── AI_VOICE_SYSTEMS]
-     ├── Local LLMs & Prompt Engineering
-     ├── Whisper (STT) & Edge TTS
-     └── Data Extraction Pipelines
+  [[;#fff;]├── AI_SYSTEMS]
+     ├── whisper.cpp + llama.cpp (local STT + LLM)
+     ├── RAG (ChromaDB, FAISS, pgvector)
+     └── Multi-agent pipelines (NVIDIA NIM)
 
   [[;#fff;]├── BACKEND_INFRASTRUCTURE]
-     ├── FastAPI, Python, PostgreSQL
-     ├── WebSockets & Atomic Transactions
-     └── Docker, GitHub Actions
+     ├── Python, FastAPI, Prisma, SQLite
+     ├── SSE streaming, Pyodide/WASM, Playwright
+     └── MySQL, Power BI, REST APIs
 
   [[;#fff;]└── FRONTEND_UX]
-     ├── React, TypeScript, Tailwind
-     └── GSAP, Framer Motion, Three.js`);
+     ├── Next.js 16, React 19, TypeScript, Tailwind
+     ├── shadcn/ui, Canvas API, CodeMirror 6
+     └── GSAP, Chrome MV3, PWA / Service Workers`);
                 break;
 
             case 'contact':
@@ -179,11 +199,11 @@ function initTerminalBridge() {
   → Phone: +91 7400082627
   → Location: Mumbai, India
   → GitHub: [[;#43BF6D;]github.com/ParthVarekar]
-  → LinkedIn: [[;#43BF6D;]linkedin.com/in/parth-varekar-601432344]`);
+  → LinkedIn: [[;#43BF6D;]linkedin.com/in/parth-varekar-a90b412b1]`);
                 break;
 
             case 'resume':
-                window.open('/Resume_Parth_Varekar.pdf', '_blank');
+                window.open('/portfolio/Resume_Parth_Varekar.pdf', '_blank');
                 term.echo('[[;#43BF6D;]→ Opening CV Document...]');
                 break;
 
@@ -193,13 +213,13 @@ function initTerminalBridge() {
                 break;
 
             case 'linkedin':
-                window.open('https://www.linkedin.com/in/parth-varekar-601432344/', '_blank');
+                window.open('https://www.linkedin.com/in/parth-varekar-a90b412b1/', '_blank');
                 term.echo('[[;#43BF6D;]→ Opening LinkedIn...]');
                 break;
 
             case 'play':
                 if (!args[0]) {
-                    term.echo('[[;#FFBD2E;]Usage: play <hex|kern>]');
+                    term.echo('[[;#FFBD2E;]Usage: play <hex|kern|binary|dodge>]');
                     break;
                 }
                 if (window.launchGame) {
@@ -265,7 +285,7 @@ function initTerminalBridge() {
 
             case 'case': {
                 if (!args[0]) {
-                    term.echo('[[;#FFBD2E;]Usage: case <project_id> (e.g., case reboxed)]');
+                    term.echo('[[;#FFBD2E;]Usage: case <project_id> (e.g., case whisperflow)]');
                     break;
                 }
                 const projectId = args[0];
@@ -275,7 +295,7 @@ function initTerminalBridge() {
                         term.echo(`[[;#43BF6D;]→ Opening case study for ${projectId}...]`);
                         term.echo('[[;#43BF6D;]→ Infrastructure diagram loaded in second tab.]');
                     } else {
-                        term.echo(`[[;#FF5F56;]ERR: No case study found for '${projectId}'. Try: reboxed, spendly, gym-tracker, trippy, ai-ide, socio]`);
+                        term.echo(`[[;#FF5F56;]ERR: No case study found for '${projectId}'. Try: whisperflow, studyos, nexus-ai, second-brain, agent-safety-net, shorts-intelligence]`);
                     }
                 }
                 break;
@@ -292,63 +312,34 @@ function initTerminalBridge() {
 
             case 'collab':
                 term.echo(`[[;#43BF6D;]╔══════════════════════════════════════════════╗
-║  INITIALIZE COLLABORATION                    ║
-║  Request system access for high-scale builds ║
+║  OPEN TO COLLABORATION                       ║
+║  Internships, projects & research welcome   ║
 ╚══════════════════════════════════════════════╝]
 
   [[;#43BF6D;]→ Email:] parthvarekar27@gmail.com
   [[;#43BF6D;]→ GitHub:] github.com/ParthVarekar
-  [[;#43BF6D;]→ LinkedIn:] linkedin.com/in/parth-varekar-601432344
+  [[;#43BF6D;]→ LinkedIn:] linkedin.com/in/parth-varekar-a90b412b1
 
-  [[;#555;]Optimized for high-concurrency environments.]`);
+  [[;#555;]Focus: AI systems, full-stack engineering, developer tools.]`);
                 break;
-
-            case 'sudo': {
-                const isRoot = document.body.classList.contains('root-access');
-                // GSAP glitch transition
-                if (window.gsap) {
-                    const workspace = document.querySelector('.workspace-shell');
-                    gsap.to(workspace, {
-                        duration: 0.1,
-                        x: 2, y: -2,
-                        repeat: 5,
-                        yoyo: true,
-                        onComplete: () => gsap.set(workspace, { x: 0, y: 0 })
-                    });
-                }
-                
-                if (!isRoot) {
-                    term.echo('[[;#FF3366;]⚠ ROOT ACCESS GRANTED]');
-                    term.echo('[[;#FF3366;]Switching to Admin Mode. Glitch transition active.]');
-                    document.body.style.setProperty('--accent', '#FF3366');
-                    document.body.classList.add('root-access');
-                } else {
-                    term.echo('[[;#43BF6D;]⚠ ROOT ACCESS REVOKED]');
-                    term.echo('[[;#43BF6D;]Reverting to System User...]');
-                    document.body.style.removeProperty('--accent');
-                    document.body.classList.remove('root-access');
-                }
-                break;
-            }
 
             case 'logs': {
                 const logLines = [
                     '[[;#43BF6D;][BOOT]] Initializing career runtime...',
-                    '[[;#555;][2021]] Loading Python fundamentals...',
-                    '[[;#555;][2022]] Compiling Flask monoliths...',
-                    '[[;#43BF6D;][2022]] React component architecture mounted.',
-                    '[[;#555;][2023]] TypeScript strict mode enabled.',
-                    '[[;#43BF6D;][2023]] PostgreSQL schemas deployed. Atomic transactions online.',
-                    '[[;#FFBD2E;][2024]] WebSocket real-time layer initialized.',
-                    '[[;#43BF6D;][2024]] Full-stack ownership achieved. DB → API → UI.',
-                    '[[;#FFBD2E;][2025]] Local LLM pipeline compiled. Mistral-7B loaded.',
-                    '[[;#43BF6D;][2025]] RAG architecture deployed. Vector store indexed.',
-                    '[[;#FF5F56;][2025]] Multi-agent orchestration framework online.',
-                    '[[;#43BF6D;][2026]] Voice interface (Whisper + Edge TTS) integrated.',
-                    '[[;#43BF6D;][2026]] Agentic workflows operational. Tool-use chains active.',
+                    '[[;#555;][2024]] B.Tech Computer Engineering begins (K.C. College, Mumbai University).',
+                    '[[;#555;][2024]] Admitted via MHT-CET. Foundations: Data Structures, Web Dev.',
+                    '[[;#43BF6D;][2025]] Full-Stack Java certification (EduSkills Academy, A+ grade).',
+                    '[[;#43BF6D;][2025]] Shipped Color Vision Assistant — first Chrome MV3 extension (team project).',
+                    '[[;#FFBD2E;][2026]] Data Science & Analytics internship @ Imarticus Learning (120h, A+ grade).',
+                    '[[;#43BF6D;][2026]] MySQL, Python/Colab, Power BI dashboards on real datasets.',
+                    '[[;#43BF6D;][2026]] WhisperFlow: offline STT + LLM pipeline (whisper.cpp + llama.cpp).',
+                    '[[;#43BF6D;][2026]] Agent Safety Net: Chrome MV3 runtime safety for browser AI agents.',
+                    '[[;#43BF6D;][2026]] StudyOS: local-first GATE prep PWA (Next.js 16 + Prisma).',
+                    '[[;#43BF6D;][2026]] 2\'nd_Brain: local RAG knowledge base (ChromaDB + SSE).',
+                    '[[;#43BF6D;][2026]] Nexus-AI: educational coding game (Pyodide/WASM).',
+                    '[[;#43BF6D;][2026]] Shorts Intelligence OS: multi-agent Shorts analyzer.',
                     '',
-                    '[[;#43BF6D;]▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%]',
-                    '[[;#43BF6D;]System ready. All nodes operational.]'
+                    '[[;#43BF6D;]▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%]'
                 ];
                 logLines.forEach((line, i) => {
                     setTimeout(() => term.echo(line), i * 180);
@@ -359,16 +350,17 @@ function initTerminalBridge() {
             case 'whoami':
                 term.echo(`[[;#43BF6D;]SYSTEM.IDENTITY // NARRATIVE:]
   
-  [[;#fff;]2021-2022:] The Imperative Era. Building monolithic Flask apps and jQuery script-spaghetti. 
-  Learning the foundational blocks of state and networking.
+  [[;#fff;]2024:] B.Tech begins. K.C. College of Engineering, Mumbai University. Learning the
+  foundational blocks: data structures, web dev, databases.
   
-  [[;#fff;]2023-2024:] The Reactive Shift. Mastering Component-Driven Design and UI/UX engineering with 
-  React/Next.js. Moving from "making it work" to "making it scale."
+  [[;#fff;]2025:] First shipped extension — Color Vision Assistant (Chrome MV3, team project).
+  Full-Stack Java certification (EduSkills Academy, A+). Started building AI tools.
   
-  [[;#fff;]2025-2026:] The Agentic Paradigm. Engineering AI Systems involving local LLM pipelines, 
-  RAG architectures, and multi-agent orchestration. Operating at the intersection of UX and AGI.
+  [[;#fff;]2026:] Data Science internship @ Imarticus Learning (A+ grade). Went deep on local AI:
+  WhisperFlow (offline STT+LLM), Agent Safety Net (browser AI safety), 2'nd_Brain (RAG),
+  StudyOS (GATE prep PWA), Nexus-AI (educational game), Shorts Intelligence OS (multi-agent).
   
-  [[;#555;]Status: Active execution node.]`);
+  [[;#555;]Status: B.Tech CE student (2024-2028). Open to internships.]`);
                 break;
 
             case 'neofetch':
@@ -386,13 +378,14 @@ function initTerminalBridge() {
      /:/  /        /:/  /        /:/  /        /:/  /   
      \\/__/         \\/__/         \\/__/         \\/__/    ]
   
-  [[;#fff;]Parth Varekar] @ System.Workspace
+  [[;#fff;]Parth Varekar] @ Workspace
   [[;#fff;]---------------------------------]
-  [[;${accent};]OS:] Parth-OS v2.0 (Developer Edition)
-  [[;${accent};]Shell:] SystemsThinking-Zsh v4.2
-  [[;${accent};]Uptime:] 5 years (Full-Stack Runtime)
-  [[;${accent};]Packages:] Mistral, React, GSAP, Postgres
-  [[;${accent};]Resolution:] Fluid Pixel System active
+  [[;${accent};]OS:] Browser (Chrome/Firefox/Safari)
+  [[;${accent};]Shell:] jQuery Terminal
+  [[;${accent};]Runtime:] Vanilla JS + GSAP
+  [[;${accent};]Stack:] whisper.cpp, llama.cpp, Next.js, Prisma, ChromaDB
+  [[;${accent};]Status:] B.Tech CE student (2024-2028)
+  [[;${accent};]Location:] Mumbai, India
   [[;${accent};]Palette:] [[;${accent};]●] [[;#888;]●] [[;#fff;]●] [[;#000;]●]`);
                 break;
 
@@ -428,7 +421,7 @@ function initTerminalBridge() {
         onFocus: function() {
             document.getElementById('terminal-container')?.classList.add('focused');
         },
-        completion: ['help', 'ls', 'cd', 'cat', 'pwd', 'projects', 'skills', 'contact', 'about', 'philosophy', 'case', 'system', 'collab', 'github', 'linkedin', 'resume', 'play', 'blog', 'clear', 'whoami', 'neofetch', 'sudo', 'logs'],
+        completion: ['help', 'ls', 'cd', 'cat', 'pwd', 'projects', 'skills', 'contact', 'about', 'philosophy', 'case', 'system', 'collab', 'github', 'linkedin', 'resume', 'play', 'blog', 'clear', 'whoami', 'neofetch', 'logs'],
         checkArity: false,
         processArguments: false,
         keymap: {

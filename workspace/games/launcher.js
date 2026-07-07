@@ -43,6 +43,14 @@ async function launchGame(gameId) {
             titleEl.textContent = 'Kern Type';
             const { startKernType } = await import('./kern-type.js');
             activeCleanup = startKernType(canvas, onScore, onGameOver);
+        } else if (gameId === 'binary') {
+            titleEl.textContent = 'Binary Blitz';
+            const { startBinaryBlitz } = await import('./binary-blitz.js');
+            activeCleanup = startBinaryBlitz(canvas, onScore, onGameOver);
+        } else if (gameId === 'dodge') {
+            titleEl.textContent = 'Data Dodge';
+            const { startDataDodge } = await import('./data-dodge.js');
+            activeCleanup = startDataDodge(canvas, onScore, onGameOver);
         } else {
             titleEl.textContent = 'Unknown Game';
             ctx.fillStyle = '#FF5F56';

@@ -22,20 +22,18 @@ Run: `npm run test:visual` (assuming configuration).
 ### 3. Terminal Console
 - [x] Under the hero, next to "Access Terminal", click "Enhanced CLI".
 - [x] Type `help` and hit Enter. Verify syntax highlighting and response.
-- [x] Type `ls`, `open reboxed`. Verify the case study modal opens and terminal closes.
+- [x] Type `ls`, `open whisperflow`. Verify the case study modal opens and terminal closes.
 - [x] Type `clear` to reset.
 
-### 4. Playgrounds & Modals
-- [x] Open a project card, click `[ Sandbox / Replay ]`.
-- [x] The drawer opens revealing a mock timeline and slider.
-- [x] Click `[ x ]` to close. Layout should restore cleanly.
+### 4. Project Modals
+- [x] Open a project card (e.g. WhisperFlow).
+- [x] The case-study modal opens with Problem Space + Architectural Logic + highlights.
+- [x] Click `[ CLOSE [X] ]` to close. Layout should restore cleanly.
 
 ### 5. Interactive Architecture 
 - [x] Scroll to `#section-experience`. Below it, the Interactive wiring graph appears.
-- [x] Click `[ Toggle Mock Telemetry ]`.
-- [x] Watch edges "pulse" and label values randomly update.
-- [x] Click a map node (Client, API, Postgres) -> a small code snippet toast pops up for 3 seconds.
-- [x] The toast disappears automatically.
+- [x] Click `[ WHISPERFLOW ]` / `[ RAG_PIPELINE ]` / `[ GAME_ENGINE ]` to switch topologies.
+- [x] Verify particles flow along the edges between nodes.
 
 ## Known Limitations
 - Modals inside `data-enhance="terminal"` rely on the existing global function `window.openSystemModal()`. If core changes happen, the terminal bindings need updates.

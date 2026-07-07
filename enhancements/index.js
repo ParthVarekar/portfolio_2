@@ -1,11 +1,11 @@
-// index.js
-import { initTerminalEnhanced } from './terminal.js';
-import { initPlaygrounds } from './playground.js';
-import { initArchitectureMap } from './architecture.js';
+// index.js — Enhancement layer entry point.
+// NOTE: playground.js (fake "Sandbox / Replay" commit timelines) and telemetry.js
+// (fake "Live Telemetry" random numbers) were removed — they added bogus UI that
+// a recruiter would spot instantly. The remaining modules are real:
+//   - microinteractions: subtle hover/focus polish
+//   - hero3d: optional 3D hero toggle
 import { initHero3D } from './hero3d.js';
 import { initMicrointeractions } from './microinteractions.js';
-import { initReproducibilityPanel } from './reproducibility.js';
-import { initTelemetryConfig } from './telemetry.js';
 
 // Wait for the main site bootstrap then apply enhancements
 window.addEventListener('load', () => {
@@ -18,12 +18,7 @@ window.addEventListener('load', () => {
     setTimeout(() => {
         try {
             initMicrointeractions();
-            // initTerminalEnhanced(); // Disabled for classic view
-            initPlaygrounds();
-            // initArchitectureMap(); // Disabled for classic view
             initHero3D();
-            // initReproducibilityPanel(); // Disabled for classic view
-            initTelemetryConfig();
         } catch (e) {
             console.error('Enhancement initialization error:', e);
         }
