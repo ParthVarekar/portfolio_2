@@ -423,20 +423,38 @@
         @media (max-width: 768px) {
             /* Nav: tighter padding so name + clock fit on small screens */
             nav.fixed.top-0 {
-                padding: 14px 16px;
+                padding: 10px 12px;
                 align-items: center;
+                gap: 8px;
             }
             nav.fixed.top-0 > div:first-child {
-                font-size: 11px;
-                letter-spacing: 0.12em;
-                max-width: 60vw;
+                font-size: 10px;
+                letter-spacing: 0.08em;
+                max-width: 40vw;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
+            nav.fixed.top-0 .flex.items-center.gap-6 {
+                gap: 8px !important;
+            }
             nav.fixed.top-0 #clock {
                 font-size: 10px;
                 white-space: nowrap;
+            }
+
+            /* Workspace callout: smaller on mobile so it fits next to the clock */
+            #workspace-callout {
+                gap: 4px !important;
+            }
+            #workspace-callout svg {
+                width: 28px !important;
+                height: 18px !important;
+            }
+            #workspace-callout .callout-pill {
+                font-size: 9px !important;
+                padding: 3px 6px !important;
+                letter-spacing: 0.5px !important;
             }
 
             /* Hero: cap name font-size to prevent horizontal scroll on tiny phones.
@@ -773,7 +791,7 @@
         <div class="font-bold tracking-widest text-sm uppercase">PARTH VAREKAR // MUMBAI</div>
         <div class="flex items-center gap-6 relative">
             <!-- CTA Callout — the workspace link itself, styled as a prominent animated pill -->
-            <a href="workspace.html" id="workspace-callout" class="hidden md:flex items-center gap-2 pointer-events-auto interactive" style="animation: callout-bob 2s ease-in-out infinite; text-decoration:none;">
+            <a href="workspace.html" id="workspace-callout" class="flex items-center gap-2 pointer-events-auto interactive" style="animation: callout-bob 2s ease-in-out infinite; text-decoration:none;">
                 <style>
                     @keyframes callout-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
                     @keyframes callout-glow { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }

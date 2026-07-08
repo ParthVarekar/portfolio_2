@@ -603,9 +603,10 @@ body {
     .statusbar-section:first-child span:first-child,
     .statusbar-section:last-child span:first-child { display: inline; }
 
-    /* Tab bar: ensure horizontal scroll works on mobile */
+    /* Tab bar: ensure horizontal scroll works on mobile + always show close button */
     .tabbar { -webkit-overflow-scrolling: touch; }
-    .tab { min-width: 100px; padding: 0 12px; font-size: 11px; }
+    .tab { min-width: 100px; padding: 0 8px; font-size: 11px; }
+    .tab-close { opacity: 0.6 !important; font-size: 16px; padding: 2px 4px; }
 
     /* Terminal: smaller font + ensure horizontal scroll inside + prevent overflow */
     .terminal-container { font-size: 11px; max-width: 100% !important; overflow: hidden !important; }
