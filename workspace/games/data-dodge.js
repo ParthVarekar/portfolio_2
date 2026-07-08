@@ -215,15 +215,15 @@ export function startDataDodge(canvas, onScore, onGameOver) {
     }
 
     function onKey(e) {
-        if (e.key === 'ArrowLeft' || e.key === 'a') { keys.left = true; e.preventDefault(); }
-        if (e.key === 'ArrowRight' || e.key === 'd') { keys.right = true; e.preventDefault(); }
-        if (e.key === 'ArrowUp' || e.key === 'w') { targetX = player.x; }
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { keys.left = true; e.preventDefault(); e.stopPropagation(); return; }
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { keys.right = true; e.preventDefault(); e.stopPropagation(); return; }
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { targetX = player.x; }
         if (gameOver && e.key === 'Enter') { restart(); }
     }
 
     function onKeyUp(e) {
-        if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
-        if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
     }
 
     // Mobile D-pad support
@@ -263,8 +263,8 @@ export function startDataDodge(canvas, onScore, onGameOver) {
     canvas.addEventListener('click', onClick);
     canvas.addEventListener('touchmove', onTouch, { passive: false });
     canvas.addEventListener('touchstart', onTouch, { passive: false });
-    document.addEventListener('keydown', onKey);
-    document.addEventListener('keyup', onKeyUp);
+    document.addEventListener('keydown', onKey, true);
+    document.addEventListener('keyup', onKeyUp, true);
 
     lastTick = performance.now();
     rafId = requestAnimationFrame(tick);
@@ -274,8 +274,8 @@ export function startDataDodge(canvas, onScore, onGameOver) {
         canvas.removeEventListener('click', onClick);
         canvas.removeEventListener('touchmove', onTouch);
         canvas.removeEventListener('touchstart', onTouch);
-        document.removeEventListener('keydown', onKey);
-        document.removeEventListener('keyup', onKeyUp);
+        document.removeEventListener('keydown', onKey, true);
+        document.removeEventListener('keyup', onKeyUp, true);
         cleanupDPad();
     };
 }

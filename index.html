@@ -223,6 +223,9 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 40px 8px 16px 8px;
         }
 
         .game-overlay.active {
@@ -268,17 +271,14 @@
         }
 
         .mobile-controls {
-            position: absolute;
-            bottom: -110px;
-            left: 0;
-            right: 0;
             display: flex;
             justify-content: center;
-            gap: 20px;
-            padding: 16px;
+            gap: 16px;
+            padding: 12px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 12px;
         }
 
         @media (min-width: 768px) {
@@ -684,23 +684,21 @@
                 display: block;
             }
             .game-close {
-                top: -30px;
+                top: 4px;
+                right: 4px;
+                position: absolute;
                 padding: 4px 10px;
                 font-size: 10px;
                 min-height: 32px;
                 min-width: 32px;
+                z-index: 10;
             }
             .game-hud { padding: 6px 10px; font-size: 11px; }
 
-            /* Mobile D-pad: ensure tap targets ≥44px and properly positioned */
+            /* Mobile D-pad: ensure tap targets ≥44px, already in normal flow */
             .mobile-controls {
-                position: relative !important;
-                bottom: auto !important;
-                left: auto !important;
-                right: auto !important;
-                margin-top: 12px;
+                gap: 16px;
                 padding: 12px;
-                gap: 12px;
             }
             #btn-left, #btn-right {
                 width: 56px !important;
