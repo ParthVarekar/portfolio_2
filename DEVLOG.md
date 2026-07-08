@@ -8,3 +8,4 @@
 - Fix mobile game close button not visible (move inside overlay)
 - Make game overlay scrollable on mobile (overflow-y: auto)
 - Fix workspace tab close button invisible on mobile (always show opacity 0.6)
+- Fix mobile sidebar toggle button overlapping tabs (add 96px left padding to mobile tabbar so tabs start to the right of the toggle button)
