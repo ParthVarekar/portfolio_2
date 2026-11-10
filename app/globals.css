@@ -3365,7 +3365,7 @@ button,
   display: grid;
   grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
   gap: clamp(18px, 3vw, 42px);
-  align-items: start;
+  align-items: center;
 }
 
 .contact-copy {
@@ -3377,7 +3377,9 @@ button,
   position: relative;
   z-index: 1;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
+  padding-top: clamp(0px, 3vw, 34px);
   perspective: 1100px;
   perspective-origin: 44% 46%;
 }
