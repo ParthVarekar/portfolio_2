@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { site } from "@/content/site";
-import { sans, pixel, mono } from "./fonts";
+import { sans, pixel, mono, momoSignature } from "./fonts";
 import { NavPill } from "@/components/shell/NavPill";
 import { Footer } from "@/components/shell/Footer";
 import { CommandPalette } from "@/components/shell/CommandPalette";
@@ -58,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${pixel.variable} ${mono.variable}`}
+      className={`${sans.variable} ${pixel.variable} ${mono.variable} ${momoSignature.variable}`}
       data-scroll-behavior="smooth"
     >
       <body>
