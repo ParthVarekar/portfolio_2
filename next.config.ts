@@ -4,6 +4,15 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   devIndicators: false,
+  experimental: {
+    // The client router cache would otherwise reuse a prefetched page segment
+    // for 5 minutes, which keeps a swapped asset (or copy) invisible until
+    // the visitor hard-refreshes. Always fetch the segment instead.
+    staleTimes: {
+      static: 0,
+      dynamic: 0,
+    },
+  },
   turbopack: {
     root: process.cwd(),
   },
