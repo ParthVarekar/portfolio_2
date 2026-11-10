@@ -3092,6 +3092,20 @@ button,
     0 18px 40px -26px rgba(16, 18, 24, 0.45);
 }
 
+/* cut-out portrait: no frame, no shadow — the subject floats on the lime tile */
+.portrait-photo--cutout {
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+}
+
+/* let the figure dissolve into the tile instead of being sliced off */
+.portrait-photo--cutout .portrait-photo-img {
+  -webkit-mask-image: linear-gradient(to bottom, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 84%, transparent 100%);
+}
+
 .portrait-photo-img {
   object-fit: cover;
   object-position: 50% 16%;

@@ -32,10 +32,10 @@ export function AboutCard() {
           </span>
         </div>
 
-        <div className="portrait-photo">
+        <div className="portrait-photo portrait-photo--cutout">
           <Image
-            src="/images/parth-green.jpg"
-            alt="Parth Varekar, arms folded, in a white shirt, photographed against a green screen"
+            src="/images/parth-cutout.png"
+            alt="Parth Varekar, arms folded, in a white shirt, cut out on a transparent background"
             fill
             sizes="(max-width: 720px) 88vw, (max-width: 1200px) 52vw, 440px"
             className="portrait-photo-img"
