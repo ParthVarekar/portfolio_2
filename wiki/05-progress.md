@@ -72,6 +72,11 @@
 - Layout: `.portrait-photo` replaces `.monogram-big`; both old rules deleted. Desktop keeps the tall 0.618fr column; ≤1080px (stacked card) the photo is centred at `min(100%, 480px)` with a 4:5 aspect so the head is never cropped; ≤720px it goes full width at 4:5.
 - Verified 1440 / 900 / 768 / 390: no horizontal overflow, head always in frame, alt text present, typecheck and production build green.
 
+### 2026-11-10 (portrait published with its green screen)
+- User direction after seeing the keyed result: **"i want to use the image with the green screen or background, not the lime one"**. The photo is now shipped exactly as supplied — `public/images/parth-green.jpg` (1000×1498, from the 1025×1535 upload) — and mounted in the lime PORTRAIT panel as a print: 24 px rounded corners, a 1 px ink hairline (0.14) and a soft drop shadow so it sits on the tile instead of floating.
+- The keyed variants (`portrait.jpg`, `parth-v2.jpg`) were deleted; `scripts/key-portrait.mjs` stays in the repo as a tool but no longer feeds the published asset. It still refuses duplicate swaps (mean difference < 4/255 against the published file → "same photograph", exit 2).
+- Verified 1440 and 390: the green screen renders as shot, no horizontal overflow, alt text updated to "photographed against a green screen".
+
 ### 2026-11-10 (green-screen key, second pass)
 - The first portrait came on a flat lime backdrop that already matched the tile; the replacement photo is a raw green-screen capture (1025×1535, flat #4E8D01), so the backdrop now has to be keyed.
 - **The two uploads are the same photograph** — the second is a green-screen version of the first (identical face, hair, shirt and pose; hair band at 18.5–32.9 % of the frame in both). Once the backdrop is keyed into the tile either file renders the same picture, which is why the swap looked like "nothing changed". The live file is the newer, higher-resolution one (1025×1535 vs 853×1280), so the rendered portrait is now sharper.
