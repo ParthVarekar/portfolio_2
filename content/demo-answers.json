@@ -1,0 +1,129 @@
+[
+  {
+    "id": "how-i-work",
+    "keywords": ["how do you work", "approach", "method", "process", "workflow", "how you work"],
+    "question": "How do you work?",
+    "answer": "Small steps, verified early. I read the real constraint, build the smallest thing that can be wrong, write the evidence check before trusting the result, then put it in front of a person. That single loop sits under every chapter on this page.",
+    "sources": [
+      { "label": "The work", "url": "https://parthvarekar.in/work" }
+    ]
+  },
+  {
+    "id": "halo",
+    "keywords": ["halo", "space", "iss", "station", "procedure", "astronaut", "orbit"],
+    "question": "What is H.A.L.O?",
+    "answer": "H.A.L.O is an on-board procedure monitor for the space station. It watches a science procedure through a YOLO11 detector and Qwen3-VL, then uses a deterministic state machine to decide whether a step is complete, pending or out of order. It runs offline on one laptop GPU, has 276 passing tests, and tracked 8 of 8 steps with zero false alerts.",
+    "sources": [
+      { "label": "H.A.L.O README", "url": "https://github.com/ParthVarekar/H.A.L.O" },
+      { "label": "H.A.L.O verification", "url": "https://github.com/ParthVarekar/H.A.L.O" }
+    ]
+  },
+  {
+    "id": "susurrus",
+    "keywords": ["susurrus", "dictation", "voice", "speech", "microphone", "windows", "privacy"],
+    "question": "How does Susurrus work?",
+    "answer": "Susurrus is offline push-to-talk dictation for Windows. Qwen3-ASR turns your voice into raw text, then Gemma on llama.cpp restores punctuation, casing and paragraphs. The result is inserted with the native Windows SendInput API. It has 77 passing tests, uses zero cloud calls, and keeps all audio on your machine.",
+    "sources": [
+      { "label": "Susurrus README", "url": "https://github.com/ParthVarekar/Susurrus" },
+      { "label": "Susurrus tests", "url": "https://github.com/ParthVarekar/Susurrus" }
+    ]
+  },
+  {
+    "id": "bioradar",
+    "keywords": ["bioradar", "water", "edna", "species", "biodiversity", "dna", "hindi"],
+    "question": "What did BioRadar prove?",
+    "answer": "BioRadar detected 80 of 80 planted species at their exact read counts with zero false positives. It passed 76 tests and covers 33,611 sequences across 8,020 species in an India-curated COI reference. It also caught a mislabelled NCBI record, which is the kind of error the Merkle ledger is designed to expose.",
+    "sources": [
+      { "label": "BioRadar README", "url": "https://github.com/omtawde09/BioRadar" },
+      { "label": "BioRadar validation", "url": "https://github.com/omtawde09/BioRadar" }
+    ]
+  },
+  {
+    "id": "costa",
+    "keywords": ["costa", "beacon", "optical", "laser", "tracking", "gimbal", "blink"],
+    "question": "How does COSTA find the beacon?",
+    "answer": "COSTA identifies the beacon by its blink signature in the Fourier domain, not by brightness. Once the right modulation pattern is found, geometry gives a coarse pointing estimate and a Kalman filter holds the track on a pan/tilt gimbal. It passes 28 of 28 validation cases, acquires in 0.83 to 1.60 seconds, and holds lock on 94 to 100 percent of real footage.",
+    "sources": [
+      { "label": "COSTA README", "url": "https://github.com/ishwar-prog/COSTA" },
+      { "label": "COSTA validation", "url": "https://github.com/ishwar-prog/COSTA" }
+    ]
+  },
+  {
+    "id": "chumps",
+    "keywords": ["chumps", "video", "editor", "tutorial", "remotion", "edit"],
+    "question": "What is Chumps Lab Studio?",
+    "answer": "Chumps Lab Studio is an AI video editor for screen-recording tutorials. It turns a raw recording into an edited video, then hands you a real editor and an assistant. The AI writes a typed Edit Decision Document instead of code, so every change is a draft you can accept or reject. It has 26 of 26 browser end-to-end checks passing and is still in progress.",
+    "sources": [
+      { "label": "Chumps Lab README", "url": "https://github.com/ParthVarekar/chumps-lab-studio" },
+      { "label": "Chumps Lab tests", "url": "https://github.com/ParthVarekar/chumps-lab-studio" }
+    ]
+  },
+  {
+    "id": "roboforge",
+    "keywords": ["roboforge", "rover", "robot", "simulation", "mujoco", "webots", "reality"],
+    "question": "What is RoboForge?",
+    "answer": "RoboForge is a chat-first machine builder. You describe a rover, it designs it, simulates it in MuJoCo or Webots, then compares the real rover's gyro data with the simulation and diagnoses the gap. It has more than 900 tests that run without hardware, and RF-DETR reaches 92 percent precision. It was archived after the hackathon.",
+    "sources": [
+      { "label": "RoboForge README", "url": "https://github.com/college-hack24-nov26/hack-odyssey" }
+    ]
+  },
+  {
+    "id": "client",
+    "keywords": ["client", "agency", "website", "protovinci", "theartevents", "socialxbrand", "gully"],
+    "question": "What client work have you done?",
+    "answer": "I built three live client sites at ProtoVinci. TheArtEvents is an editorial portfolio for a Mumbai event décor studio. SocialxBrand Pilot is a motion-led site for a digital marketing agency, built with Next.js 16 and GSAP, with 94 tests and 18 services. Gully Culture is a thrifted jersey and streetwear storefront with Instagram DM ordering.",
+    "sources": [
+      { "label": "TheArtEvents", "url": "https://theartevents.vercel.app" },
+      { "label": "SocialxBrand Pilot", "url": "https://www.socialxbrandpilot.com" },
+      { "label": "Gully Culture", "url": "https://gullyculture.vercel.app/index.html" }
+    ]
+  },
+  {
+    "id": "testing",
+    "keywords": ["test", "testing", "verify", "verification", "quality", "evidence", "how do you test"],
+    "question": "How do you test your systems?",
+    "answer": "I try to test the claim, not just the code. H.A.L.O has 276 tests and 8 of 8 verification checks. BioRadar has 76 tests and detects 80 of 80 planted species at exact read counts. COSTA has 28 validation cases across six targets. RoboForge has more than 900 tests that run without Webots or hardware. The common rule is to write the evidence check before trusting the result.",
+    "sources": [
+      { "label": "H.A.L.O", "url": "https://github.com/ParthVarekar/H.A.L.O" },
+      { "label": "BioRadar", "url": "https://github.com/omtawde09/BioRadar" },
+      { "label": "COSTA", "url": "https://github.com/ishwar-prog/COSTA" }
+    ]
+  },
+  {
+    "id": "about",
+    "keywords": ["who", "about", "parth", "study", "college", "education", "mumbai", "bio"],
+    "question": "Who is Parth?",
+    "answer": "Parth Varekar is an AI systems builder from Mumbai. He studies Computer Engineering at K.C. College of Engineering, Mumbai University, class of 2028. He builds local-first AI: offline procedure monitors, zero-cloud dictation, biodiversity intelligence, optical tracking and browser labs. He has also completed a data-science internship at Imarticus Learning and a Full-Stack Java certification.",
+    "sources": [
+      { "label": "About Parth", "url": "https://parthvarekar.in/about" }
+    ]
+  },
+  {
+    "id": "tools",
+    "keywords": ["tools", "stack", "python", "typescript", "pytorch", "webgpu", "react", "next.js"],
+    "question": "What tools do you use?",
+    "answer": "I work mostly in Python and TypeScript. My AI stack includes PyTorch, YOLO, Qwen models, llama.cpp and WebGPU. On the web I use React, Next.js, Tailwind CSS and GSAP. For systems work I use Docker, Linux, OpenCV, PySide6 and ESP32 firmware. I choose the smallest tool that can prove the result.",
+    "sources": [
+      { "label": "About Parth", "url": "https://parthvarekar.in/about" }
+    ]
+  },
+  {
+    "id": "this-site",
+    "keywords": ["this page", "this site", "model", "machine", "local", "webllm", "browser", "how does this work"],
+    "question": "How does this page run a model?",
+    "answer": "This page runs SmolLM2-135M through WebLLM and WebGPU inside a Web Worker. The model is about 78 MB and only downloads when you click Wake the machine. Answers are grounded in a small curated knowledge base using lexical retrieval. Nothing in the conversation is sent to a server, and the chat is not stored. If WebGPU or f16 shaders are unavailable, the site uses a clearly labelled demo mode.",
+    "sources": [
+      { "label": "Colophon", "url": "https://parthvarekar.in/colophon" }
+    ]
+  },
+  {
+    "id": "contact",
+    "keywords": ["contact", "email", "hire", "internship", "reach", "linkedin", "github"],
+    "question": "How can I contact you?",
+    "answer": "Email is the direct path: parthvarekar27@gmail.com. You can also find me on GitHub at github.com/ParthVarekar and on LinkedIn. I am based in Mumbai and work in IST. I am open to internships, collaborations and local-first AI projects. There is no contact form and no tracking on this site.",
+    "sources": [
+      { "label": "Contact", "url": "https://parthvarekar.in/contact" },
+      { "label": "GitHub", "url": "https://github.com/ParthVarekar" }
+    ]
+  }
+]

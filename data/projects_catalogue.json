@@ -1,0 +1,1479 @@
+{
+  "catalogue_version": "1.0",
+  "generated": "2026-11-08",
+  "owner": "Parth Varekar",
+  "github": "https://github.com/ParthVarekar",
+  "methodology": "Discovery via GitHub profile repository listing (31 owned repos) plus web research of the existing portfolio and profile README. Non-owned contribution discovery (SIH team repos, CodeByte team repos) limited by unauthenticated GitHub API rate limits; documented as a gap. No commits were attributed without evidence.",
+  "coverage_gaps": [
+    "GitHub REST/GraphQL search APIs were rate-limited during research; cross-repo commit authorship for non-owned repos (e.g. ishwarrreal-bot/SIH_Files, Color Vision Assistant team repo) could not be independently verified via API. Attribution relies on the owner's own portfolio statements and repo ownership.",
+    "LinkedIn direct access returned HTTP 999; identity/education details sourced from the existing portfolio (parthvarekar.in) and GitHub profile README.",
+    "Color Vision Assistant repository could not be located; treated as a documented but unverified collaborative project."
+  ],
+  "projects": [
+    {
+      "id": "P01",
+      "name": "H.A.L.O",
+      "repository_url": "https://github.com/ParthVarekar/H.A.L.O",
+      "repository_owner": "ParthVarekar",
+      "description": "On-board AI that follows a science procedure the way a ground controller would: recognises every step as it happens and speaks up the moment one is skipped or done out of order, in real time, on a single laptop GPU, with no network connection. Built for SIH26174 (Smart India Hackathon).",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 28 commits; README, architecture, tests (276 passing), verification command, SIH requirements traceability doc.",
+      "technologies": [
+        "Python",
+        "PyTorch",
+        "YOLO11",
+        "Qwen3-VL",
+        "OpenCV",
+        "MediaPipe",
+        "React",
+        "Vite",
+        "FastAPI"
+      ],
+      "technical_highlights": [
+        "YOLO11 trained on real ISS footage (mAP50 0.79)",
+        "Qwen3-VL answers 9 visual questions in ~0.6s",
+        "deterministic procedure engine (skipped/out-of-order/stalled detection)",
+        "SHA-256 chained + Ed25519 signed event log",
+        "H.264 UDP stream to any IP",
+        "spoken alerts in English/Hindi",
+        "fully offline",
+        "reproducible verification (8/8 checks)"
+      ],
+      "project_status": "complete (hackathon submission, verified)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/assets/demo.webp",
+        "docs/assets/dashboard-live.jpg"
+      ],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 9,
+        "contribution": 9,
+        "visual": 8,
+        "practical": 8,
+        "completeness": 9
+      },
+      "overall_score": 8.75,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P02",
+      "name": "Enterprise Knowledge Assistant",
+      "repository_url": "https://github.com/ParthVarekar/enterprise_knowledge_assistance",
+      "repository_owner": "ParthVarekar",
+      "description": "Production-grade Slack-native RAG engine with zero-trust ACL, hybrid retrieval (BM25 + dense vectors, RRF, temporal decay), NLI claim-level grounding with intelligent abstention, local CUDA llama.cpp (Gemma 4 E4B), and an Aegis-QA autonomous quality platform.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 40 commits; extensive README with math, architecture, API reference, tests.",
+      "technologies": [
+        "TypeScript",
+        "Node.js",
+        "React",
+        "Vite",
+        "Tailwind",
+        "llama.cpp",
+        "Gemma 4",
+        "Vitest"
+      ],
+      "technical_highlights": [
+        "dual-layer zero-trust ACL (static + live permission gate)",
+        "BM25 + cosine + RRF + temporal decay",
+        "NLI grounding with abstention threshold",
+        "local CUDA inference on RTX 5050",
+        "Aegis-QA: property invariants, mutation testing, fuzzer, benchmarks",
+        "audit ledger with trace IDs"
+      ],
+      "project_status": "complete (documented, runnable)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 8,
+        "contribution": 9,
+        "visual": 7,
+        "practical": 8,
+        "completeness": 9
+      },
+      "overall_score": 8.4,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P03",
+      "name": "Susurrus (WhisperFlow)",
+      "repository_url": "https://github.com/ParthVarekar/Susurrus",
+      "repository_owner": "ParthVarekar",
+      "description": "Offline, zero-cloud speech-to-text + LLM pipeline for Windows: push-to-talk daemon, whisper.cpp/Qwen3-ASR transcription, Gemma on llama.cpp editing, Win32 SendInput text injection, voice commands on selected text, snippets, live overlay. Local alternative to Wispr Flow.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 158 commits; ARCHITECTURE.md, docs, tests (77/77), marketing site (susurrus-xi.vercel.app).",
+      "technologies": [
+        "Python",
+        "whisper.cpp",
+        "llama.cpp",
+        "Qwen3-ASR",
+        "Gemma",
+        "Silero VAD",
+        "Docker",
+        "PyInstaller",
+        "Next.js"
+      ],
+      "technical_highlights": [
+        "fully offline, zero cloud calls",
+        "push-to-talk in any app via Win32 SendInput",
+        "voice commands rewrite selected text",
+        "custom vocabulary + snippets",
+        "77/77 unit tests across 8 modules",
+        "marketing site on Vercel"
+      ],
+      "project_status": "complete (shipped, has landing page)",
+      "demo_url": "https://susurrus-xi.vercel.app",
+      "screenshots": [
+        "docs/assets/intro.gif"
+      ],
+      "evaluation_scores": {
+        "complexity": 8,
+        "originality": 7,
+        "contribution": 9,
+        "visual": 8,
+        "practical": 9,
+        "completeness": 9
+      },
+      "overall_score": 8.2,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P04",
+      "name": "Codeframe",
+      "repository_url": "https://github.com/ParthVarekar/frigshwar",
+      "repository_owner": "ParthVarekar",
+      "description": "A Figma/Framer-style design canvas whose frames export as a real Vite + React + Tailwind project. Yjs CRDT scene graph, Konva canvas, shadcn/ui components drawn live, motion/prototyping, multiplayer foundation.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 7 commits; monorepo (apps/web, apps/server, packages/scene, library, codegen, runtime); golden-file tests; design-language doc ('Broadsheet').",
+      "technologies": [
+        "TypeScript",
+        "React",
+        "Vite",
+        "Tailwind v4",
+        "Yjs",
+        "Konva",
+        "Hocuspocus",
+        "shadcn/ui"
+      ],
+      "technical_highlights": [
+        "one scene graph drives canvas, preview and code exporter",
+        "Yjs CRDT with deterministic repair of merged states",
+        "gesture-exact transforms",
+        "shadcn/ui vendored verbatim into export",
+        "golden-file export tests + export-smoke",
+        "multiplayer-ready via Yjs"
+      ],
+      "project_status": "in progress (core editor + export working)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/assets/intro.gif"
+      ],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 9,
+        "contribution": 9,
+        "visual": 9,
+        "practical": 8,
+        "completeness": 8
+      },
+      "overall_score": 8.8,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P05",
+      "name": "Agent Safety Net",
+      "repository_url": "https://github.com/ParthVarekar/agent_safety_net",
+      "repository_owner": "ParthVarekar",
+      "description": "Chrome MV3 extension: runtime safety layer for browser AI agents. Injects into MAIN world to monkey-patch fetch/XHR, detects PII + prompt injection in ~0.011ms (~90k req/sec), 4-tier intervention UI, intent-drift detection, Gemini only for async post-block explanations.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 3 commits; extensive architecture/audit docs; REAL_LATENCY_REPORT.md.",
+      "technologies": [
+        "TypeScript",
+        "Chrome MV3",
+        "React",
+        "Vite",
+        "Gemini Flash"
+      ],
+      "technical_highlights": [
+        "MAIN world injection bypasses declarativeNetRequest limits",
+        "regex PII + prompt-injection matching at <1ms",
+        "LRU cache for repeated lookups",
+        "4-tier UI: Allow/Warn/Confirm/Block",
+        "intent-drift detection (sensitive DOM read -> POST within 5s)",
+        "Gemini only for async explanations"
+      ],
+      "project_status": "in progress (documented, core built)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 8,
+        "originality": 9,
+        "contribution": 9,
+        "visual": 6,
+        "practical": 8,
+        "completeness": 7
+      },
+      "overall_score": 8.0,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P06",
+      "name": "Nexus-AI (Coding Game)",
+      "repository_url": "https://github.com/ParthVarekar/coding_game",
+      "repository_owner": "ParthVarekar",
+      "description": "2D sci-fi educational game where players write real Python in-browser via Pyodide/WebAssembly. Custom zero-dependency Canvas engine (60 FPS fixed timestep, camera lerping, AABB collision), n8n-style SVG campaign node graph, 2D Minecraft-style tile level editor with Void brush.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 17 commits; README, ARCHITECTURE.md, PRD, screenshots.",
+      "technologies": [
+        "JavaScript",
+        "HTML5 Canvas",
+        "Pyodide",
+        "WebAssembly",
+        "CodeMirror 6",
+        "Xterm.js",
+        "Node.js"
+      ],
+      "technical_highlights": [
+        "real Python execution in browser via Pyodide WASM in a Web Worker",
+        "state-based validation via pyodide.globals (not regex)",
+        "custom Canvas engine 60 FPS fixed timestep",
+        "n8n-style cubic Bezier campaign node graph",
+        "tile level editor with Void brush + Base64 asset embedding",
+        "COOP/COEP headers for SharedArrayBuffer"
+      ],
+      "project_status": "complete (playable locally)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/images/gameplay_header.png",
+        "docs/images/canvas_grid_editor.png"
+      ],
+      "evaluation_scores": {
+        "complexity": 7,
+        "originality": 8,
+        "contribution": 9,
+        "visual": 8,
+        "practical": 7,
+        "completeness": 7
+      },
+      "overall_score": 7.75,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P07",
+      "name": "Shorts Intelligence OS",
+      "repository_url": "https://github.com/ParthVarekar/shorts-intelligence-os",
+      "repository_owner": "ParthVarekar",
+      "description": "Multi-agent CLI + FastAPI backend that ingests transcripts/analytics and produces structured reports: viral scoring, retention forecasts at 3s/10s/20s/completion, competitor analysis, scene scripts, thumbnail ideas. 15 formally specified metrics with confidence levels. Optional NVIDIA NIM with paced scheduler + caching.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 1 commit (squashed); README, API contracts, audit docs, tests.",
+      "technologies": [
+        "Python",
+        "FastAPI",
+        "NVIDIA NIM",
+        "FAISS",
+        "SQLite",
+        "SSE"
+      ],
+      "technical_highlights": [
+        "15 documented metrics with formulas, units, confidence levels",
+        "FastAPI backend with SSE progress streaming",
+        "SQLite persistent memory + FAISS pattern learning across runs",
+        "optional NVIDIA NIM with paced scheduler + exponential backoff + response caching",
+        "retention forecasts at 3s/10s/20s/completion"
+      ],
+      "project_status": "complete (runnable CLI)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 7,
+        "originality": 7,
+        "contribution": 9,
+        "visual": 5,
+        "practical": 7,
+        "completeness": 8
+      },
+      "overall_score": 7.2,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P08",
+      "name": "StudyOS",
+      "repository_url": "https://github.com/ParthVarekar/studyos",
+      "repository_owner": "ParthVarekar",
+      "description": "Local-first PWA that runs GATE 2027 prep like a SaaS product: 13 Prisma models on SQLite, 8 interconnected modules, full test-runner state machine, PDF.js canvas document viewer, offline-first service worker. Dogfooded daily.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 3 commits; live app at gate-2027-tracker.space-z.ai; Next.js 16 + Prisma + shadcn.",
+      "technologies": [
+        "Next.js 16",
+        "React 19",
+        "TypeScript",
+        "Prisma",
+        "SQLite",
+        "Tailwind",
+        "shadcn/ui",
+        "PWA"
+      ],
+      "technical_highlights": [
+        "13-model Prisma schema; 18 subjects + 91 GATE topics seeded",
+        "test-runner state machine: config -> live timed exam -> results -> history",
+        "PDF.js canvas document viewer (126-page syllabus)",
+        "PWA + service worker, full offline",
+        "Superhuman-inspired design system"
+      ],
+      "project_status": "live (deployed PWA)",
+      "demo_url": "https://gate-2027-tracker.space-z.ai",
+      "screenshots": [
+        "assets/studyos-preview.png"
+      ],
+      "evaluation_scores": {
+        "complexity": 7,
+        "originality": 6,
+        "contribution": 9,
+        "visual": 7,
+        "practical": 8,
+        "completeness": 6
+      },
+      "overall_score": 7.2,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P09",
+      "name": "2'nd_Brain",
+      "repository_url": "https://github.com/ParthVarekar/2-nd_Brain",
+      "repository_owner": "ParthVarekar",
+      "description": "Local-first RAG knowledge base with dual store (SQLite + ChromaDB), streaming SSE answers, knowledge-graph API (keyword-overlap edges), Playwright stealth scraper for JS-heavy pages, Gemini/Ollama backends, React 19 + Vite frontend.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 4 commits; README with API schema; 1 star.",
+      "technologies": [
+        "Python",
+        "FastAPI",
+        "ChromaDB",
+        "SQLite",
+        "Playwright",
+        "playwright-stealth",
+        "Gemini",
+        "Ollama",
+        "React 19",
+        "Vite",
+        "Tailwind"
+      ],
+      "technical_highlights": [
+        "dual-store RAG: SQLite metadata + ChromaDB vectors",
+        "streaming SSE query pipeline with post-stream memory write-back",
+        "knowledge graph endpoint: keyword-overlap edges, top-80 weighted",
+        "DynamicScraperManager: Playwright + stealth for JS-heavy pages",
+        "background job tracking for all ingestion"
+      ],
+      "project_status": "complete (runnable)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 7,
+        "originality": 6,
+        "contribution": 9,
+        "visual": 6,
+        "practical": 7,
+        "completeness": 7
+      },
+      "overall_score": 7.05,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P10",
+      "name": "Local File Intelligence (semantic_file_system)",
+      "repository_url": "https://github.com/ParthVarekar/semantic_file_system",
+      "repository_owner": "ParthVarekar",
+      "description": "Private, local-first Windows desktop app that indexes selected folders and lets you find files by meaning, find exact/near-duplicate images and similar documents, explain cleanup suggestions, propose folder structure, and make approved changes safely (quarantine, journaled, reversible). Includes a Flow Launcher-style quick-search tray app.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 5 commits; extensive README, architecture/privacy docs, tests, packaging scripts.",
+      "technologies": [
+        "Python",
+        "ONNX (fastembed)",
+        "SQLite FTS5",
+        "BLAKE3",
+        "pHash/dHash",
+        "PyQt/PySide",
+        "PyInstaller"
+      ],
+      "technical_highlights": [
+        "natural-language + keyword search fused with RRF",
+        "image search by description via local vision-language model (~230 MB)",
+        "exact + near-duplicate detection (hard-link aware)",
+        "explainable 0-100 review-priority score with named signals",
+        "quarantine with write-ahead journal, crash recovery, undo",
+        "Flow Launcher-style quick search (Alt+Shift+Space)",
+        "no cloud, no telemetry, offline after one-time download"
+      ],
+      "project_status": "complete (shipped desktop app)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/images/app_search.png",
+        "docs/images/app_results.png",
+        "docs/images/quick_search_light.png"
+      ],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 9,
+        "contribution": 9,
+        "visual": 8,
+        "practical": 9,
+        "completeness": 9
+      },
+      "overall_score": 8.85,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P11",
+      "name": "Chumps Lab Studio",
+      "repository_url": "https://github.com/ParthVarekar/chumps-lab-studio",
+      "repository_owner": "ParthVarekar",
+      "description": "AI video editor for screen-recording tutorials: auto-edits raw recordings (zooms, labels, captions, sound effects, animated graphics) from transcript + OCR + screen-motion analysis, then hands you a real editor and an assistant. AI writes a typed Edit Decision Document, never code.",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 10 commits; README with gallery, architecture flowchart, shortcuts, tests (command layer, element, 26 browser e2e).",
+      "technologies": [
+        "TypeScript",
+        "React",
+        "Remotion",
+        "Zustand",
+        "react-moveable",
+        "FFmpeg",
+        "Python",
+        "llama.cpp",
+        "Kokoro TTS",
+        "Parakeet ASR",
+        "RapidOCR"
+      ],
+      "technical_highlights": [
+        "AI plans a typed Edit Decision Document (never code); locked/hand-edited items survive re-plan",
+        "point-and-draw effects on the preview",
+        "linked items (zoom + spotlight as one drag)",
+        "AI-designed animated elements via safe spec (not code)",
+        "assistant edits via the same command layer with Apply/Discard drafts",
+        "Remotion renderer cached per beat; final MP4 at -14 LUFS",
+        "26 browser e2e checks"
+      ],
+      "project_status": "in progress (editor + pipeline working)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/assets/showcase.webp",
+        "docs/assets/editor-demo.webp"
+      ],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 8,
+        "contribution": 9,
+        "visual": 9,
+        "practical": 8,
+        "completeness": 8
+      },
+      "overall_score": 8.6,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P12",
+      "name": "Parth Operating Assistant",
+      "repository_url": "https://github.com/ParthVarekar/parth-operating-assistant",
+      "repository_owner": "ParthVarekar",
+      "description": "Personal AI operating assistant over Telegram: deterministic interval scheduler (no calendar hallucinations), 8-stage physical submission pipeline, failure-aware re-planning, behavioral learning (optimism multipliers), $0/month (Gemini free tier + SQLite WAL).",
+      "contribution_type": "owner / primary author",
+      "contribution_evidence": "Repository owned by ParthVarekar; 42 commits; README, 15 tests, PERSONAL_ASSISTANT_RESEARCH.md (34 sections).",
+      "technologies": [
+        "TypeScript",
+        "Node.js",
+        "SQLite (WAL)",
+        "Telegram (grammy)",
+        "Gemini 2.0 Flash",
+        "Zod"
+      ],
+      "technical_highlights": [
+        "deterministic constraint solver (no LLM scheduling)",
+        "8-stage physical submission state machine",
+        "failure-aware re-planning with slip triage",
+        "behavioral learning: optimism multipliers per category",
+        "15 unit/integration tests in <500ms",
+        "$0/month architecture"
+      ],
+      "project_status": "complete (daemon runnable)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 7,
+        "originality": 8,
+        "contribution": 9,
+        "visual": 5,
+        "practical": 8,
+        "completeness": 7
+      },
+      "overall_score": 7.4,
+      "recommended_for_portfolio": true,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P13",
+      "name": "Credence (CodeByte 2.0 team project)",
+      "repository_url": "https://github.com/ParthVarekar/credence_final",
+      "repository_owner": "ParthVarekar (team: Team PPO)",
+      "description": "Intelligent advisor-investor journey management platform (FinTech): rule-based portfolio supervision, SIP monitoring, risk-drift detection, goal tracking, rebalancing assist (advisory only), audit trail. Built for CodeByte 2.0.",
+      "contribution_type": "collaborative (team hackathon) — individual contribution not independently verified",
+      "contribution_evidence": "Repository owned by ParthVarekar but described as team project ('Team Credence'); no per-author commit attribution available without API. Treat as collaborative; verify individual role before featuring.",
+      "technologies": [
+        "React",
+        "Vite",
+        "Tailwind",
+        "Zustand",
+        "Node.js",
+        "Express",
+        "Firebase",
+        "Gemini 2.5 Flash"
+      ],
+      "technical_highlights": [
+        "deterministic rule-based logic (no autonomous trading)",
+        "risk-drift radar for advisors",
+        "8-stage... actually SIP manager + rebalancing assist",
+        "advisor copilot text-only",
+        "audit trail"
+      ],
+      "project_status": "hackathon submission",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 6,
+        "originality": 6,
+        "contribution": 5,
+        "visual": 6,
+        "practical": 7,
+        "completeness": 6
+      },
+      "overall_score": 5.9,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P14",
+      "name": "Color Vision Assistant (team project, 2025)",
+      "repository_url": null,
+      "repository_owner": "team (unlocated)",
+      "description": "Chrome MV3 extension to help low-vision users browse the web: 'partial blindness' mode via CSS/JS overlays boosting contrast, font weight, brightness. Parth's first shipped extension.",
+      "contribution_type": "collaborative (team) — repository not located; evidence from owner's portfolio statement only",
+      "contribution_evidence": "Mentioned in existing portfolio (parthvarekar.in) and GitHub profile README. No repository located during research.",
+      "technologies": [
+        "Chrome MV3",
+        "JavaScript",
+        "CSS",
+        "content scripts"
+      ],
+      "technical_highlights": [
+        "first shipped Chrome extension",
+        "accessibility overlays",
+        "contrast/font/brightness boosting"
+      ],
+      "project_status": "shipped (2025, team)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 4,
+        "originality": 5,
+        "contribution": 5,
+        "visual": 4,
+        "practical": 6,
+        "completeness": 3
+      },
+      "overall_score": 4.6,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P15",
+      "name": "SIH Files (civic issue, forked)",
+      "repository_url": "https://github.com/ParthVarekar/SIH_Files",
+      "repository_owner": "ishwarrreal-bot (forked by ParthVarekar)",
+      "description": "Fork of a Smart India Hackathon civic-issue reporting web app (HTML/CSS/JS).",
+      "contribution_type": "fork (minor) — individual contribution not verified",
+      "contribution_evidence": "Forked from ishwarrreal-bot/SIH_Files; 3 commits; no README beyond file listing.",
+      "technologies": [
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "hackathon fork",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 2,
+        "contribution": 3,
+        "visual": 3,
+        "practical": 4,
+        "completeness": 2
+      },
+      "overall_score": 2.85,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P16",
+      "name": "second-brain (clone of henrydaum/second-brain)",
+      "repository_url": "https://github.com/ParthVarekar/second-brain",
+      "repository_owner": "ParthVarekar (upstream: henrydaum)",
+      "description": "Local-first desktop AI runtime (plugin system, RAG, cron, Telegram). README attributes authorship to Henry Daum; appears to be a clone/fork, not original work.",
+      "contribution_type": "clone/fork of third-party project — NOT original work; do not feature as Parth's",
+      "contribution_evidence": "README footer: 'An agent by Henry Daum'; setup clone URL points to henrydaum/second-brain. Only 3 commits. No evidence of original contribution.",
+      "technologies": [
+        "Python",
+        "SQLite",
+        "sentence-transformers",
+        "faster-whisper",
+        "PyMuPDF"
+      ],
+      "technical_highlights": [],
+      "project_status": "clone",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 0,
+        "originality": 0,
+        "contribution": 0,
+        "visual": 0,
+        "practical": 0,
+        "completeness": 0
+      },
+      "overall_score": 0,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P17",
+      "name": "Susurrus Landing Page",
+      "repository_url": "https://github.com/ParthVarekar/Susurrus_landing_page",
+      "repository_owner": "ParthVarekar",
+      "description": "Superhuman-inspired light-mode landing page for WhisperFlow (Susurrus).",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar; 1 commit-ish.",
+      "technologies": [
+        "TypeScript",
+        "Next.js",
+        "Tailwind"
+      ],
+      "technical_highlights": [
+        "Superhuman-inspired light-mode design"
+      ],
+      "project_status": "shipped (marketing site)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 4,
+        "originality": 5,
+        "contribution": 9,
+        "visual": 7,
+        "practical": 6,
+        "completeness": 6
+      },
+      "overall_score": 6.0,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P18",
+      "name": "jepa_to_llm",
+      "repository_url": "https://github.com/ParthVarekar/jepa_to_llm",
+      "repository_owner": "ParthVarekar",
+      "description": "Pipeline routing JEPA reasoning into an LLM for better output.",
+      "contribution_type": "owner / experimenter",
+      "contribution_evidence": "Repository owned by ParthVarekar; 1 commit.",
+      "technologies": [
+        "Python"
+      ],
+      "technical_highlights": [
+        "JEPA-to-LLM reasoning pipeline experiment"
+      ],
+      "project_status": "experimental",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 5,
+        "originality": 7,
+        "contribution": 9,
+        "visual": 2,
+        "practical": 4,
+        "completeness": 3
+      },
+      "overall_score": 5.15,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P19",
+      "name": "url-shortener",
+      "repository_url": "https://github.com/ParthVarekar/url-shortener",
+      "repository_owner": "ParthVarekar",
+      "description": "React + Spring Boot URL shortener.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "Java",
+        "Spring Boot",
+        "React"
+      ],
+      "technical_highlights": [],
+      "project_status": "complete (small)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 4,
+        "originality": 3,
+        "contribution": 9,
+        "visual": 4,
+        "practical": 5,
+        "completeness": 6
+      },
+      "overall_score": 5.0,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P20",
+      "name": "gym_tracker",
+      "repository_url": "https://github.com/ParthVarekar/gym_tracker",
+      "repository_owner": "ParthVarekar",
+      "description": "Gym tracker: tracks movement and set consistency cumulatively to improve progress.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "JavaScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "small project",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 4,
+        "contribution": 9,
+        "visual": 4,
+        "practical": 5,
+        "completeness": 4
+      },
+      "overall_score": 4.55,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P21",
+      "name": "Football_BlueLock",
+      "repository_url": "https://github.com/ParthVarekar/Football_BlueLock",
+      "repository_owner": "ParthVarekar",
+      "description": "BlueLock-style browser football game playable with friends.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "TypeScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "small project",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 4,
+        "contribution": 9,
+        "visual": 4,
+        "practical": 4,
+        "completeness": 4
+      },
+      "overall_score": 4.3,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P22",
+      "name": "4th-sem-mini-project-call-bot",
+      "repository_url": "https://github.com/ParthVarekar/4th-sem-mini-project-call-bot-",
+      "repository_owner": "ParthVarekar",
+      "description": "Academic mini-project: call bot (4th semester).",
+      "contribution_type": "owner (academic)",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "TypeScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "academic",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 3,
+        "contribution": 9,
+        "visual": 3,
+        "practical": 3,
+        "completeness": 4
+      },
+      "overall_score": 4.0,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P23",
+      "name": "screen_recorder",
+      "repository_url": "https://github.com/ParthVarekar/screen_recorder",
+      "repository_owner": "ParthVarekar",
+      "description": "Experiment: making a screen recorder.",
+      "contribution_type": "owner (experiment)",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "Python"
+      ],
+      "technical_highlights": [],
+      "project_status": "experiment",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 3,
+        "contribution": 9,
+        "visual": 3,
+        "practical": 3,
+        "completeness": 3
+      },
+      "overall_score": 3.85,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P24",
+      "name": "trusty-trade",
+      "repository_url": "https://github.com/ParthVarekar/trusty-trade",
+      "repository_owner": "ParthVarekar",
+      "description": "TypeScript project (details not captured).",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "TypeScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "unknown",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 2,
+        "originality": 2,
+        "contribution": 9,
+        "visual": 2,
+        "practical": 2,
+        "completeness": 2
+      },
+      "overall_score": 3.1,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P25",
+      "name": "hackios-testing",
+      "repository_url": "https://github.com/ParthVarekar/hackios-testing",
+      "repository_owner": "ParthVarekar",
+      "description": "Testing repo for hackathon experiments.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [],
+      "technical_highlights": [],
+      "project_status": "experiment",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 1,
+        "originality": 1,
+        "contribution": 9,
+        "visual": 1,
+        "practical": 1,
+        "completeness": 1
+      },
+      "overall_score": 2.0,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P26",
+      "name": "ar_furniture_setting_solution",
+      "repository_url": "https://github.com/ParthVarekar/ar_furniture_setting_solution",
+      "repository_owner": "ParthVarekar",
+      "description": "Initial backend push for an AR furniture placement solution.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [],
+      "technical_highlights": [],
+      "project_status": "early/abandoned",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 2,
+        "originality": 3,
+        "contribution": 9,
+        "visual": 2,
+        "practical": 3,
+        "completeness": 1
+      },
+      "overall_score": 3.15,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P27",
+      "name": "orange_background",
+      "repository_url": "https://github.com/ParthVarekar/orange_background",
+      "repository_owner": "ParthVarekar",
+      "description": "TypeScript experiment.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "TypeScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "experiment",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 1,
+        "originality": 1,
+        "contribution": 9,
+        "visual": 1,
+        "practical": 1,
+        "completeness": 1
+      },
+      "overall_score": 2.0,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P28",
+      "name": "glm_test",
+      "repository_url": "https://github.com/ParthVarekar/glm_test",
+      "repository_owner": "ParthVarekar",
+      "description": "HTML experiment.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "HTML"
+      ],
+      "technical_highlights": [],
+      "project_status": "experiment",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 1,
+        "originality": 1,
+        "contribution": 9,
+        "visual": 1,
+        "practical": 1,
+        "completeness": 1
+      },
+      "overall_score": 2.0,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P29",
+      "name": "portfolio_2",
+      "repository_url": "https://github.com/ParthVarekar/portfolio_2",
+      "repository_owner": "ParthVarekar",
+      "description": "Previous portfolio iteration (JavaScript).",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar.",
+      "technologies": [
+        "JavaScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "superseded",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 2,
+        "originality": 2,
+        "contribution": 9,
+        "visual": 3,
+        "practical": 2,
+        "completeness": 3
+      },
+      "overall_score": 3.1,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P30",
+      "name": "Probe",
+      "repository_url": "https://github.com/ParthVarekar/Probe",
+      "repository_owner": "ParthVarekar",
+      "description": "Placeholder repository (README only).",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar; 1 commit; README only.",
+      "technologies": [],
+      "technical_highlights": [],
+      "project_status": "placeholder",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 0,
+        "originality": 0,
+        "contribution": 9,
+        "visual": 0,
+        "practical": 0,
+        "completeness": 0
+      },
+      "overall_score": 0.9,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P31",
+      "name": "ParthVarekar (profile README)",
+      "repository_url": "https://github.com/ParthVarekar/ParthVarekar",
+      "repository_owner": "ParthVarekar",
+      "description": "GitHub profile README with auto-generated stats, snake contribution graph, and SVG cards for selected work.",
+      "contribution_type": "owner",
+      "contribution_evidence": "Repository owned by ParthVarekar; profile README.",
+      "technologies": [
+        "Python",
+        "GitHub Actions"
+      ],
+      "technical_highlights": [
+        "auto-regenerated stats every 6 hours",
+        "snake contribution animation"
+      ],
+      "project_status": "live",
+      "demo_url": "https://github.com/ParthVarekar",
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 4,
+        "contribution": 9,
+        "visual": 6,
+        "practical": 4,
+        "completeness": 6
+      },
+      "overall_score": 5.05,
+      "recommended_for_portfolio": false,
+      "selection_status": "excluded_by_user_directive"
+    },
+    {
+      "id": "P32",
+      "name": "BioRadar",
+      "repository_url": "https://github.com/omtawde09/BioRadar",
+      "repository_owner": "omtawde09 (K.C. College team; Parth contributed)",
+      "description": "Biodiversity intelligence from one litre of water: turns raw eDNA sequencing reads into a species list, invasion forecast and tamper-evident record. QIIME 2 pipeline, India-curated COI reference (33,611 seqs / 8,020 species), 14 intelligence engines (forecast, multi-agent debate, anomaly alerts, hydro-corridor spread, executive brief), bilingual EN/HI dashboard, Merkle ledger, Docker.",
+      "contribution_type": "collaborative (SIH25042 team) — Parth helped build the platform including the species-to-intelligence layer and the validation that surfaced a mislabelled NCBI record (per repo README 'My role')",
+      "contribution_evidence": "README 'My role' section explicitly credits Parth. 50 commits; 76 unit tests; 80/80 detections at exact read counts, 0 false positives.",
+      "technologies": [
+        "Python",
+        "QIIME 2",
+        "DADA2",
+        "vsearch",
+        "Docker",
+        "React 18",
+        "TypeScript",
+        "Tailwind",
+        "Framer Motion",
+        "Leaflet",
+        "scikit-learn",
+        "Solidity"
+      ],
+      "technical_highlights": [
+        "80/80 detections at exact read counts, 0 false positives on mock community",
+        "14 intelligence engines (forecast, debate, anomaly, spread, XAI, NLG brief)",
+        "Merkle ledger over every artifact; byte-identical output",
+        "self-configuring pre-flight (~1s) catches unusable data",
+        "bilingual EN/HI dashboard",
+        "caught a mislabelled NCBI reference record"
+      ],
+      "project_status": "complete (SIH25042 submission)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/assets/intro.gif"
+      ],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 9,
+        "contribution": 7,
+        "visual": 8,
+        "practical": 9,
+        "completeness": 9
+      },
+      "overall_score": 8.55,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P33",
+      "name": "COSTA",
+      "repository_url": "https://github.com/ishwar-prog/COSTA",
+      "repository_owner": "ishwar-prog (SIH26169 team; Parth listed by user)",
+      "description": "Coarse Optical Tracking & Alignment System for free-space optical links: finds the partner terminal's beacon among stars/street lights/decoys by how it blinks (Fourier signature), not brightness; drives a pan/tilt gimbal; locks in ~0.8–1.6s. 28/28 validation cases pass all six targets; real-footage validation 94–100% lock.",
+      "contribution_type": "collaborative (SIH26169 team) — per-author attribution not independently verified; included per user directive",
+      "contribution_evidence": "User explicitly listed COSTA. Repository by ishwar-prog; 19 commits; 28 validation cases published (including failing seeds).",
+      "technologies": [
+        "Python",
+        "OpenCV",
+        "NumPy",
+        "PySide6",
+        "pyqtgraph",
+        "Arduino",
+        "Kalman filter",
+        "FFT"
+      ],
+      "technical_highlights": [
+        "blink-signature (Fourier) beacon ID, rejects stars/decoys/rival blinkers",
+        "Kalman tracker in LOS angles with Singer model",
+        "FSOC PAT acquisition (GPS-cued spiral / ephemeris pre-point)",
+        "60 Hz control / 30 Hz vision on separate threads",
+        "28/28 cases pass all 6 targets; real footage 94–100% lock",
+        "drives real Arduino pan/tilt hardware"
+      ],
+      "project_status": "complete (SIH26169 submission)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/assets/intro.webp",
+        "docs/assets/demo.webp"
+      ],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 9,
+        "contribution": 6,
+        "visual": 8,
+        "practical": 8,
+        "completeness": 9
+      },
+      "overall_score": 8.25,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P34",
+      "name": "RoboForge (hack-odyssey)",
+      "repository_url": "https://github.com/college-hack24-nov26/hack-odyssey",
+      "repository_owner": "college-hack24-nov26 / Team Odyssey (archived)",
+      "description": "Tell it what you want to build; it designs the machine, tests it in simulation, then checks the real one against the simulation. Chat-first planner, 55-part builder, MuJoCo + Webots sim, ESP32 rover firmware, gyro-based reality-gap diagnosis and trim, 900+ tests. Archived Nov 2026.",
+      "contribution_type": "collaborative (team hackathon, Team Odyssey) — per-author attribution not independently verified; included per user directive",
+      "contribution_evidence": "User explicitly listed hack-odyssey. Archived repo; 19 commits; 900+ tests; RF-DETR 92% precision / 85% recall.",
+      "technologies": [
+        "Python",
+        "MuJoCo",
+        "Webots",
+        "ESP32",
+        "RF-DETR",
+        "OpenRouter",
+        "serial"
+      ],
+      "technical_highlights": [
+        "chat-first planner with deterministic router + AI only for new jobs",
+        "reality-gap engine: gyro-based diagnosis of weak/dead/backwards motors",
+        "firmware v2 with soft start, gyro heading-hold, settings in flash",
+        "900+ tests without Webots/hardware",
+        "RF-DETR Nano: 92% precision / 85% recall on 450 unseen images"
+      ],
+      "project_status": "archived (Nov 2026)",
+      "demo_url": null,
+      "screenshots": [
+        "docs/media/chat.gif",
+        "docs/media/rover-loop.gif"
+      ],
+      "evaluation_scores": {
+        "complexity": 9,
+        "originality": 9,
+        "contribution": 6,
+        "visual": 8,
+        "practical": 8,
+        "completeness": 8
+      },
+      "overall_score": 8.1,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P35",
+      "name": "wmc-virtual-lab (ProtoVinci client work)",
+      "repository_url": "https://github.com/ProtoVinci/wmc-virtual-lab",
+      "repository_owner": "ProtoVinci (agency; Parth contributes)",
+      "description": "Web application for performing Wireless and Mobile Communication laboratory experiments. Client/agency deliverable. 29 stars.",
+      "contribution_type": "client work (agency ProtoVinci) — Parth contributes",
+      "contribution_evidence": "ProtoVinci org lists 5 repos; user states this is client work with the agency they work in.",
+      "technologies": [
+        "JavaScript",
+        "Web app"
+      ],
+      "technical_highlights": [
+        "29 stars (highest among ProtoVinci repos)",
+        "educational lab experiments in browser"
+      ],
+      "project_status": "shipped (client)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 5,
+        "originality": 6,
+        "contribution": 7,
+        "visual": 6,
+        "practical": 7,
+        "completeness": 7
+      },
+      "overall_score": 6.35,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P36",
+      "name": "Firdosh Marble Arts (ProtoVinci client work)",
+      "repository_url": "https://github.com/ProtoVinci/Firdosh_Marble_Arts",
+      "repository_owner": "ProtoVinci (agency)",
+      "description": "Portfolio site for a marble works vendor and craftsman. Client/agency deliverable.",
+      "contribution_type": "client work (agency ProtoVinci)",
+      "contribution_evidence": "ProtoVinci org repo; user states agency client work.",
+      "technologies": [
+        "TypeScript",
+        "Next.js/Tailwind (likely)"
+      ],
+      "technical_highlights": [
+        "client portfolio site for a local craftsman"
+      ],
+      "project_status": "shipped (client)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 4,
+        "originality": 5,
+        "contribution": 7,
+        "visual": 7,
+        "practical": 7,
+        "completeness": 7
+      },
+      "overall_score": 6.15,
+      "recommended_for_portfolio": true,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P37",
+      "name": "TheArtEvents (ProtoVinci client work)",
+      "repository_url": "https://github.com/ProtoVinci/TheArtEvents",
+      "repository_owner": "ProtoVinci (agency)",
+      "description": "Events website for an art events brand. Client/agency deliverable.",
+      "contribution_type": "client work (agency ProtoVinci)",
+      "contribution_evidence": "ProtoVinci org repo.",
+      "technologies": [
+        "HTML"
+      ],
+      "technical_highlights": [],
+      "project_status": "shipped (client)",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 4,
+        "contribution": 7,
+        "visual": 5,
+        "practical": 6,
+        "completeness": 6
+      },
+      "overall_score": 5.2,
+      "recommended_for_portfolio": false,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P38",
+      "name": "SocialxBrand Pilot (ProtoVinci client work)",
+      "repository_url": "https://github.com/ProtoVinci/SocialxBrand_Pilot",
+      "repository_owner": "ProtoVinci (agency)",
+      "description": "Social/brand pilot project. Client/agency deliverable.",
+      "contribution_type": "client work (agency ProtoVinci)",
+      "contribution_evidence": "ProtoVinci org repo.",
+      "technologies": [
+        "JavaScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "pilot",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 4,
+        "contribution": 7,
+        "visual": 5,
+        "practical": 5,
+        "completeness": 5
+      },
+      "overall_score": 4.95,
+      "recommended_for_portfolio": false,
+      "selection_status": "approved_by_user"
+    },
+    {
+      "id": "P39",
+      "name": "ProtoVinci (agency site)",
+      "repository_url": "https://github.com/ProtoVinci/ProtoVinci",
+      "repository_owner": "ProtoVinci (agency)",
+      "description": "The agency's own site. Client/agency meta-work.",
+      "contribution_type": "client work (agency ProtoVinci)",
+      "contribution_evidence": "ProtoVinci org repo.",
+      "technologies": [
+        "TypeScript"
+      ],
+      "technical_highlights": [],
+      "project_status": "shipped",
+      "demo_url": null,
+      "screenshots": [],
+      "evaluation_scores": {
+        "complexity": 3,
+        "originality": 4,
+        "contribution": 7,
+        "visual": 6,
+        "practical": 5,
+        "completeness": 6
+      },
+      "overall_score": 5.25,
+      "recommended_for_portfolio": false,
+      "selection_status": "approved_by_user"
+    }
+  ],
+  "recommended_featured_combination": [
+    "P01",
+    "P03",
+    "P11",
+    "P32",
+    "P33",
+    "P34",
+    "P35"
+  ],
+  "recommended_secondary": [
+    "P36",
+    "P37",
+    "P38",
+    "P39"
+  ],
+  "excluded_by_user_directive": [
+    "P02",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P12",
+    "P13",
+    "P14",
+    "P15",
+    "P16",
+    "P17",
+    "P19",
+    "P20",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30",
+    "P31"
+  ],
+  "notes": "Project set locked by user directive to H.A.L.O, Susurrus, Chumps Lab Studio, BioRadar, COSTA, RoboForge and ProtoVinci client work. ProtoVinci is presented as one chapter (P35-P39). P01/P03/P11 are owned; P32-P34 are collaborative team projects; P35-P39 are agency client work. Role wording for P32-P39 must be confirmed by the user before content lock; no sole-authorship claims. Design decisions locked: Periwinkle Lab palette from the user's reference, Geist Sans body + Geist Pixel display, Qwen2.5-0.5B WebLLM, analytics off, domain redirect approved.",
+  "portfolio_chapters": [
+    {
+      "chapter": 1,
+      "id": "P01",
+      "title": "H.A.L.O",
+      "one_line": "A ground controller for the station.",
+      "role": "Owner / primary author",
+      "status": "complete"
+    },
+    {
+      "chapter": 2,
+      "id": "P03",
+      "title": "Susurrus",
+      "one_line": "Your voice never leaves the machine.",
+      "role": "Owner",
+      "status": "complete"
+    },
+    {
+      "chapter": 3,
+      "id": "P11",
+      "title": "Chumps Lab Studio",
+      "one_line": "An editor that edits with you.",
+      "role": "Owner",
+      "status": "in progress"
+    },
+    {
+      "chapter": 4,
+      "id": "P32",
+      "title": "BioRadar",
+      "one_line": "From one litre of water.",
+      "role": "Team SIH25042 (README credits Parth)",
+      "status": "complete"
+    },
+    {
+      "chapter": 5,
+      "id": "P33",
+      "title": "COSTA",
+      "one_line": "It finds the beacon by how it blinks.",
+      "role": "Team SIH26169 (role wording to confirm)",
+      "status": "complete"
+    },
+    {
+      "chapter": 6,
+      "id": "P34",
+      "title": "RoboForge",
+      "one_line": "Tell it, simulate it, test it against reality.",
+      "role": "Team Odyssey (role wording to confirm)",
+      "status": "archived"
+    },
+    {
+      "chapter": 7,
+      "id": "P35",
+      "title": "ProtoVinci - client work",
+      "one_line": "Real briefs, shipped.",
+      "role": "Client work at ProtoVinci (role wording to confirm)",
+      "status": "client",
+      "includes": [
+        "P35",
+        "P36",
+        "P37",
+        "P38",
+        "P39"
+      ]
+    }
+  ],
+  "design_decisions": {
+    "concept": "The Living Instrument",
+    "theme": "Periwinkle Lab",
+    "palette": {
+      "canvas": "#C8D1E1",
+      "surface": "#FFFFFF",
+      "lime": "#DBEE4D",
+      "blue": "#589CFF",
+      "ink": "#101218",
+      "ink2": "#465063",
+      "blueStrong": "#2F6BDB",
+      "coral": "#EF6A5B"
+    },
+    "typography": {
+      "display": "Geist Pixel Square",
+      "body": "Geist Sans",
+      "code": "Geist Mono"
+    },
+    "model": "Qwen2.5-0.5B-Instruct-q4f16_1-MLC via WebLLM, ~290 MB, WebGPU",
+    "retrieval": "Lexical BM25 / MiniSearch over ~40 curated chunks; no embedding model",
+    "analytics": "off",
+    "domain": "parthvarekar.in canonical; 301 from www and old routes",
+    "project_set": "Restricted to the seven user-supplied links; ProtoVinci is one chapter containing five client repos"
+  }
+}

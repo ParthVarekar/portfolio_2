@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    rect { fill: #DBEE4D; }
+    path { fill: #101218; }
+    @media (prefers-color-scheme: dark) {
+      rect { fill: #101218; }
+      path { fill: #DBEE4D; }
+    }
+  </style>
+  <rect width="64" height="64" rx="15"/>
+  <path d="M14 46V18h12.4c6.7 0 10.6 3.2 10.6 8.7 0 5.6-4 9-10.7 9h-5.1V46H14Zm7.2-15.8h4.6c2.5 0 3.9-1.2 3.9-3.3 0-2.1-1.4-3.2-3.9-3.2h-4.6v6.5Z"/>
+  <path d="M38 18h7.3l4.4 13.6L54 18h7.2L52.5 46h-6.2L38 18Z"/>
+</svg>
