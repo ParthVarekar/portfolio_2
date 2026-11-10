@@ -74,11 +74,13 @@
 
 ### 2026-11-10 (green-screen key, second pass)
 - The first portrait came on a flat lime backdrop that already matched the tile; the replacement photo is a raw green-screen capture (1025×1535, flat #4E8D01), so the backdrop now has to be keyed.
+- **The two uploads are the same photograph** — the second is a green-screen version of the first (identical face, hair, shirt and pose; hair band at 18.5–32.9 % of the frame in both). Once the backdrop is keyed into the tile either file renders the same picture, which is why the swap looked like "nothing changed". The live file is the newer, higher-resolution one (1025×1535 vs 853×1280), so the rendered portrait is now sharper.
 - Distance-from-backdrop matte was the wrong tool: JPEG chroma noise made the flat green drift up to 25 units, leaving a muddy olive cast across the field. Switched to a **greenness** matte (`alpha = 1 − (G − max(R,B)) / 63`), which is stable because the screen's green excess is 63 everywhere regardless of noise.
 - Background replacement is a colour transfer, `out = P + (1 − a) · (tile − localScreen)`: a pure screen pixel becomes exactly the tile, a pure subject pixel is untouched, edge pixels slide between the two. Pure-screen pixels (`excess ≥ 55`) are written as the tile directly so no green survives.
 - The screen's local brightness still drifts vertically, so the reference colour is sampled per 64 px block instead of globally; with a global reference the field was ~10 units off the tile.
 - The photo's drop shadow was removed: with the backdrop baked to the tile, the shadow darkened the tile around the frame and re-introduced a visible edge. Only a 1 px hairline remains.
 - Asset renamed to `public/images/portrait.jpg` — `next/image` responses are cached for 4 h (`max-age=14400`), so a changed file under the same name can stay stale in the user's browser.
+- Also set `experimental.staleTimes: { static: 0, dynamic: 0 }`: the Next client router reused a prefetched page segment for 5 minutes, so a client-side navigation could still render the pre-swap markup. Header now reads `x-nextjs-stale-time: 0`.
 
 ### 2026-11-08 (nav material + snappier motion)
 - Nav pill given a real material: top-lit grey gradient (white → cool grey), ink-tinted border with inner highlight lines, deeper duotone shadow — now distinct against both the periwinkle canvas and white cards in both expanded and collapsed (PV seal) states.
