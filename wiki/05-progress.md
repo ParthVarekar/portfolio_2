@@ -72,6 +72,14 @@
 - Layout: `.portrait-photo` replaces `.monogram-big`; both old rules deleted. Desktop keeps the tall 0.618fr column; ≤1080px (stacked card) the photo is centred at `min(100%, 480px)` with a 4:5 aspect so the head is never cropped; ≤720px it goes full width at 4:5.
 - Verified 1440 / 900 / 768 / 390: no horizontal overflow, head always in frame, alt text present, typecheck and production build green.
 
+### 2026-11-10 (transparent cut-out portrait)
+- Final direction: **"use this image with a transparent bg instead"**. The upload was a 1025×1535 PNG with a real alpha channel (alpha mean 101.6, min 0, max 255) — a proper cut-out, so no keying was needed at all.
+- Asset: `public/images/parth-cutout.png`, re-encoded at 900×1348 with the alpha intact (214 KB source). `next/image` serves it as AVIF to browsers: **17.7 KB at w=640, 9.7 KB at w=384** (99 KB if a client refuses modern formats).
+- Layout: `.portrait-photo--cutout` drops the frame, the hairline and the drop shadow — those described a rectangle, and there is no rectangle now. The container's background goes transparent so the panel's own gradient, dot texture and corner ticks read through the empty space.
+- A `mask-image` fade takes the bottom of the figure to transparent (84 % → 100 %), so he dissolves into the lime instead of being cut off flat at the frame's edge.
+- The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
+- Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
+
 ### 2026-11-10 (portrait published with its green screen)
 - User direction after seeing the keyed result: **"i want to use the image with the green screen or background, not the lime one"**. The photo is now shipped exactly as supplied — `public/images/parth-green.jpg` (1000×1498, from the 1025×1535 upload) — and mounted in the lime PORTRAIT panel as a print: 24 px rounded corners, a 1 px ink hairline (0.14) and a soft drop shadow so it sits on the tile instead of floating.
 - The keyed variants (`portrait.jpg`, `parth-v2.jpg`) were deleted; `scripts/key-portrait.mjs` stays in the repo as a tool but no longer feeds the published asset. It still refuses duplicate swaps (mean difference < 4/255 against the published file → "same photograph", exit 2).
