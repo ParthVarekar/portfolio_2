@@ -69,6 +69,13 @@
 - Nav pill given a real material: top-lit grey gradient (white → cool grey), ink-tinted border with inner highlight lines, deeper duotone shadow — now distinct against both the periwinkle canvas and white cards in both expanded and collapsed (PV seal) states.
 - Fold choreography tightened: collapse at 110px (was 150), re-expand delta 60px (was 80), springs at 380–460 stiffness / 21–30 damping, stagger 0.022–0.03, exit timings 0.11–0.14s — links vanish and return noticeably quicker without snapping.
 
+### 2026-11-08 (contact laptop + résumé)
+- **Laptop in the contact card**: `components/contact/Laptop.tsx` — a small CSS laptop in the empty right column of the lime card (white shell, periwinkle keys, lime hinge + spacebar, blue screen with the site's dot texture, lime webcam).
+  - Screen apps, all clickable: Mail (mailto), LinkedIn, WhatsApp (wa.me from the real number), GitHub, Résumé (opens the in-page viewer).
+  - Personality, all tiny: live **IST clock** in the task bar, `sleep: off` / `sleep: soon` depending on the hour, battery at 12%, a `timeline 62%` widget, `ship ✓ / sleep ✗` checkboxes, a `pv@local: ~/parth` tab with blinking cursor and a `npm ERR! sleep not found` toast.
+- **Résumé viewer**: the attached PDF (`Resume_8November2026.pdf`, 1 page) is copied to `public/resume/parth-varekar-resume.pdf`; its content is also structured in `content/resume.ts` and rendered as a designed HTML sheet in a modal (PDF + Download links, Esc / backdrop / ✕ to close) — no dependency on the browser's PDF viewer.
+- Copy alignment: About page, knowledge base and demo answer now say **Excelsior KC College of Engineering (Thane), University of Mumbai** to match the résumé (previously "K.C. College of Engineering, Mumbai University").
+
 ### 2026-11-08 (visual pass 2 — reversible test)
 - **Backup**: git checkpoint `9b95f2f` (pre-pass) + `C:\Users\Parth\Desktop\portfolio_backup_2026-11-10.zip`. Rollback: `git reset --hard 9b95f2f` (then `npm run build`), or unzip the archive over the folder.
 - **Work page** rebuilt as a φ split: 61.8% title column + 38.2% "Index" panel (07 chapter rows: number · title · year) above the filters and mosaic.

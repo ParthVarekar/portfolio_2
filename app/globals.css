@@ -3321,20 +3321,7 @@ button,
 }
 
 .contact-stamp {
-  position: absolute;
-  right: clamp(20px, 4vw, 54px);
-  bottom: clamp(20px, 4vw, 44px);
-  width: clamp(100px, 12vw, 160px);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid rgba(16, 18, 24, 0.18);
-  color: rgba(16, 18, 24, 0.55);
-  font-family: var(--font-pixel), monospace;
-  font-size: clamp(1.4rem, 2.2vw, 2rem);
-  transform: rotate(-8deg);
-  pointer-events: none;
+  display: none;
 }
 
 .contact-stamp::before {
@@ -3343,6 +3330,667 @@ button,
   inset: 8px;
   border-radius: 50%;
   border: 1px dashed rgba(16, 18, 24, 0.18);
+}
+
+.contact-stamp {
+  position: absolute;
+  left: clamp(16px, 3vw, 36px);
+  bottom: clamp(14px, 2.5vw, 30px);
+  width: clamp(96px, 11vw, 150px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(16, 18, 24, 0.16);
+  color: rgba(16, 18, 24, 0.42);
+  font-family: var(--font-pixel), monospace;
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.contact-stamp::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px dashed rgba(16, 18, 24, 0.16);
+}
+
+/* ---------- The little laptop ---------- */
+.contact-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
+  gap: clamp(18px, 3vw, 42px);
+  align-items: center;
+}
+
+.contact-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.contact-device {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.laptop {
+  width: 100%;
+  max-width: 366px;
+  margin-inline: auto;
+}
+
+.laptop-lid {
+  position: relative;
+  padding: 10px 10px 12px;
+  border-radius: 18px 18px 6px 6px;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f4f9 100%);
+  box-shadow:
+    0 18px 40px -24px rgba(16, 18, 24, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
+.laptop-camera {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 0 2px rgba(219, 238, 77, 0.3);
+}
+
+.laptop-screen {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.2px) 0 0 / 14px 14px,
+    linear-gradient(180deg, #4a86e8 0%, #2f6bdb 46%, #1e4fa8 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 18, 24, 0.2),
+    inset 0 10px 20px rgba(16, 18, 24, 0.2);
+}
+
+.lap-topbar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0 6px;
+  background: rgba(16, 18, 24, 0.34);
+  font-family: var(--font-mono), monospace;
+  font-size: 7.2px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.lap-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lap-cursor {
+  width: 4px;
+  height: 7px;
+  background: var(--lime);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+.lap-toast {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(224, 94, 73, 0.92);
+  color: #fff;
+  font-size: 6.8px;
+}
+
+.lap-desktop {
+  position: absolute;
+  inset: 18px 0 16px 0;
+  padding: 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.lap-icons {
+  display: flex;
+  gap: 9px;
+}
+
+.lap-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 42px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.lap-app-glyph {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  box-shadow: 0 2px 5px rgba(16, 18, 24, 0.25);
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.lap-app-glyph--text {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.lap-app:hover .lap-app-glyph {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(16, 18, 24, 0.32);
+}
+
+.lap-app:focus-visible {
+  outline: none;
+}
+
+.lap-app:focus-visible .lap-app-glyph {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+
+.lap-app-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 6.4px;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+}
+
+/* the developer, in miniature */
+.lap-widget {
+  width: 138px;
+  padding: 5px 6px 6px;
+  border-radius: 6px;
+  background: rgba(16, 18, 24, 0.44);
+  font-family: var(--font-mono), monospace;
+  font-size: 6.8px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.lap-widget-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.lap-widget-value {
+  color: var(--lime);
+}
+
+.lap-widget-bar {
+  height: 3px;
+  margin: 3px 0 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.lap-widget-bar span {
+  display: block;
+  height: 100%;
+  width: 62%;
+  border-radius: 2px;
+  background: var(--lime);
+}
+
+.lap-widget-checks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lap-tick {
+  color: var(--lime);
+}
+
+.lap-tick--off {
+  color: #ff9d8f;
+}
+
+.lap-taskbar {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  background: rgba(16, 18, 24, 0.44);
+  font-family: var(--font-mono), monospace;
+  font-size: 6.8px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.lap-taskbar-dots {
+  display: flex;
+  gap: 3px;
+}
+
+.lap-taskbar-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.lap-taskbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lap-sleep {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.lap-battery {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.lap-battery-cell {
+  width: 13px;
+  height: 7px;
+  padding: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+}
+
+.lap-battery-fill {
+  display: block;
+  height: 100%;
+  width: 12%;
+  border-radius: 1px;
+  background: #ff9d8f;
+}
+
+.lap-clock {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.laptop-base {
+  position: relative;
+  margin-top: -2px;
+  padding: 6px 12px 12px;
+  border-radius: 6px 6px 18px 18px;
+  background: linear-gradient(180deg, #f7f8fb 0%, #e7eaf2 100%);
+  box-shadow:
+    0 22px 36px -26px rgba(16, 18, 24, 0.6),
+    inset 0 -1px 0 rgba(16, 18, 24, 0.08);
+}
+
+.laptop-hinge {
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--lime);
+  box-shadow: 0 0 10px rgba(219, 238, 77, 0.55);
+}
+
+.laptop-keyboard {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  padding: 9px 8px 3px;
+}
+
+.key {
+  height: 8px;
+  border-radius: 2px;
+  background: #ccd4e6;
+  box-shadow: inset 0 -1px 0 rgba(16, 18, 24, 0.14);
+}
+
+.key--lime {
+  background: var(--lime);
+}
+
+.key--wide {
+  grid-column: span 3;
+  height: 8px;
+  background: #ccd4e6;
+}
+
+.laptop-trackpad {
+  width: 32%;
+  height: 12px;
+  margin: 7px auto 0;
+  border-radius: 4px;
+  background: #d9dfee;
+  box-shadow: inset 0 1px 2px rgba(16, 18, 24, 0.14);
+}
+
+/* résumé viewer */
+.resume-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2600;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(16, 18, 24, 0.52);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.resume-sheet {
+  width: min(880px, 100%);
+  height: min(86vh, 900px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 40px 90px -30px rgba(16, 18, 24, 0.6);
+}
+
+.resume-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.resume-title {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.resume-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.resume-actions a {
+  color: var(--blue-strong);
+  font-weight: 600;
+}
+
+.resume-actions button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.resume-actions button:hover {
+  background: var(--surface-3);
+}
+
+.resume-scroll {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--surface-3);
+}
+
+.resume-doc {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(20px, 3vw, 34px);
+  background: var(--surface);
+  min-height: 100%;
+}
+
+.resume-head {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.resume-name {
+  font-family: var(--font-pixel), monospace;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.resume-role {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.resume-contact {
+  margin-top: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  color: var(--ink-3);
+}
+
+.resume-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 8px;
+}
+
+.resume-links a {
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  color: var(--blue-strong);
+}
+
+.resume-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.resume-section {
+  margin-top: 22px;
+}
+
+.resume-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.resume-section h3::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-image: linear-gradient(90deg, rgba(16, 18, 24, 0.2) 0 2px, transparent 2px 5px);
+  background-size: 5px 1px;
+}
+
+.resume-section p {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.resume-highlights {
+  margin-top: 10px;
+  display: grid;
+  gap: 7px;
+}
+
+.resume-highlights li {
+  position: relative;
+  padding-left: 15px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.resume-highlights li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--lime-deep);
+}
+
+.resume-highlights strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.resume-skills {
+  margin-top: 10px;
+  display: grid;
+  gap: 9px;
+}
+
+.resume-skills > div {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 14px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--line);
+}
+
+.resume-skills dt {
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-top: 2px;
+}
+
+.resume-skills dd {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.resume-project {
+  margin-top: 16px;
+}
+
+.resume-project-head,
+.resume-job-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.resume-project-head a,
+.resume-project-head > span:first-child {
+  font-family: var(--font-pixel), monospace;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.resume-project-head a:hover {
+  color: var(--blue-strong);
+}
+
+.resume-project-role,
+.resume-job-head span {
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  text-align: right;
+}
+
+.resume-job {
+  margin-top: 14px;
+}
+
+.resume-job-head strong {
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .resume-skills > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .resume-project-role,
+  .resume-job-head span {
+    text-align: left;
+  }
+}
+
+.resume-frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: var(--surface-3);
+}
+
+@media (max-width: 860px) {
+  .contact-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contact-device {
+    justify-content: center;
+  }
+
+  .contact-stamp {
+    display: none;
+  }
 }
 
 /* ---------- Command palette ---------- */

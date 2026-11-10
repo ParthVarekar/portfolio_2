@@ -51,7 +51,7 @@ export function AboutCard() {
 
         <p className="about-bio">
           I am an <strong>AI systems builder</strong> from Mumbai, studying Computer
-          Engineering at K.C. College of Engineering, Mumbai University, class of 2028. I
+          Engineering at Excelsior KC College of Engineering (Thane), University of Mumbai, class of 2028. I
           build local-first systems: offline procedure monitors, zero-cloud dictation,
           biodiversity intelligence, optical tracking and browser labs.
         </p>

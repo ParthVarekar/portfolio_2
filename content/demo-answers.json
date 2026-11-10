@@ -93,7 +93,7 @@
     "id": "about",
     "keywords": ["who", "about", "parth", "study", "college", "education", "mumbai", "bio"],
     "question": "Who is Parth?",
-    "answer": "Parth Varekar is an AI systems builder from Mumbai. He studies Computer Engineering at K.C. College of Engineering, Mumbai University, class of 2028. He builds local-first AI: offline procedure monitors, zero-cloud dictation, biodiversity intelligence, optical tracking and browser labs. He has also completed a data-science internship at Imarticus Learning and a Full-Stack Java certification.",
+    "answer": "Parth Varekar is an AI systems builder from Mumbai. He studies Computer Engineering at Excelsior KC College of Engineering (Thane), University of Mumbai, class of 2028. He builds local-first AI: offline procedure monitors, zero-cloud dictation, biodiversity intelligence, optical tracking and browser labs. He has also completed a data-science internship at Imarticus Learning and a Full-Stack Java certification.",
     "sources": [
       { "label": "About Parth", "url": "https://parthvarekar.in/about" }
     ]

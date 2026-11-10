@@ -30,7 +30,7 @@ const timeline = [
   {
     year: "2024",
     title: "Computer Engineering, Mumbai University",
-    text: "Started at K.C. College of Engineering, class of 2028. Added a 120-hour data-science internship at Imarticus Learning and a Full-Stack Java certification through EduSkills, both with an A+ grade.",
+    text: "Started at Excelsior KC College of Engineering (Thane), University of Mumbai, class of 2028. Added a 120-hour data-science internship at Imarticus Learning and a Full-Stack Java certification through EduSkills, both with an A+ grade.",
   },
 ];
 
@@ -92,8 +92,8 @@ export default function AboutPage() {
             <li>
               <GraduationCap size={15} aria-hidden="true" />
               <div>
-                <strong>K.C. College of Engineering</strong>
-                <span>Computer Engineering · Mumbai University · class of 2028</span>
+                <strong>Excelsior KC College of Engineering</strong>
+                <span>Computer Engineering · Thane, University of Mumbai · class of 2028</span>
               </div>
             </li>
             <li>
