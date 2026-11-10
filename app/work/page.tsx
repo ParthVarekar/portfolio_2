@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { WorkGrid } from "@/components/work/WorkGrid";
 import { ContactCard } from "@/components/method/ContactCard";
+import { projects } from "@/content/projects";
 
 export const metadata: Metadata = {
   title: "The Work",
@@ -14,23 +15,43 @@ export const metadata: Metadata = {
 export default function WorkPage() {
   return (
     <div className="page shell">
-      <header className="page-head">
-        <span className="section-label">
-          <span className="status-dot status-dot--blue" aria-hidden="true" />
-          The work · 2025–2026
-        </span>
-        <h1 className="page-title">
-          Seven chapters.
-          <br />
-          One discipline.
-        </h1>
-        <p className="page-sub">
-          Every project here starts from a real constraint: a skipped step in orbit, a
-          microphone that should not phone home, a beacon hidden among brighter lights, a
-          water sample that has to become a decision. The interface changes. The evidence
-          does not.
-        </p>
-        <p className="work-meta">// index of seven builds · select by discipline below</p>
+      <header className="page-head page-head-split">
+        <div className="page-head-copy">
+          <span className="section-label">
+            <span className="status-dot status-dot--blue" aria-hidden="true" />
+            The work · 2025–2026
+          </span>
+          <h1 className="page-title">
+            Seven chapters.
+            <br />
+            One discipline.
+          </h1>
+          <p className="page-sub">
+            Every project here starts from a real constraint: a skipped step in orbit, a
+            microphone that should not phone home, a beacon hidden among brighter lights, a
+            water sample that has to become a decision. The interface changes. The evidence
+            does not.
+          </p>
+          <p className="work-meta">// index of seven builds · select by discipline below</p>
+        </div>
+
+        <aside className="page-index" aria-label="Chapter index">
+          <div className="page-index-head">
+            <span className="label">Index</span>
+            <span className="page-index-count">07 chapters</span>
+          </div>
+          <ul className="page-index-list">
+            {projects.map((project) => (
+              <li key={project.slug}>
+                <Link href={`/work/${project.slug}`}>
+                  <span className="n">{project.chapter}</span>
+                  <span className="t">{project.title}</span>
+                  <span className="y">{project.year}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </aside>
       </header>
 
       <WorkGrid withFilter />

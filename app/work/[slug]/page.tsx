@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, ArrowUpRight, ExternalLink } from "lucide-react";
 import { projectBySlug, projects, statusTone } from "@/content/projects";
 import { ReadingProgress } from "@/components/case/ReadingProgress";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const dynamicParams = false;
 
@@ -79,16 +80,18 @@ export default async function CaseStudyPage({
           </header>
 
           <div className="case-body">
-            <p className="case-lede">{project.summary}</p>
+            <Reveal>
+              <p className="case-lede">{project.summary}</p>
 
-            <div className="case-evidence" aria-label="Evidence">
-              {project.evidence.map((item) => (
-                <div className="evidence-card" key={item.label}>
-                  <div className="evidence-value">{item.value}</div>
-                  <div className="evidence-label">{item.label}</div>
-                </div>
-              ))}
-            </div>
+              <div className="case-evidence" aria-label="Evidence">
+                {project.evidence.map((item) => (
+                  <div className="evidence-card" key={item.label}>
+                    <div className="evidence-value">{item.value}</div>
+                    <div className="evidence-label">{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
 
             {heroImage ? (
               <figure className="case-figure case-figure--hero">
@@ -105,27 +108,28 @@ export default async function CaseStudyPage({
             ) : null}
 
             {project.sections.map((section, index) => (
-              <section className="case-section" key={section.number}>
-                <div className="case-section-head">
-                  <span className="case-num">{section.number}</span>
-                  <h2>{section.title}</h2>
-                </div>
+              <Reveal key={section.number} delay={Math.min(index, 3) * 60}>
+                <section className="case-section">
+                  <div className="case-section-head">
+                    <span className="case-num">{section.number}</span>
+                    <h2>{section.title}</h2>
+                  </div>
 
-                {section.paragraphs.map((paragraph) => (
-                  <p key={paragraph.slice(0, 48)}>{paragraph}</p>
-                ))}
+                  {section.paragraphs.map((paragraph) => (
+                    <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+                  ))}
 
-                {section.quote ? (
-                  <blockquote className="case-quote">{section.quote}</blockquote>
-                ) : null}
+                  {section.quote ? (
+                    <blockquote className="case-quote">{section.quote}</blockquote>
+                  ) : null}
 
-                {section.bullets ? (
-                  <ul className="case-bullets">
-                    {section.bullets.map((bullet) => (
-                      <li key={bullet}>{bullet}</li>
-                    ))}
-                  </ul>
-                ) : null}
+                  {section.bullets ? (
+                    <ul className="case-bullets">
+                      {section.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                  ) : null}
 
                 {index === 2 && gallery.length > 0 ? (
                   <div className="case-gallery">
@@ -182,7 +186,8 @@ export default async function CaseStudyPage({
                     ))}
                   </div>
                 ) : null}
-              </section>
+                </section>
+              </Reveal>
             ))}
 
             <div className="case-stack">

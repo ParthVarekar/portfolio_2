@@ -40,6 +40,11 @@
   /* φ system: 1.618 relationships used structurally (see φ SYSTEM note below) */
   --phi: 1.618;
   --phi-inv: 0.618;
+  /* motion: one scale for every transition on the site */
+  --dur-1: 140ms;
+  --dur-2: 200ms;
+  --dur-3: 420ms;
+  --dur-4: 620ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-back: cubic-bezier(0.34, 1.25, 0.44, 1);
   --max: 1240px;
@@ -188,7 +193,7 @@ button,
   padding: 10px 16px;
   border-radius: 999px;
   font-size: 13px;
-  transition: transform 160ms ease;
+  transition: transform var(--dur-1) var(--ease-out);
 }
 
 .skip-link:focus {
@@ -261,7 +266,7 @@ button,
     0 3px 7px -2px rgba(16, 18, 24, 0.12);
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  transition: background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: background var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
 }
 
 .nav--scrolled,
@@ -326,7 +331,7 @@ button,
   font-size: 13.5px;
   font-weight: 500;
   color: var(--ink-2);
-  transition: background 160ms ease, color 160ms ease;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
 }
 
 .nav-link:hover {
@@ -352,7 +357,7 @@ button,
   font-size: 13px;
   font-weight: 650;
   box-shadow: inset 0 -2px 0 rgba(16, 18, 24, 0.12);
-  transition: background 160ms ease, transform 160ms ease;
+  transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
 }
 
 .nav-cta:hover {
@@ -382,7 +387,7 @@ button,
   background: var(--surface);
   color: var(--ink-3);
   margin-left: 4px;
-  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
 
 .nav-search-btn:hover {
@@ -442,7 +447,7 @@ button,
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
 }
 
 .nav-mobile-search .nav-kbd {
@@ -522,7 +527,7 @@ button,
   font-size: 14px;
   font-weight: 650;
   letter-spacing: -0.01em;
-  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  transition: transform var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
 
 .btn:hover {
@@ -910,7 +915,7 @@ button,
   font-weight: 750;
   cursor: pointer;
   box-shadow: 0 5px 14px rgba(12, 48, 99, 0.15);
-  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  transition: transform var(--dur-2) var(--ease-out), background var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
 }
 
 .clamshell-toggle:hover:not(:disabled) {
@@ -994,7 +999,7 @@ button,
   font-size: 0.76rem;
   font-weight: 700;
   box-shadow: 0 5px 14px rgba(12, 48, 99, 0.15);
-  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  transition: transform var(--dur-2) var(--ease-out), background var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
 }
 
 .windmill-gust:hover:not(:disabled) {
@@ -1124,7 +1129,7 @@ button,
   border-radius: 50%;
   background: rgba(16, 18, 24, 0.18);
   transform: translate(-50%, -50%);
-  transition: background 260ms ease, box-shadow 260ms ease;
+  transition: background var(--dur-3) var(--ease-out), box-shadow var(--dur-3) var(--ease-out);
 }
 
 .core-matrix .dot[data-lit="true"] {
@@ -1296,7 +1301,7 @@ button,
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-2);
-  transition: color 150ms ease;
+  transition: color var(--dur-1) var(--ease-out);
 }
 
 .readout-index-item .n {
@@ -1368,6 +1373,102 @@ button,
   line-height: 1;
   margin-top: 6px;
   font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Page header: φ split ---------- */
+.page-head-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
+  gap: clamp(22px, 3vw, 46px);
+  align-items: end;
+}
+
+.page-head-copy {
+  min-width: 0;
+}
+
+/* the φ column is narrower — the display title scales with it */
+.page-head-split .page-title {
+  font-size: clamp(2.1rem, 4.1vw, 3.9rem);
+}
+
+.page-index {
+  align-self: end;
+  background: var(--surface);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-md);
+  padding: 18px 20px 8px;
+}
+
+.page-index-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.page-index-count {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.page-index-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-index-list li {
+  border-top: 1px solid var(--line);
+}
+
+.page-index-list a {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 2px;
+  transition: padding-left var(--dur-2) var(--ease-out);
+}
+
+.page-index-list a:hover {
+  padding-left: 6px;
+}
+
+.page-index-list .n {
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.page-index-list .t {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--dur-2) var(--ease-out);
+}
+
+.page-index-list a:hover .t {
+  color: var(--ink);
+}
+
+.page-index-list .y {
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  color: var(--ink-3);
+}
+
+@media (max-width: 900px) {
+  .page-head-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* ---------- Section ---------- */
@@ -1599,7 +1700,7 @@ button,
   font-size: 12px;
   line-height: 1.35;
   color: var(--ink-2);
-  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
 }
 
 .suggestion:hover {
@@ -1688,7 +1789,7 @@ button,
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition: background 150ms ease;
+  transition: background var(--dur-1) var(--ease-out);
 }
 
 .source-chip:hover {
@@ -1713,7 +1814,7 @@ button,
   border-radius: 13px;
   background: var(--surface-2);
   font-size: 16px;
-  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  transition: border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out);
 }
 
 .chat-input::placeholder {
@@ -1738,7 +1839,7 @@ button,
   background: var(--lime);
   color: var(--ink);
   box-shadow: inset 0 -2px 0 rgba(16, 18, 24, 0.12);
-  transition: background 150ms ease, transform 150ms ease;
+  transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
 }
 
 .chat-send:hover:not(:disabled) {
@@ -1917,7 +2018,7 @@ button,
   border: 1px solid rgba(255, 255, 255, 0.34);
   font-size: 11.5px;
   font-weight: 650;
-  transition: background 150ms ease;
+  transition: background var(--dur-1) var(--ease-out);
 }
 
 .rail-link:hover {
@@ -2009,7 +2110,7 @@ button,
   border-radius: 50%;
   background: var(--surface-3);
   transform: translate(-50%, -50%);
-  transition: background 200ms ease, box-shadow 200ms ease;
+  transition: background var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
 }
 
 .loader-matrix .dot[data-lit="true"] {
@@ -2029,7 +2130,7 @@ button,
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--lime-deep), var(--lime));
-  transition: width 300ms ease;
+  transition: width var(--dur-3) var(--ease-out);
 }
 
 .loader-meta {
@@ -2093,7 +2194,7 @@ button,
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-2);
-  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
 
 .filter-pill:hover {
@@ -2121,7 +2222,7 @@ button,
   border-radius: var(--r-card);
   background: var(--surface);
   box-shadow: var(--shadow-md);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
   position: relative;
   overflow: hidden;
 }
@@ -2208,7 +2309,7 @@ button,
 }
 
 .chapter-visual img {
-  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--dur-3) var(--ease-out);
 }
 
 .chapter-card:hover .chapter-visual img {
@@ -2271,7 +2372,7 @@ button,
 }
 
 .chapter-client-thumb img {
-  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--dur-3) var(--ease-out);
 }
 
 .chapter-card:hover .chapter-client-thumb img {
@@ -2678,7 +2779,7 @@ button,
   border: 1px solid var(--line);
   background: var(--surface);
   overflow: hidden;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
 }
 
 .client-tile:hover {
@@ -2698,7 +2799,7 @@ button,
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  transition: transform 400ms ease;
+  transition: transform var(--dur-3) var(--ease-out);
 }
 
 .client-tile:hover .client-thumb img {
@@ -2783,7 +2884,7 @@ button,
   font-size: 11px;
   font-weight: 650;
   color: var(--ink-2);
-  transition: background 150ms ease, border-color 150ms ease;
+  transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
 
 .pipeline-tab:hover {
@@ -3185,7 +3286,7 @@ button,
   color: white;
   font-size: 14px;
   font-weight: 650;
-  transition: background 160ms ease, transform 160ms ease;
+  transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
 }
 
 .contact-email:hover {
@@ -3204,7 +3305,7 @@ button,
   font-size: 12.5px;
   font-weight: 650;
   color: var(--ink);
-  transition: background 160ms ease;
+  transition: background var(--dur-1) var(--ease-out);
 }
 
 .contact-secondary:hover {
@@ -3265,7 +3366,7 @@ button,
   background: var(--surface);
   box-shadow: 0 40px 100px -20px rgba(10, 20, 40, 0.45);
   overflow: hidden;
-  animation: palette-in 160ms ease both;
+  animation: palette-in var(--dur-1) var(--ease-out) both;
 }
 
 @keyframes palette-in {
@@ -3397,12 +3498,65 @@ button,
   padding: 38px 0 46px;
 }
 
-.footer-top {
+/* ---------- Footer: an end card, not a leftover ---------- */
+.footer-panel {
+  border-radius: var(--r-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.footer-panel-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 28px;
+  gap: 20px;
   flex-wrap: wrap;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.footer-col {
+  padding: 18px 24px 20px;
+  border-left: 1px solid var(--line);
+}
+
+.footer-col:first-child {
+  border-left: 0;
+}
+
+.footer-col .label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.footer-col a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--ink-2);
+  transition: color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+
+.footer-col a:hover {
+  color: var(--ink);
+  transform: translateX(2px);
+}
+
+.footer-col--action a {
+  font-weight: 600;
 }
 
 .footer-brand {
@@ -3435,49 +3589,53 @@ button,
   color: var(--ink-3);
 }
 
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  font-size: 12px;
-  color: var(--ink-2);
-}
-
-.footer-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 0;
-}
-
-.footer-links a:hover {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
 .footer-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-top: 30px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(16, 18, 24, 0.1);
+  margin-top: 18px;
   font-size: 10.5px;
   color: var(--ink-3);
+}
+
+.footer-meta {
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .footer-colophon {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 .footer-colophon .status-dot {
   width: 5px;
   height: 5px;
+}
+
+@media (max-width: 720px) {
+  .footer-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .footer-col {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .footer-col:first-child {
+    border-top: 0;
+  }
 }
 
 /* ---------- Generic page ---------- */
@@ -3682,6 +3840,17 @@ button,
   align-items: baseline;
   gap: 12px;
   margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.case-section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-image: linear-gradient(90deg, rgba(16, 18, 24, 0.2) 0 2px, transparent 2px 5px);
+  background-size: 5px 1px;
+  opacity: 0.8;
 }
 
 .case-num {
@@ -3834,7 +4003,7 @@ button,
   border-radius: 18px;
   background: var(--surface-2);
   border: 1px solid var(--line);
-  transition: transform 180ms ease, background 180ms ease;
+  transition: transform var(--dur-2) var(--ease-out), background var(--dur-2) var(--ease-out);
 }
 
 .case-next:hover {
@@ -3967,10 +4136,10 @@ button,
   color: var(--blue-strong);
 }
 
-/* ---------- 404 ---------- */
+/* ---------- 404: an end card, not an apology ---------- */
 
 .notfound {
-  min-height: 70vh;
+  min-height: 74vh;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -3978,11 +4147,20 @@ button,
   padding-top: 120px;
 }
 
+.notfound-panel {
+  width: 100%;
+  padding: clamp(26px, 4vw, 46px);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
 .notfound-code {
   font-family: var(--font-pixel), monospace;
-  font-size: clamp(5rem, 16vw, 12rem);
+  font-size: clamp(4.4rem, 13vw, 9.5rem);
   line-height: 0.85;
   letter-spacing: -0.04em;
+  color: var(--lime-deep);
 }
 
 .notfound h1 {
@@ -4003,6 +4181,37 @@ button,
   gap: 10px;
   margin-top: 22px;
   flex-wrap: wrap;
+}
+
+.notfound-routes {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.notfound-routes .label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.notfound-routes ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px 18px;
+}
+
+.notfound-routes a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--ink-2);
+  transition: color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+
+.notfound-routes a:hover {
+  color: var(--ink);
+  transform: translateX(2px);
 }
 
 /* ---------- Method extras ---------- */
@@ -4430,7 +4639,7 @@ a.about-fact:hover {
   gap: 14px;
   padding: 11px 0;
   color: var(--ink-2);
-  transition: color 150ms ease;
+  transition: color var(--dur-1) var(--ease-out);
 }
 
 .link-list a:hover {
@@ -4615,7 +4824,7 @@ a.about-fact:hover {
   background: var(--surface-2);
   border: 1px solid var(--line);
   color: var(--ink-2);
-  transition: background 150ms ease, color 150ms ease;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
 }
 
 .credit-list a:hover {
@@ -5311,8 +5520,8 @@ a.about-fact:hover {
   opacity: 0;
   transform: translateY(14px);
   transition:
-    opacity 550ms var(--ease-out),
-    transform 550ms var(--ease-out);
+    opacity var(--dur-4) var(--ease-out),
+    transform var(--dur-4) var(--ease-out);
 }
 .reveal.is-visible {
   opacity: 1;
@@ -5360,7 +5569,30 @@ a.about-fact:hover {
   }
 }
 .work-grid .chapter-card {
-  animation: card-in 420ms var(--ease-out) both;
+  animation: card-in var(--dur-3) var(--ease-out) both;
+}
+
+/* Press feedback: proportional, never bouncy */
+.tech-chip:active,
+.source-chip:active,
+.readout-index-item:active,
+.page-index-list a:active,
+.footer-col a:active,
+.notfound-routes a:active {
+  transform: scale(0.97);
+}
+
+.tech-chip,
+.source-chip,
+.readout-index-item,
+.page-index-list a,
+.footer-col a,
+.notfound-routes a {
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
