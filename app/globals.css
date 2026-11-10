@@ -3359,8 +3359,25 @@ button,
 }
 
 /* ---------- The desk computer (CRT) ---------- */
-/* A friendly retro terminal: rounded shell, deep blue tube, lime hardware. */
+/* A friendly retro terminal: rounded shell, deep blue tube, lime hardware.
+   It stands in the top-right of the contact card, as sketched. */
+.contact-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
+  gap: clamp(18px, 3vw, 42px);
+  align-items: start;
+}
+
+.contact-copy {
+  position: relative;
+  z-index: 1;
+}
+
 .contact-device {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
   perspective: 1100px;
   perspective-origin: 44% 46%;
 }
@@ -3372,8 +3389,8 @@ button,
 .crt {
   position: relative;
   width: 100%;
-  max-width: 344px;
-  margin-inline: auto;
+  max-width: 356px;
+  margin-inline: 0 0;
   transform-style: preserve-3d;
   transform: rotateY(-5deg) rotateX(2deg);
 }
