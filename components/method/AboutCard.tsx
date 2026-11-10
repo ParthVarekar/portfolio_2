@@ -34,8 +34,8 @@ export function AboutCard() {
 
         <div className="portrait-photo">
           <Image
-            src="/images/parth-v2.jpg"
-            alt="Parth Varekar, arms folded, in a white shirt against a lime-green backdrop"
+            src="/images/parth-green.jpg"
+            alt="Parth Varekar, arms folded, in a white shirt, photographed against a green screen"
             fill
             sizes="(max-width: 720px) 88vw, (max-width: 1200px) 52vw, 440px"
             className="portrait-photo-img"

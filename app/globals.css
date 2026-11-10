@@ -3087,7 +3087,9 @@ button,
   border-radius: 24px;
   overflow: hidden;
   background: #defb4b;
-  box-shadow: 0 0 0 1px rgba(16, 18, 24, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(16, 18, 24, 0.14),
+    0 18px 40px -26px rgba(16, 18, 24, 0.45);
 }
 
 .portrait-photo-img {
