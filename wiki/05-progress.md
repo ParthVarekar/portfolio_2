@@ -65,6 +65,13 @@
 
 ## Changelog
 
+### 2026-11-10 (portrait photo in the About card)
+- User supplied a portrait (arms folded, white shirt, lime-green studio backdrop) plus a reference screenshot of the About card; the black `PV` monogram disc in the left PORTRAIT panel is now the photo.
+- Asset: `public/images/parth-portrait.jpg` (853×1280, 55 KB) rendered with `next/image` (`fill`, `object-fit: cover`, `object-position: 50% 16%`), lazy-loaded; 21.6 KB served at w=640, 10.9 KB at w=384.
+- Backdrop match: the source backdrop is a flat #defb4b studio green. An offline chroma-key pass replaced that flat region with the panel's own CSS gradient (radial white highlight at 20% 8% + `linear-gradient(165deg, #e8f765, #dbee4d, #c9e13c)`), evaluated in the panel's coordinate space through the `object-fit: cover` mapping — so the portrait stands *in* the lime wall rather than on a print of it. Measured seam on the rendered page: right edge Δ(1,1,1), top edge Δ(0,4,4), left edge Δ(5,8,4) (the tile's dot texture accounts for the remainder).
+- Layout: `.portrait-photo` replaces `.monogram-big`; both old rules deleted. Desktop keeps the tall 0.618fr column; ≤1080px (stacked card) the photo is centred at `min(100%, 480px)` with a 4:5 aspect so the head is never cropped; ≤720px it goes full width at 4:5.
+- Verified 1440 / 900 / 768 / 390: no horizontal overflow, head always in frame, alt text present, typecheck and production build green.
+
 ### 2026-11-08 (nav material + snappier motion)
 - Nav pill given a real material: top-lit grey gradient (white → cool grey), ink-tinted border with inner highlight lines, deeper duotone shadow — now distinct against both the periwinkle canvas and white cards in both expanded and collapsed (PV seal) states.
 - Fold choreography tightened: collapse at 110px (was 150), re-expand delta 60px (was 80), springs at 380–460 stiffness / 21–30 damping, stagger 0.022–0.03, exit timings 0.11–0.14s — links vanish and return noticeably quicker without snapping.

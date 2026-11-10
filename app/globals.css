@@ -3079,28 +3079,22 @@ button,
   -webkit-mask-image: radial-gradient(circle at 50% 45%, black, transparent 75%);
 }
 
-.monogram-big {
+.portrait-photo {
   position: relative;
-  align-self: center;
-  width: clamp(180px, 20vw, 250px);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--lime);
-  font-family: var(--font-pixel), monospace;
-  font-size: clamp(3rem, 5vw, 4.6rem);
-  letter-spacing: -0.02em;
-  box-shadow: 0 30px 70px -30px rgba(16, 18, 24, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: clamp(12px, 1.6vw, 20px) 0;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #defb4b;
+  box-shadow:
+    0 0 0 1px rgba(16, 18, 24, 0.12),
+    0 26px 60px -30px rgba(16, 18, 24, 0.5);
 }
 
-.monogram-big::after {
-  content: "";
-  position: absolute;
-  inset: -14px;
-  border-radius: 50%;
-  border: 1px solid rgba(16, 18, 24, 0.2);
+.portrait-photo-img {
+  object-fit: cover;
+  object-position: 50% 16%;
 }
 
 .portrait-meta {
@@ -5641,8 +5635,12 @@ a.about-fact:hover {
     min-height: 320px;
   }
 
-  .monogram-big {
-    width: 180px;
+  /* keep the portrait a portrait once the card stacks */
+  .portrait-photo {
+    flex: 0 0 auto;
+    width: min(100%, 480px);
+    aspect-ratio: 4 / 5;
+    align-self: center;
   }
 }
 
@@ -5897,9 +5895,9 @@ a.about-fact:hover {
     padding: 20px;
   }
 
-  .monogram-big {
-    width: 150px;
-    font-size: 2.7rem;
+  .portrait-photo {
+    width: 100%;
+    border-radius: 18px;
   }
 
   .about-body {

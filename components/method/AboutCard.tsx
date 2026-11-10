@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Mail, MapPin } from "lucide-react";
 import { site } from "@/content/site";
@@ -31,8 +32,14 @@ export function AboutCard() {
           </span>
         </div>
 
-        <div className="monogram-big" aria-hidden="true">
-          PV
+        <div className="portrait-photo">
+          <Image
+            src="/images/parth-portrait.jpg"
+            alt="Parth Varekar, arms folded, in a white shirt against a lime-green backdrop"
+            fill
+            sizes="(max-width: 720px) 88vw, (max-width: 1200px) 52vw, 440px"
+            className="portrait-photo-img"
+          />
         </div>
 
         <div className="portrait-meta">
