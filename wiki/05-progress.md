@@ -69,6 +69,15 @@
 - Nav pill given a real material: top-lit grey gradient (white → cool grey), ink-tinted border with inner highlight lines, deeper duotone shadow — now distinct against both the periwinkle canvas and white cards in both expanded and collapsed (PV seal) states.
 - Fold choreography tightened: collapse at 110px (was 150), re-expand delta 60px (was 80), springs at 380–460 stiffness / 21–30 damping, stagger 0.022–0.03, exit timings 0.11–0.14s — links vanish and return noticeably quicker without snapping.
 
+### 2026-11-08 (visual pass 2 — reversible test)
+- **Backup**: git checkpoint `9b95f2f` (pre-pass) + `C:\Users\Parth\Desktop\portfolio_backup_2026-11-10.zip`. Rollback: `git reset --hard 9b95f2f` (then `npm run build`), or unzip the archive over the folder.
+- **Work page** rebuilt as a φ split: 61.8% title column + 38.2% "Index" panel (07 chapter rows: number · title · year) above the filters and mosaic.
+- **Case studies** now speak the same grammar: section heads carry a hairline + dotted rule, and every section reveals on scroll (`Reveal`, staggered).
+- **Motion scale**: `--dur-1…4` + `--ease-out` tokens replace hardcoded durations site-wide; consistent 0.97 press feedback on chips, index rows and links.
+- **Footer** is now an end-card: brand row + mono status, three hairline columns (Sections / Elsewhere / Actions), mono meta line.
+- **404** is now an end-card: lime Pixel 404, actions, and a "Live routes" index.
+- Verified: 13 routes 200 + 404, zero console errors, zero overflow at 1440 and 390.
+
 ### 2026-11-08 (visual composition pass)
 - **Readout band**: the four stat cards + story card + chapter index strip (three floating bands) collapsed into ONE instrument panel — hairline-divided readouts (0 / 78 MB / 4,096 / 1 + a φ-wider place cell), the statement row, and the chapter index as a dotted-leader table of contents. Dead CSS (`.stat-card`, `.story-card`, `.index-strip`, …) pruned.
 - **Technical headers**: `.section-label` is now a mono micro-label that runs into a dotted rule instead of a white chip — one repeated signature across home and inner pages.
