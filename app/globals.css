@@ -3399,7 +3399,7 @@ button,
 .crt {
   position: relative;
   width: 100%;
-  max-width: 356px;
+  max-width: 420px;
   margin-inline: 0 0;
   transform-style: preserve-3d;
   transform: rotateY(-5deg) rotateX(2deg);
@@ -3407,28 +3407,28 @@ button,
 
 .crt-body {
   position: relative;
-  padding: 20px 20px 0;
-  border-radius: 46px 46px 22px 22px;
+  padding: 24px 24px 0;
+  border-radius: 54px 54px 26px 26px;
   background: linear-gradient(180deg, #ffffff 0%, #f4f5fa 58%, #e7eaf3 100%);
   box-shadow:
-    0 30px 50px -26px rgba(16, 18, 24, 0.55),
+    0 36px 60px -31px rgba(16, 18, 24, 0.55),
     inset 0 2px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -3px 0 rgba(16, 18, 24, 0.06);
+    inset 0 -4px 0 rgba(16, 18, 24, 0.06);
 }
 
 /* the tube */
 .crt-screen {
   position: relative;
   aspect-ratio: 4 / 3;
-  border-radius: 22px;
+  border-radius: 26px;
   overflow: hidden;
   color: #fff;
   background:
-    radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1.2px) 0 0 / 15px 15px,
+    radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1.2px) 0 0 / 18px 18px,
     linear-gradient(180deg, #3f7ae6 0%, #2b62cf 52%, #1c47a2 100%);
   box-shadow:
-    inset 0 0 0 3px rgba(16, 18, 24, 0.16),
-    inset 0 0 26px rgba(10, 22, 56, 0.45);
+    inset 0 0 0 4px rgba(16, 18, 24, 0.16),
+    inset 0 0 30px rgba(10, 22, 56, 0.45);
 }
 
 .crt-wallpaper {
@@ -3442,9 +3442,9 @@ button,
 
 .crt-desktop {
   position: absolute;
-  inset: 18px 0 16px 0;
+  inset: 22px 0 19px 0;
   z-index: 2;
-  padding: 12px 12px 0;
+  padding: 14px 14px 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -3460,7 +3460,7 @@ button,
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  width: 44px;
+  width: 52px;
   padding: 0;
   border: 0;
   background: none;
@@ -3468,9 +3468,9 @@ button,
 }
 
 .crt-app-glyph {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.94);
@@ -3483,7 +3483,7 @@ button,
 
 .crt-app-glyph--text {
   font-family: var(--font-mono), monospace;
-  font-size: 11.5px;
+  font-size: 13.5px;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -3504,7 +3504,7 @@ button,
 
 .crt-app-label {
   font-family: var(--font-mono), monospace;
-  font-size: 6.8px;
+  font-size: 8px;
   letter-spacing: 0.03em;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 1px 2px rgba(12, 22, 52, 0.5);
@@ -3515,25 +3515,25 @@ button,
   position: absolute;
   inset: auto 0 0 0;
   z-index: 2;
-  height: 17px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 7px;
+  padding: 0 9px;
   background: rgba(12, 22, 52, 0.5);
   font-family: var(--font-mono), monospace;
-  font-size: 7px;
+  font-size: 8.2px;
   color: rgba(255, 255, 255, 0.88);
 }
 
 .crt-taskbar-dots {
   display: flex;
-  gap: 3px;
+  gap: 4px;
 }
 
 .crt-taskbar-dots i {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   border-radius: 1px;
   background: rgba(255, 255, 255, 0.5);
 }
@@ -3555,8 +3555,8 @@ button,
 }
 
 .crt-battery-cell {
-  width: 13px;
-  height: 7px;
+  width: 15px;
+  height: 8px;
   padding: 1px;
   border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 2px;
@@ -3612,7 +3612,7 @@ button,
   place-items: center;
   padding: 10px;
   background:
-    radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1.2px) 0 0 / 15px 15px,
+    radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1.2px) 0 0 / 18px 18px,
     #000;
   box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.8);
   font-family: var(--font-momo-signature), var(--font-sans), system-ui, sans-serif;
@@ -3696,14 +3696,14 @@ button,
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 18px 8px 20px;
+  gap: 12px;
+  padding: 22px 10px 24px;
 }
 
 .crt-slot {
   position: relative;
-  width: 108px;
-  height: 11px;
+  width: 128px;
+  height: 13px;
   border-radius: 999px;
   background: #dfe3ec;
   box-shadow: inset 0 1px 2px rgba(16, 18, 24, 0.16);
@@ -3719,8 +3719,8 @@ button,
 }
 
 .crt-knob {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: linear-gradient(180deg, #fbfcfe, #e4e8f1);
   box-shadow:
@@ -3734,14 +3734,14 @@ button,
   margin-left: auto;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 43px;
+  height: 43px;
   border-radius: 50%;
   color: var(--ink);
   background: radial-gradient(circle at 50% 38%, #f3ffb0 0%, var(--lime) 52%, #b9d92c 100%);
   box-shadow:
-    0 0 0 4px rgba(219, 238, 77, 0.18),
-    0 0 22px rgba(198, 221, 53, 0.75);
+    0 0 0 5px rgba(219, 238, 77, 0.18),
+    0 0 26px rgba(198, 221, 53, 0.75);
   transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
   cursor: pointer;
 }
@@ -3757,9 +3757,9 @@ button,
 .crt-stand {
   position: relative;
   width: 66%;
-  height: 38px;
+  height: 45px;
   margin: -2px auto 0;
-  border-radius: 0 0 14px 14px;
+  border-radius: 0 0 16px 16px;
   background: linear-gradient(180deg, #eef0f6 0%, #dfe3ee 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
@@ -3767,8 +3767,8 @@ button,
 .crt-rim {
   position: absolute;
   inset: auto 0 0 0;
-  height: 10px;
-  border-radius: 0 0 14px 14px;
+  height: 12px;
+  border-radius: 0 0 16px 16px;
   background: linear-gradient(90deg, #e2f45a 0%, var(--lime) 50%, #c9e13c 100%);
   box-shadow: 0 8px 18px rgba(198, 221, 53, 0.6);
 }
@@ -3777,11 +3777,11 @@ button,
   position: absolute;
   left: 8%;
   right: 8%;
-  bottom: -16px;
-  height: 26px;
+  bottom: -19px;
+  height: 31px;
   border-radius: 50%;
   background: radial-gradient(ellipse at center, rgba(16, 18, 24, 0.26), transparent 70%);
-  filter: blur(7px);
+  filter: blur(8px);
   transform: translateZ(-30px);
 }
 
