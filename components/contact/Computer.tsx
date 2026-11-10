@@ -7,14 +7,6 @@ import { resume } from "@/content/resume";
 
 const RESUME = "/resume/parth-varekar-resume.pdf";
 
-const BOOT_LINES = [
-  "PV-BIOS 1.0 · Parth Varekar",
-  "memory check ............ ok",
-  "notes .................. 45 loaded",
-  "sleep .................. not found",
-  "timeline ............... 62%",
-];
-
 type Phase = "boot" | "on" | "off";
 
 function istTime() {
@@ -40,7 +32,6 @@ export function Computer() {
   const [clock, setClock] = useState("--:--");
   const [resumeOpen, setResumeOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("boot");
-  const [step, setStep] = useState(0);
 
   useEffect(() => {
     setClock(istTime());
@@ -48,16 +39,12 @@ export function Computer() {
     return () => window.clearInterval(timer);
   }, []);
 
-  // boot sequence: lines appear one by one, then the welcome, then the desktop
+  // boot: the tube warms up, the welcome fades in, then the desktop
   useEffect(() => {
     if (phase !== "boot") return;
-    if (step <= BOOT_LINES.length) {
-      const timer = window.setTimeout(() => setStep((value) => value + 1), 230);
-      return () => window.clearTimeout(timer);
-    }
-    const timer = window.setTimeout(() => setPhase("on"), 900);
+    const timer = window.setTimeout(() => setPhase("on"), 1750);
     return () => window.clearTimeout(timer);
-  }, [phase, step]);
+  }, [phase]);
 
   useEffect(() => {
     if (!resumeOpen) return;
@@ -78,7 +65,6 @@ export function Computer() {
   const togglePower = () => {
     if (phase === "boot") return;
     if (phase === "off") {
-      setStep(0);
       setPhase("boot");
       return;
     }
@@ -128,16 +114,7 @@ export function Computer() {
             {phase === "boot" ? (
               <div className="crt-boot" role="status" aria-live="polite">
                 <span className="crt-boot-flicker" aria-hidden="true" />
-                <div className="crt-boot-lines">
-                  {BOOT_LINES.slice(0, step).map((line) => (
-                    <div className="crt-boot-line" key={line}>
-                      {line}
-                    </div>
-                  ))}
-                  {step > BOOT_LINES.length ? (
-                    <div className="crt-boot-welcome">Welcome to Parth&apos;s computer.</div>
-                  ) : null}
-                </div>
+                <p className="crt-boot-welcome">Welcome to Parth&apos;s Computer</p>
               </div>
             ) : null}
 

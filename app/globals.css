@@ -3603,37 +3603,30 @@ button,
   opacity: 0;
 }
 
+/* the boot screen: a black tube with one line of type, then the desktop */
 .crt-boot {
   position: absolute;
   inset: 0;
   z-index: 5;
   display: grid;
   place-items: center;
-  padding: 12px;
-  background: #0a0e16;
-  font-family: var(--font-mono), monospace;
-  font-size: 7.4px;
-  letter-spacing: 0.03em;
-  color: rgba(226, 255, 138, 0.88);
-}
-
-.crt-boot-lines {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  width: 100%;
-}
-
-.crt-boot-line {
-  opacity: 0;
-  animation: crt-boot-line 220ms ease-out forwards;
+  padding: 10px;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1.2px) 0 0 / 15px 15px,
+    #000;
+  box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.8);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 450;
+  letter-spacing: 0.005em;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .crt-boot-welcome {
-  margin-top: 7px;
-  color: var(--lime);
-  font-size: 8.4px;
-  animation: crt-boot-line 260ms ease-out forwards;
+  margin: 0;
+  text-align: center;
+  line-height: 1.25;
+  animation: crt-boot-welcome 620ms ease-out 260ms both;
 }
 
 .crt-boot-flicker {
@@ -3641,20 +3634,19 @@ button,
   left: 6%;
   right: 6%;
   top: 50%;
-  height: 2px;
-  background: #eaff7a;
-  box-shadow: 0 0 22px rgba(234, 255, 122, 0.9);
-  animation: crt-boot-open 300ms ease-out forwards;
+  height: 1px;
+  background: rgba(234, 255, 122, 0.35);
+  box-shadow: 0 0 6px rgba(234, 255, 122, 0.22);
+  animation: crt-boot-open 120ms ease-out forwards;
 }
 
 @keyframes crt-boot-open {
-  0% { height: 2px; opacity: 1; }
-  35% { height: 100%; opacity: 1; }
-  100% { height: 100%; opacity: 0; }
+  0% { top: 50%; height: 1px; opacity: 1; }
+  100% { top: 0; height: 100%; opacity: 0; }
 }
 
-@keyframes crt-boot-line {
-  from { opacity: 0; transform: translateY(3px); }
+@keyframes crt-boot-welcome {
+  from { opacity: 0; transform: translateY(2px); }
   to { opacity: 1; transform: none; }
 }
 
