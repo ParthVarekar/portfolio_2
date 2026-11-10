@@ -81,6 +81,7 @@
 - The photo's drop shadow was removed: with the backdrop baked to the tile, the shadow darkened the tile around the frame and re-introduced a visible edge. Only a 1 px hairline remains.
 - Asset renamed to `public/images/portrait.jpg` — `next/image` responses are cached for 4 h (`max-age=14400`), so a changed file under the same name can stay stale in the user's browser.
 - Also set `experimental.staleTimes: { static: 0, dynamic: 0 }`: the Next client router reused a prefetched page segment for 5 minutes, so a client-side navigation could still render the pre-swap markup. Header now reads `x-nextjs-stale-time: 0`.
+- The keying pass is now a **repo script**, `scripts/key-portrait.mjs <source> [out]` — it samples the backdrop from the corners, picks the greenness matte (green screen, green excess > 40) or the distance matte (any other flat backdrop), keys it against the panel gradient and writes `public/images/portrait.jpg`. Regression-checked: it reproduces the shipped portrait byte-for-byte (mean abs diff 0.18/765) from the green-screen source and keys the lime-backdrop source cleanly too. Swapping the portrait is now: run the script → rename the asset (the 4 h image cache) → rebuild.
 
 ### 2026-11-08 (nav material + snappier motion)
 - Nav pill given a real material: top-lit grey gradient (white → cool grey), ink-tinted border with inner highlight lines, deeper duotone shadow — now distinct against both the periwinkle canvas and white cards in both expanded and collapsed (PV seal) states.
