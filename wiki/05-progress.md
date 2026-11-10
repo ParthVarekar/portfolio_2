@@ -69,6 +69,13 @@
 - Nav pill given a real material: top-lit grey gradient (white → cool grey), ink-tinted border with inner highlight lines, deeper duotone shadow — now distinct against both the periwinkle canvas and white cards in both expanded and collapsed (PV seal) states.
 - Fold choreography tightened: collapse at 110px (was 150), re-expand delta 60px (was 80), springs at 380–460 stiffness / 21–30 damping, stagger 0.022–0.03, exit timings 0.11–0.14s — links vanish and return noticeably quicker without snapping.
 
+### 2026-11-08 (laptop → retro computer)
+- Per user direction the laptop was replaced by a **CRT desk computer** built from the supplied reference image: `components/contact/Computer.tsx` + `.crt-*` CSS.
+- Shell: rounded white body, deep-blue tube (4:3) with soft bezel, a chin carrying a slot, two knobs and a glowing lime power button (links to /machine — "ask the machine"), a pedestal with a lime glow foot, soft contact shadow, slight `rotateY(-5deg)` for depth.
+- Screen: inline SVG wallpaper reproducing the reference scene (lime planet, clouds, orbit line, moon, sparkles) with the desktop UI on top — five app icons, terminal tab + blinking cursor, `npm ERR! sleep not found` toast, `ship ✓ / sleep ✗` widget, task bar with live IST clock, 12% battery and `sleep: off/soon`.
+- The slot in the chin doubles as the timeline meter (62% lime fill).
+- `Laptop.tsx` and all `.laptop-*` CSS deleted.
+
 ### 2026-11-08 (contact laptop rebuilt in 3D)
 - The laptop is no longer a flat front elevation — it is now a real CSS 3D instrument: `perspective` on the device column, the whole unit turned `rotateY(-13deg) rotateX(4deg)` for the 3/4 view, the lid leaning back (`rotateX(-13deg)` about its bottom edge), the deck receding toward the viewer (`rotateX(-58deg)` about the hinge), a shell-thickness strip on the right edge, two lime hinge tabs, a glowing lime front lip and a soft contact shadow.
 - Screen content stays real DOM, so the app icons remain crisp and clickable (verified: Résumé opens the viewer through the 3D transform).

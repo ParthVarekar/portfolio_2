@@ -3358,307 +3358,248 @@ button,
   border: 1px dashed rgba(16, 18, 24, 0.16);
 }
 
-/* ---------- The little laptop (CSS 3D) ---------- */
-/* A 3/4 instrument view: the lid leans back, the deck recedes toward the
-   viewer, the right edge shows its thickness and the front lip glows lime. */
+/* ---------- The desk computer (CRT) ---------- */
+/* A friendly retro terminal: rounded shell, deep blue tube, lime hardware. */
 .contact-device {
-  perspective: 1250px;
-  perspective-origin: 38% 44%;
+  perspective: 1100px;
+  perspective-origin: 44% 46%;
 }
 
-.laptop-scene {
+.crt-scene {
   width: 100%;
 }
 
-.laptop {
+.crt {
   position: relative;
   width: 100%;
-  max-width: 402px;
+  max-width: 344px;
   margin-inline: auto;
   transform-style: preserve-3d;
-  transform: rotateY(-13deg) rotateX(4deg);
+  transform: rotateY(-5deg) rotateX(2deg);
 }
 
-.laptop-lid {
+.crt-body {
   position: relative;
-  z-index: 1;
-  padding: 13px 13px 15px;
-  border-radius: 22px 22px 5px 5px;
-  background: linear-gradient(180deg, #ffffff 0%, #eef1f7 100%);
+  padding: 20px 20px 0;
+  border-radius: 46px 46px 22px 22px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f5fa 58%, #e7eaf3 100%);
   box-shadow:
-    0 26px 46px -28px rgba(16, 18, 24, 0.6),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
-  transform: rotateX(-13deg);
-  transform-origin: 50% 100%;
-  transform-style: preserve-3d;
+    0 30px 50px -26px rgba(16, 18, 24, 0.55),
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 0 rgba(16, 18, 24, 0.06);
 }
 
-/* the shell thickness on the right edge — the side profile */
-.laptop-lid-edge {
-  position: absolute;
-  top: 12px;
-  right: -7px;
-  bottom: 14px;
-  width: 8px;
-  border-radius: 0 8px 8px 0;
-  background: linear-gradient(180deg, #d9dfec 0%, #b9c3d8 100%);
-  box-shadow: inset 0 0 0 1px rgba(16, 18, 24, 0.08);
-  transform: translateZ(-5px);
-}
-
-.laptop-camera {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--lime);
-  box-shadow: 0 0 0 2px rgba(219, 238, 77, 0.3);
-}
-
-.laptop-hinge {
-  position: absolute;
-  bottom: -4px;
-  width: 42px;
-  height: 9px;
-  border-radius: 0 0 5px 5px;
-  background: linear-gradient(180deg, #e2f45a, var(--lime));
-  box-shadow: 0 3px 8px rgba(198, 221, 53, 0.5);
-}
-
-.laptop-hinge--left {
-  left: 16px;
-}
-
-.laptop-hinge--right {
-  right: 16px;
-}
-
-.laptop-screen {
+/* the tube */
+.crt-screen {
   position: relative;
-  aspect-ratio: 16 / 10;
-  border-radius: 12px;
+  aspect-ratio: 4 / 3;
+  border-radius: 22px;
   overflow: hidden;
   color: #fff;
   background:
-    radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.2px) 0 0 / 14px 14px,
-    linear-gradient(180deg, #4a86e8 0%, #2f6bdb 46%, #1e4fa8 100%);
+    radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1.2px) 0 0 / 15px 15px,
+    linear-gradient(180deg, #3f7ae6 0%, #2b62cf 52%, #1c47a2 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(16, 18, 24, 0.22),
-    inset 0 10px 20px rgba(16, 18, 24, 0.2);
+    inset 0 0 0 3px rgba(16, 18, 24, 0.16),
+    inset 0 0 26px rgba(10, 22, 56, 0.45);
 }
 
-.lap-topbar {
+.crt-wallpaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.crt-topbar {
   position: absolute;
   inset: 0 0 auto 0;
+  z-index: 2;
   height: 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  padding: 0 6px;
-  background: rgba(16, 18, 24, 0.34);
+  padding: 0 7px;
+  background: rgba(12, 22, 52, 0.42);
   font-family: var(--font-mono), monospace;
-  font-size: 7.2px;
+  font-size: 7.4px;
   letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.86);
 }
 
-.lap-tab {
+.crt-tab {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-.lap-cursor {
+.crt-cursor {
   width: 4px;
   height: 7px;
   background: var(--lime);
   animation: blink 1.1s steps(1) infinite;
 }
 
-.lap-toast {
+.crt-toast {
   padding: 1px 4px;
   border-radius: 3px;
-  background: rgba(224, 94, 73, 0.92);
+  background: rgba(224, 94, 73, 0.94);
   color: #fff;
-  font-size: 6.8px;
+  font-size: 7px;
 }
 
-.lap-desktop {
+.crt-desktop {
   position: absolute;
   inset: 18px 0 16px 0;
-  padding: 10px 10px 0;
+  z-index: 2;
+  padding: 12px 12px 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.lap-icons {
+.crt-icons {
   display: flex;
-  gap: 9px;
+  gap: 10px;
 }
 
-.lap-app {
+.crt-app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  width: 42px;
+  gap: 4px;
+  width: 44px;
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
 }
 
-.lap-app-glyph {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
+.crt-app-glyph {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   color: var(--ink);
-  box-shadow: 0 2px 5px rgba(16, 18, 24, 0.25);
+  box-shadow: 0 3px 6px rgba(12, 22, 52, 0.28);
   transition:
     transform var(--dur-2) var(--ease-out),
     box-shadow var(--dur-2) var(--ease-out);
 }
 
-.lap-app-glyph--text {
+.crt-app-glyph--text {
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-.lap-app:hover .lap-app-glyph {
+.crt-app:hover .crt-app-glyph {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(16, 18, 24, 0.32);
+  box-shadow: 0 7px 13px rgba(12, 22, 52, 0.34);
 }
 
-.lap-app:focus-visible {
+.crt-app:focus-visible {
   outline: none;
 }
 
-.lap-app:focus-visible .lap-app-glyph {
+.crt-app:focus-visible .crt-app-glyph {
   outline: 2px solid var(--lime);
   outline-offset: 2px;
 }
 
-.lap-app-label {
+.crt-app-label {
   font-family: var(--font-mono), monospace;
-  font-size: 6.4px;
+  font-size: 6.8px;
   letter-spacing: 0.03em;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(12, 22, 52, 0.5);
   white-space: nowrap;
 }
 
 /* the developer, in miniature */
-.lap-widget {
-  width: 138px;
-  padding: 5px 6px 6px;
+.crt-widget {
+  align-self: flex-start;
+  padding: 4px 7px 5px;
   border-radius: 6px;
-  background: rgba(16, 18, 24, 0.44);
+  background: rgba(12, 22, 52, 0.5);
   font-family: var(--font-mono), monospace;
-  font-size: 6.8px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 7px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.lap-widget-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.lap-widget-value {
-  color: var(--lime);
-}
-
-.lap-widget-bar {
-  height: 3px;
-  margin: 3px 0 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.22);
-  overflow: hidden;
-}
-
-.lap-widget-bar span {
-  display: block;
-  height: 100%;
-  width: 62%;
-  border-radius: 2px;
-  background: var(--lime);
-}
-
-.lap-widget-checks {
+.crt-widget-checks {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
-.lap-tick {
+.crt-tick {
   color: var(--lime);
 }
 
-.lap-tick--off {
+.crt-tick--off {
   color: #ff9d8f;
 }
 
-.lap-taskbar {
+.crt-taskbar {
   position: absolute;
   inset: auto 0 0 0;
-  height: 16px;
+  z-index: 2;
+  height: 17px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 6px;
-  background: rgba(16, 18, 24, 0.44);
+  padding: 0 7px;
+  background: rgba(12, 22, 52, 0.5);
   font-family: var(--font-mono), monospace;
-  font-size: 6.8px;
-  color: rgba(255, 255, 255, 0.86);
+  font-size: 7px;
+  color: rgba(255, 255, 255, 0.88);
 }
 
-.lap-taskbar-dots {
+.crt-taskbar-dots {
   display: flex;
   gap: 3px;
 }
 
-.lap-taskbar-dots i {
+.crt-taskbar-dots i {
   width: 4px;
   height: 4px;
   border-radius: 1px;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.5);
 }
 
-.lap-taskbar-right {
+.crt-taskbar-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
-.lap-sleep {
-  color: rgba(255, 255, 255, 0.7);
+.crt-sleep {
+  color: rgba(255, 255, 255, 0.75);
 }
 
-.lap-battery {
+.crt-battery {
   display: inline-flex;
   align-items: center;
   gap: 3px;
 }
 
-.lap-battery-cell {
+.crt-battery-cell {
   width: 13px;
   height: 7px;
   padding: 1px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 2px;
 }
 
-.lap-battery-fill {
+.crt-battery-fill {
   display: block;
   height: 100%;
   width: 12%;
@@ -3666,82 +3607,99 @@ button,
   background: #ff9d8f;
 }
 
-.lap-clock {
+.crt-clock {
   color: #fff;
   font-variant-numeric: tabular-nums;
 }
 
-/* the deck: a plane receding toward the viewer */
-.laptop-base {
+/* the chin: slot, knobs, power */
+.crt-chin {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 8px 20px;
+}
+
+.crt-slot {
   position: relative;
-  z-index: 2;
-  margin-top: -4px;
-  padding: 14px 18px 20px;
-  border-radius: 8px 8px 18px 18px;
-  background: linear-gradient(180deg, #fafbfe 0%, #e4e8f2 100%);
-  box-shadow:
-    0 30px 42px -28px rgba(16, 18, 24, 0.62),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transform: rotateX(-58deg);
-  transform-origin: 50% 0%;
-  transform-style: preserve-3d;
-}
-
-/* the glowing front edge of the deck */
-.laptop-lip {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: -7px;
-  height: 7px;
-  border-radius: 0 0 12px 12px;
-  background: linear-gradient(90deg, #e2f45a 0%, var(--lime) 45%, #c9e13c 100%);
-  box-shadow: 0 5px 12px rgba(198, 221, 53, 0.55);
-}
-
-.laptop-keyboard {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  padding: 6px 8px 2px;
-}
-
-.key {
-  height: 9px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #d5dcec, #c2cbdd);
-  box-shadow: inset 0 -1px 0 rgba(16, 18, 24, 0.16);
-}
-
-.key--lime {
-  background: linear-gradient(180deg, #e6f76a, var(--lime));
-}
-
-.key--wide {
-  grid-column: span 3;
-  height: 9px;
-  background: linear-gradient(180deg, #d5dcec, #c2cbdd);
-}
-
-.laptop-trackpad {
-  width: 30%;
-  height: 14px;
-  margin: 9px auto 0;
-  border-radius: 5px;
-  background: #dbe1ef;
+  width: 108px;
+  height: 11px;
+  border-radius: 999px;
+  background: #dfe3ec;
   box-shadow: inset 0 1px 2px rgba(16, 18, 24, 0.16);
+  overflow: hidden;
 }
 
-.laptop-shadow {
+.crt-slot-fill {
   position: absolute;
-  left: 6%;
-  right: 6%;
-  bottom: -18px;
-  height: 30px;
+  inset: 0 auto 0 0;
+  width: 62%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #eef1f7 0%, #eef1f7 61%, var(--lime) 61%, #c9e13c 100%);
+}
+
+.crt-knob {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(16, 18, 24, 0.3), transparent 70%);
+  background: linear-gradient(180deg, #fbfcfe, #e4e8f1);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 18, 24, 0.12),
+    0 1px 2px rgba(16, 18, 24, 0.08);
+}
+
+.crt-power {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--ink);
+  background: radial-gradient(circle at 50% 38%, #f3ffb0 0%, var(--lime) 52%, #b9d92c 100%);
+  box-shadow:
+    0 0 0 4px rgba(219, 238, 77, 0.18),
+    0 0 22px rgba(198, 221, 53, 0.75);
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+}
+
+.crt-power:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 5px rgba(219, 238, 77, 0.24),
+    0 0 28px rgba(198, 221, 53, 0.9);
+}
+
+/* the stand and its glowing foot */
+.crt-stand {
+  position: relative;
+  width: 66%;
+  height: 38px;
+  margin: -2px auto 0;
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(180deg, #eef0f6 0%, #dfe3ee 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.crt-rim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 10px;
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(90deg, #e2f45a 0%, var(--lime) 50%, #c9e13c 100%);
+  box-shadow: 0 8px 18px rgba(198, 221, 53, 0.6);
+}
+
+.crt-shadow {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -16px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(16, 18, 24, 0.26), transparent 70%);
   filter: blur(7px);
-  transform: translateZ(-40px);
+  transform: translateZ(-30px);
 }
 
 /* résumé viewer */

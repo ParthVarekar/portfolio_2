@@ -1,6 +1,6 @@
 import { ArrowUpRight, Mail } from "lucide-react";
 import { site } from "@/content/site";
-import { Laptop } from "@/components/contact/Laptop";
+import { Computer } from "@/components/contact/Computer";
 
 export function ContactCard() {
   return (
@@ -47,7 +47,7 @@ export function ContactCard() {
       </div>
 
       <div className="contact-device">
-        <Laptop />
+        <Computer />
       </div>
     </div>
   );

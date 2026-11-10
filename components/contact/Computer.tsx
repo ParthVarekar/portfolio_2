@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { FileText, Mail, MessageCircle, X } from "lucide-react";
 import { site } from "@/content/site";
 import { resume } from "@/content/resume";
@@ -26,7 +27,7 @@ function istHour() {
   );
 }
 
-export function Laptop() {
+export function Computer() {
   const [clock, setClock] = useState("--:--");
   const [resumeOpen, setResumeOpen] = useState(false);
 
@@ -53,140 +54,188 @@ export function Laptop() {
   const awake = hour >= 23 || hour < 6;
 
   return (
-    <div className="laptop-scene">
-      <div className="laptop">
-        <div className="laptop-lid">
-          <span className="laptop-camera" aria-hidden="true" />
-          <span className="laptop-lid-edge" aria-hidden="true" />
+    <div className="crt-scene">
+      <div className="crt">
+        <div className="crt-body">
+          <div className="crt-screen">
+            <svg className="crt-wallpaper" viewBox="0 0 400 300" aria-hidden="true">
+              <defs>
+                <radialGradient id="crtPlanet" cx="50%" cy="32%">
+                  <stop offset="0%" stopColor="#f4ffb8" />
+                  <stop offset="52%" stopColor="#d9f24c" />
+                  <stop offset="100%" stopColor="#a6c81d" />
+                </radialGradient>
+              </defs>
+              <circle cx="62" cy="34" r="2" fill="#ffffff" opacity="0.9" />
+              <circle cx="128" cy="20" r="1.6" fill="#ffffff" opacity="0.7" />
+              <circle cx="300" cy="46" r="1.8" fill="#ffffff" opacity="0.8" />
+              <circle cx="352" cy="24" r="1.4" fill="#ffffff" opacity="0.6" />
+              <path
+                d="M232 28c3 4 3 8 0 12-3-4-3-8 0-12Z"
+                fill="#eaff7a"
+                opacity="0.95"
+              />
+              <path
+                d="M92 78c2.4 3.2 2.4 6.4 0 9.6-2.4-3.2-2.4-6.4 0-9.6Z"
+                fill="#eaff7a"
+                opacity="0.8"
+              />
+              <ellipse
+                cx="200"
+                cy="150"
+                rx="126"
+                ry="44"
+                fill="none"
+                stroke="#eaff7a"
+                strokeWidth="1.1"
+                opacity="0.6"
+                transform="rotate(-16 200 150)"
+              />
+              <circle cx="316" cy="124" r="7" fill="#eaff7a" />
+              <circle cx="200" cy="238" r="104" fill="url(#crtPlanet)" />
+              <g fill="#eef5ff" opacity="0.94">
+                <ellipse cx="92" cy="244" rx="62" ry="30" />
+                <ellipse cx="138" cy="232" rx="44" ry="22" />
+                <ellipse cx="312" cy="252" rx="70" ry="32" />
+                <ellipse cx="352" cy="240" rx="40" ry="20" />
+              </g>
+            </svg>
 
-          <div className="laptop-screen">
-            <div className="lap-topbar">
-              <span className="lap-tab">
+            <div className="crt-topbar">
+              <span className="crt-tab">
                 pv@local: ~/parth
-                <span className="lap-cursor" aria-hidden="true" />
+                <span className="crt-cursor" aria-hidden="true" />
               </span>
-              <span className="lap-toast" aria-hidden="true">
+              <span className="crt-toast" aria-hidden="true">
                 npm ERR! sleep not found
               </span>
             </div>
 
-            <div className="lap-desktop">
-              <ul className="lap-icons">
+            <div className="crt-desktop">
+              <ul className="crt-icons">
                 <li>
-                  <a className="lap-app" href={`mailto:${site.email}`} title="Email">
-                    <span className="lap-app-glyph">
-                      <Mail size={14} aria-hidden="true" />
+                  <a className="crt-app" href={`mailto:${site.email}`} title="Email">
+                    <span className="crt-app-glyph">
+                      <Mail size={15} aria-hidden="true" />
                     </span>
-                    <span className="lap-app-label">Mail</span>
+                    <span className="crt-app-label">Mail</span>
                   </a>
                 </li>
                 <li>
                   <a
-                    className="lap-app"
+                    className="crt-app"
                     href={site.linkedin}
                     target="_blank"
                     rel="noreferrer"
                     title="LinkedIn"
                   >
-                    <span className="lap-app-glyph lap-app-glyph--text">in</span>
-                    <span className="lap-app-label">LinkedIn</span>
+                    <span className="crt-app-glyph crt-app-glyph--text">in</span>
+                    <span className="crt-app-label">LinkedIn</span>
                   </a>
                 </li>
                 <li>
                   <a
-                    className="lap-app"
+                    className="crt-app"
                     href={`https://wa.me/91${site.phone.replace(/[^0-9]/g, "").slice(-10)}`}
                     target="_blank"
                     rel="noreferrer"
                     title="WhatsApp"
                   >
-                    <span className="lap-app-glyph">
-                      <MessageCircle size={14} aria-hidden="true" />
+                    <span className="crt-app-glyph">
+                      <MessageCircle size={15} aria-hidden="true" />
                     </span>
-                    <span className="lap-app-label">WhatsApp</span>
+                    <span className="crt-app-label">WhatsApp</span>
                   </a>
                 </li>
                 <li>
                   <a
-                    className="lap-app"
+                    className="crt-app"
                     href={site.github}
                     target="_blank"
                     rel="noreferrer"
                     title="GitHub"
                   >
-                    <span className="lap-app-glyph lap-app-glyph--text">GH</span>
-                    <span className="lap-app-label">GitHub</span>
+                    <span className="crt-app-glyph crt-app-glyph--text">GH</span>
+                    <span className="crt-app-label">GitHub</span>
                   </a>
                 </li>
                 <li>
                   <button
                     type="button"
-                    className="lap-app"
+                    className="crt-app"
                     onClick={() => setResumeOpen(true)}
                     title="Résumé"
                   >
-                    <span className="lap-app-glyph">
-                      <FileText size={14} aria-hidden="true" />
+                    <span className="crt-app-glyph">
+                      <FileText size={15} aria-hidden="true" />
                     </span>
-                    <span className="lap-app-label">Résumé</span>
+                    <span className="crt-app-label">Résumé</span>
                   </button>
                 </li>
               </ul>
 
-              <div className="lap-widget" aria-hidden="true">
-                <div className="lap-widget-row">
-                  <span>timeline</span>
-                  <span className="lap-widget-value">62%</span>
-                </div>
-                <div className="lap-widget-bar">
-                  <span />
-                </div>
-                <div className="lap-widget-checks">
+              <div className="crt-widget" aria-hidden="true">
+                <div className="crt-widget-checks">
                   <span>ship</span>
-                  <span className="lap-tick">✓</span>
+                  <span className="crt-tick">✓</span>
                   <span>sleep</span>
-                  <span className="lap-tick lap-tick--off">✗</span>
+                  <span className="crt-tick crt-tick--off">✗</span>
                 </div>
               </div>
             </div>
 
-            <div className="lap-taskbar">
-              <span className="lap-taskbar-dots" aria-hidden="true">
+            <div className="crt-taskbar">
+              <span className="crt-taskbar-dots" aria-hidden="true">
                 <i />
                 <i />
                 <i />
               </span>
-              <span className="lap-taskbar-right" aria-hidden="true">
-                <span className="lap-sleep">{awake ? "sleep: off" : "sleep: soon"}</span>
-                <span className="lap-battery">
-                  <i className="lap-battery-cell">
-                    <i className="lap-battery-fill" />
+              <span className="crt-taskbar-right" aria-hidden="true">
+                <span className="crt-sleep">{awake ? "sleep: off" : "sleep: soon"}</span>
+                <span className="crt-battery">
+                  <i className="crt-battery-cell">
+                    <i className="crt-battery-fill" />
                   </i>
                   12%
                 </span>
-                <span className="lap-clock" suppressHydrationWarning>
+                <span className="crt-clock" suppressHydrationWarning>
                   {clock} IST
                 </span>
               </span>
             </div>
           </div>
 
-          <span className="laptop-hinge laptop-hinge--left" aria-hidden="true" />
-          <span className="laptop-hinge laptop-hinge--right" aria-hidden="true" />
-        </div>
-
-        <div className="laptop-base" aria-hidden="true">
-          <div className="laptop-keyboard">
-            {Array.from({ length: 28 }, (_, index) => (
-              <span key={index} className={index === 13 ? "key key--lime" : "key"} />
-            ))}
-            <span className="key key--wide" />
+          <div className="crt-chin">
+            <span className="crt-slot" aria-hidden="true">
+              <span className="crt-slot-fill" />
+            </span>
+            <span className="crt-knob" aria-hidden="true" />
+            <span className="crt-knob" aria-hidden="true" />
+            <Link className="crt-power" href="/machine" title="Ask the machine" aria-label="Ask the machine">
+              <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                <path
+                  d="M12 4v8"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+                <path
+                  d="M7.2 7.4a6.4 6.4 0 1 0 9.6 0"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              </svg>
+            </Link>
           </div>
-          <div className="laptop-trackpad" />
-          <span className="laptop-lip" />
         </div>
 
-        <span className="laptop-shadow" aria-hidden="true" />
+        <div className="crt-stand" aria-hidden="true">
+          <span className="crt-rim" />
+        </div>
+        <span className="crt-shadow" aria-hidden="true" />
       </div>
 
       {resumeOpen ? (
