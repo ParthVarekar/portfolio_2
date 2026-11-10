@@ -1,12 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { FileText, Mail, MessageCircle, X } from "lucide-react";
 import { site } from "@/content/site";
 import { resume } from "@/content/resume";
 
 const RESUME = "/resume/parth-varekar-resume.pdf";
+
+const BOOT_LINES = [
+  "PV-BIOS 1.0 · Parth Varekar",
+  "memory check ............ ok",
+  "notes .................. 45 loaded",
+  "sleep .................. not found",
+  "timeline ............... 62%",
+];
+
+type Phase = "boot" | "on" | "off";
 
 function istTime() {
   return new Intl.DateTimeFormat("en-GB", {
@@ -30,12 +39,25 @@ function istHour() {
 export function Computer() {
   const [clock, setClock] = useState("--:--");
   const [resumeOpen, setResumeOpen] = useState(false);
+  const [phase, setPhase] = useState<Phase>("boot");
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
     setClock(istTime());
     const timer = window.setInterval(() => setClock(istTime()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  // boot sequence: lines appear one by one, then the welcome, then the desktop
+  useEffect(() => {
+    if (phase !== "boot") return;
+    if (step <= BOOT_LINES.length) {
+      const timer = window.setTimeout(() => setStep((value) => value + 1), 230);
+      return () => window.clearTimeout(timer);
+    }
+    const timer = window.setTimeout(() => setPhase("on"), 900);
+    return () => window.clearTimeout(timer);
+  }, [phase, step]);
 
   useEffect(() => {
     if (!resumeOpen) return;
@@ -53,11 +75,21 @@ export function Computer() {
   const hour = istHour();
   const awake = hour >= 23 || hour < 6;
 
+  const togglePower = () => {
+    if (phase === "boot") return;
+    if (phase === "off") {
+      setStep(0);
+      setPhase("boot");
+      return;
+    }
+    setPhase("off");
+  };
+
   return (
     <div className="crt-scene">
       <div className="crt">
         <div className="crt-body">
-          <div className="crt-screen">
+          <div className="crt-screen" data-phase={phase}>
             <svg className="crt-wallpaper" viewBox="0 0 400 300" aria-hidden="true">
               <defs>
                 <radialGradient id="crtPlanet" cx="50%" cy="32%">
@@ -70,16 +102,8 @@ export function Computer() {
               <circle cx="128" cy="20" r="1.6" fill="#ffffff" opacity="0.7" />
               <circle cx="300" cy="46" r="1.8" fill="#ffffff" opacity="0.8" />
               <circle cx="352" cy="24" r="1.4" fill="#ffffff" opacity="0.6" />
-              <path
-                d="M232 28c3 4 3 8 0 12-3-4-3-8 0-12Z"
-                fill="#eaff7a"
-                opacity="0.95"
-              />
-              <path
-                d="M92 78c2.4 3.2 2.4 6.4 0 9.6-2.4-3.2-2.4-6.4 0-9.6Z"
-                fill="#eaff7a"
-                opacity="0.8"
-              />
+              <path d="M232 28c3 4 3 8 0 12-3-4-3-8 0-12Z" fill="#eaff7a" opacity="0.95" />
+              <path d="M92 78c2.4 3.2 2.4 6.4 0 9.6-2.4-3.2-2.4-6.4 0-9.6Z" fill="#eaff7a" opacity="0.8" />
               <ellipse
                 cx="200"
                 cy="150"
@@ -101,15 +125,21 @@ export function Computer() {
               </g>
             </svg>
 
-            <div className="crt-topbar">
-              <span className="crt-tab">
-                pv@local: ~/parth
-                <span className="crt-cursor" aria-hidden="true" />
-              </span>
-              <span className="crt-toast" aria-hidden="true">
-                npm ERR! sleep not found
-              </span>
-            </div>
+            {phase === "boot" ? (
+              <div className="crt-boot" role="status" aria-live="polite">
+                <span className="crt-boot-flicker" aria-hidden="true" />
+                <div className="crt-boot-lines">
+                  {BOOT_LINES.slice(0, step).map((line) => (
+                    <div className="crt-boot-line" key={line}>
+                      {line}
+                    </div>
+                  ))}
+                  {step > BOOT_LINES.length ? (
+                    <div className="crt-boot-welcome">Welcome to Parth&apos;s computer.</div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
 
             <div className="crt-desktop">
               <ul className="crt-icons">
@@ -173,15 +203,6 @@ export function Computer() {
                   </button>
                 </li>
               </ul>
-
-              <div className="crt-widget" aria-hidden="true">
-                <div className="crt-widget-checks">
-                  <span>ship</span>
-                  <span className="crt-tick">✓</span>
-                  <span>sleep</span>
-                  <span className="crt-tick crt-tick--off">✗</span>
-                </div>
-              </div>
             </div>
 
             <div className="crt-taskbar">
@@ -211,7 +232,15 @@ export function Computer() {
             </span>
             <span className="crt-knob" aria-hidden="true" />
             <span className="crt-knob" aria-hidden="true" />
-            <Link className="crt-power" href="/machine" title="Ask the machine" aria-label="Ask the machine">
+            <button
+              type="button"
+              className="crt-power"
+              data-on={phase !== "off"}
+              onClick={togglePower}
+              aria-pressed={phase === "on"}
+              aria-label={phase === "off" ? "Power on" : "Power off"}
+              title={phase === "off" ? "Power on" : "Power off"}
+            >
               <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
                 <path
                   d="M12 4v8"
@@ -228,7 +257,7 @@ export function Computer() {
                   fill="none"
                 />
               </svg>
-            </Link>
+            </button>
           </div>
         </div>
 
