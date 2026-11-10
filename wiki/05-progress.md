@@ -69,6 +69,11 @@
 - Nav pill given a real material: top-lit grey gradient (white → cool grey), ink-tinted border with inner highlight lines, deeper duotone shadow — now distinct against both the periwinkle canvas and white cards in both expanded and collapsed (PV seal) states.
 - Fold choreography tightened: collapse at 110px (was 150), re-expand delta 60px (was 80), springs at 380–460 stiffness / 21–30 damping, stagger 0.022–0.03, exit timings 0.11–0.14s — links vanish and return noticeably quicker without snapping.
 
+### 2026-11-08 (contact laptop rebuilt in 3D)
+- The laptop is no longer a flat front elevation — it is now a real CSS 3D instrument: `perspective` on the device column, the whole unit turned `rotateY(-13deg) rotateX(4deg)` for the 3/4 view, the lid leaning back (`rotateX(-13deg)` about its bottom edge), the deck receding toward the viewer (`rotateX(-58deg)` about the hinge), a shell-thickness strip on the right edge, two lime hinge tabs, a glowing lime front lip and a soft contact shadow.
+- Screen content stays real DOM, so the app icons remain crisp and clickable (verified: Résumé opens the viewer through the 3D transform).
+- The old "PV" rubber stamp was removed from the contact card — the laptop now owns that space.
+
 ### 2026-11-08 (contact laptop + résumé)
 - **Laptop in the contact card**: `components/contact/Laptop.tsx` — a small CSS laptop in the empty right column of the lime card (white shell, periwinkle keys, lime hinge + spacebar, blue screen with the site's dot texture, lime webcam).
   - Screen apps, all clickable: Mail (mailto), LinkedIn, WhatsApp (wa.me from the real number), GitHub, Résumé (opens the in-page viewer).

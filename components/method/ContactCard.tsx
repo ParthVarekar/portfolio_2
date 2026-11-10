@@ -49,10 +49,6 @@ export function ContactCard() {
       <div className="contact-device">
         <Laptop />
       </div>
-
-      <div className="contact-stamp" aria-hidden="true">
-        PV
-      </div>
     </div>
   );
 }

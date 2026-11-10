@@ -53,134 +53,140 @@ export function Laptop() {
   const awake = hour >= 23 || hour < 6;
 
   return (
-    <div className="laptop">
-      <div className="laptop-lid">
-        <span className="laptop-camera" aria-hidden="true" />
+    <div className="laptop-scene">
+      <div className="laptop">
+        <div className="laptop-lid">
+          <span className="laptop-camera" aria-hidden="true" />
+          <span className="laptop-lid-edge" aria-hidden="true" />
 
-        <div className="laptop-screen">
-          <div className="lap-topbar">
-            <span className="lap-tab">
-              pv@local: ~/parth
-              <span className="lap-cursor" aria-hidden="true" />
-            </span>
-            <span className="lap-toast" aria-hidden="true">
-              npm ERR! sleep not found
-            </span>
-          </div>
+          <div className="laptop-screen">
+            <div className="lap-topbar">
+              <span className="lap-tab">
+                pv@local: ~/parth
+                <span className="lap-cursor" aria-hidden="true" />
+              </span>
+              <span className="lap-toast" aria-hidden="true">
+                npm ERR! sleep not found
+              </span>
+            </div>
 
-          <div className="lap-desktop">
-            <ul className="lap-icons">
-              <li>
-                <a className="lap-app" href={`mailto:${site.email}`} title="Email">
-                  <span className="lap-app-glyph">
-                    <Mail size={13} aria-hidden="true" />
-                  </span>
-                  <span className="lap-app-label">Mail</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className="lap-app"
-                  href={site.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="LinkedIn"
-                >
-                  <span className="lap-app-glyph lap-app-glyph--text">in</span>
-                  <span className="lap-app-label">LinkedIn</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className="lap-app"
-                  href={`https://wa.me/91${site.phone.replace(/[^0-9]/g, "").slice(-10)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="WhatsApp"
-                >
-                  <span className="lap-app-glyph">
-                    <MessageCircle size={13} aria-hidden="true" />
-                  </span>
-                  <span className="lap-app-label">WhatsApp</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className="lap-app"
-                  href={site.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="GitHub"
-                >
-                  <span className="lap-app-glyph lap-app-glyph--text">GH</span>
-                  <span className="lap-app-label">GitHub</span>
-                </a>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="lap-app"
-                  onClick={() => setResumeOpen(true)}
-                  title="Résumé"
-                >
-                  <span className="lap-app-glyph">
-                    <FileText size={13} aria-hidden="true" />
-                  </span>
-                  <span className="lap-app-label">Résumé</span>
-                </button>
-              </li>
-            </ul>
+            <div className="lap-desktop">
+              <ul className="lap-icons">
+                <li>
+                  <a className="lap-app" href={`mailto:${site.email}`} title="Email">
+                    <span className="lap-app-glyph">
+                      <Mail size={14} aria-hidden="true" />
+                    </span>
+                    <span className="lap-app-label">Mail</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="lap-app"
+                    href={site.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="LinkedIn"
+                  >
+                    <span className="lap-app-glyph lap-app-glyph--text">in</span>
+                    <span className="lap-app-label">LinkedIn</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="lap-app"
+                    href={`https://wa.me/91${site.phone.replace(/[^0-9]/g, "").slice(-10)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="WhatsApp"
+                  >
+                    <span className="lap-app-glyph">
+                      <MessageCircle size={14} aria-hidden="true" />
+                    </span>
+                    <span className="lap-app-label">WhatsApp</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="lap-app"
+                    href={site.github}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="GitHub"
+                  >
+                    <span className="lap-app-glyph lap-app-glyph--text">GH</span>
+                    <span className="lap-app-label">GitHub</span>
+                  </a>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    className="lap-app"
+                    onClick={() => setResumeOpen(true)}
+                    title="Résumé"
+                  >
+                    <span className="lap-app-glyph">
+                      <FileText size={14} aria-hidden="true" />
+                    </span>
+                    <span className="lap-app-label">Résumé</span>
+                  </button>
+                </li>
+              </ul>
 
-            <div className="lap-widget" aria-hidden="true">
-              <div className="lap-widget-row">
-                <span>timeline</span>
-                <span className="lap-widget-value">62%</span>
+              <div className="lap-widget" aria-hidden="true">
+                <div className="lap-widget-row">
+                  <span>timeline</span>
+                  <span className="lap-widget-value">62%</span>
+                </div>
+                <div className="lap-widget-bar">
+                  <span />
+                </div>
+                <div className="lap-widget-checks">
+                  <span>ship</span>
+                  <span className="lap-tick">✓</span>
+                  <span>sleep</span>
+                  <span className="lap-tick lap-tick--off">✗</span>
+                </div>
               </div>
-              <div className="lap-widget-bar">
-                <span />
-              </div>
-              <div className="lap-widget-checks">
-                <span>ship</span>
-                <span className="lap-tick">✓</span>
-                <span>sleep</span>
-                <span className="lap-tick lap-tick--off">✗</span>
-              </div>
+            </div>
+
+            <div className="lap-taskbar">
+              <span className="lap-taskbar-dots" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="lap-taskbar-right" aria-hidden="true">
+                <span className="lap-sleep">{awake ? "sleep: off" : "sleep: soon"}</span>
+                <span className="lap-battery">
+                  <i className="lap-battery-cell">
+                    <i className="lap-battery-fill" />
+                  </i>
+                  12%
+                </span>
+                <span className="lap-clock" suppressHydrationWarning>
+                  {clock} IST
+                </span>
+              </span>
             </div>
           </div>
 
-          <div className="lap-taskbar">
-            <span className="lap-taskbar-dots" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-            <span className="lap-taskbar-right" aria-hidden="true">
-              <span className="lap-sleep">{awake ? "sleep: off" : "sleep: soon"}</span>
-              <span className="lap-battery">
-                <i className="lap-battery-cell">
-                  <i className="lap-battery-fill" />
-                </i>
-                12%
-              </span>
-              <span className="lap-clock" suppressHydrationWarning>
-                {clock} IST
-              </span>
-            </span>
-          </div>
+          <span className="laptop-hinge laptop-hinge--left" aria-hidden="true" />
+          <span className="laptop-hinge laptop-hinge--right" aria-hidden="true" />
         </div>
-      </div>
 
-      <div className="laptop-base" aria-hidden="true">
-        <div className="laptop-hinge">
-          <span />
+        <div className="laptop-base" aria-hidden="true">
+          <div className="laptop-keyboard">
+            {Array.from({ length: 28 }, (_, index) => (
+              <span key={index} className={index === 13 ? "key key--lime" : "key"} />
+            ))}
+            <span className="key key--wide" />
+          </div>
+          <div className="laptop-trackpad" />
+          <span className="laptop-lip" />
         </div>
-        <div className="laptop-keyboard">
-          {Array.from({ length: 28 }, (_, index) => (
-            <span key={index} className={index === 13 ? "key key--lime" : "key"} />
-          ))}
-          <span className="key key--wide" />
-        </div>
-        <div className="laptop-trackpad" />
+
+        <span className="laptop-shadow" aria-hidden="true" />
       </div>
 
       {resumeOpen ? (

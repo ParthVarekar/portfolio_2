@@ -3358,45 +3358,57 @@ button,
   border: 1px dashed rgba(16, 18, 24, 0.16);
 }
 
-/* ---------- The little laptop ---------- */
-.contact-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
-  gap: clamp(18px, 3vw, 42px);
-  align-items: center;
-}
-
-.contact-copy {
-  position: relative;
-  z-index: 1;
-}
-
+/* ---------- The little laptop (CSS 3D) ---------- */
+/* A 3/4 instrument view: the lid leans back, the deck recedes toward the
+   viewer, the right edge shows its thickness and the front lip glows lime. */
 .contact-device {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: flex-end;
+  perspective: 1250px;
+  perspective-origin: 38% 44%;
+}
+
+.laptop-scene {
+  width: 100%;
 }
 
 .laptop {
+  position: relative;
   width: 100%;
-  max-width: 366px;
+  max-width: 402px;
   margin-inline: auto;
+  transform-style: preserve-3d;
+  transform: rotateY(-13deg) rotateX(4deg);
 }
 
 .laptop-lid {
   position: relative;
-  padding: 10px 10px 12px;
-  border-radius: 18px 18px 6px 6px;
-  background: linear-gradient(180deg, #ffffff 0%, #f1f4f9 100%);
+  z-index: 1;
+  padding: 13px 13px 15px;
+  border-radius: 22px 22px 5px 5px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f7 100%);
   box-shadow:
-    0 18px 40px -24px rgba(16, 18, 24, 0.55),
+    0 26px 46px -28px rgba(16, 18, 24, 0.6),
     inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+  transform: rotateX(-13deg);
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+}
+
+/* the shell thickness on the right edge — the side profile */
+.laptop-lid-edge {
+  position: absolute;
+  top: 12px;
+  right: -7px;
+  bottom: 14px;
+  width: 8px;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(180deg, #d9dfec 0%, #b9c3d8 100%);
+  box-shadow: inset 0 0 0 1px rgba(16, 18, 24, 0.08);
+  transform: translateZ(-5px);
 }
 
 .laptop-camera {
   position: absolute;
-  top: 3px;
+  top: 4px;
   left: 50%;
   transform: translateX(-50%);
   width: 5px;
@@ -3406,17 +3418,35 @@ button,
   box-shadow: 0 0 0 2px rgba(219, 238, 77, 0.3);
 }
 
+.laptop-hinge {
+  position: absolute;
+  bottom: -4px;
+  width: 42px;
+  height: 9px;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(180deg, #e2f45a, var(--lime));
+  box-shadow: 0 3px 8px rgba(198, 221, 53, 0.5);
+}
+
+.laptop-hinge--left {
+  left: 16px;
+}
+
+.laptop-hinge--right {
+  right: 16px;
+}
+
 .laptop-screen {
   position: relative;
   aspect-ratio: 16 / 10;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   color: #fff;
   background:
     radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.2px) 0 0 / 14px 14px,
     linear-gradient(180deg, #4a86e8 0%, #2f6bdb 46%, #1e4fa8 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(16, 18, 24, 0.2),
+    inset 0 0 0 1px rgba(16, 18, 24, 0.22),
     inset 0 10px 20px rgba(16, 18, 24, 0.2);
 }
 
@@ -3641,60 +3671,77 @@ button,
   font-variant-numeric: tabular-nums;
 }
 
+/* the deck: a plane receding toward the viewer */
 .laptop-base {
   position: relative;
-  margin-top: -2px;
-  padding: 6px 12px 12px;
-  border-radius: 6px 6px 18px 18px;
-  background: linear-gradient(180deg, #f7f8fb 0%, #e7eaf2 100%);
+  z-index: 2;
+  margin-top: -4px;
+  padding: 14px 18px 20px;
+  border-radius: 8px 8px 18px 18px;
+  background: linear-gradient(180deg, #fafbfe 0%, #e4e8f2 100%);
   box-shadow:
-    0 22px 36px -26px rgba(16, 18, 24, 0.6),
-    inset 0 -1px 0 rgba(16, 18, 24, 0.08);
+    0 30px 42px -28px rgba(16, 18, 24, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: rotateX(-58deg);
+  transform-origin: 50% 0%;
+  transform-style: preserve-3d;
 }
 
-.laptop-hinge {
+/* the glowing front edge of the deck */
+.laptop-lip {
   position: absolute;
-  top: -3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 64px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--lime);
-  box-shadow: 0 0 10px rgba(219, 238, 77, 0.55);
+  left: 14px;
+  right: 14px;
+  bottom: -7px;
+  height: 7px;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(90deg, #e2f45a 0%, var(--lime) 45%, #c9e13c 100%);
+  box-shadow: 0 5px 12px rgba(198, 221, 53, 0.55);
 }
 
 .laptop-keyboard {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
-  padding: 9px 8px 3px;
+  gap: 4px;
+  padding: 6px 8px 2px;
 }
 
 .key {
-  height: 8px;
+  height: 9px;
   border-radius: 2px;
-  background: #ccd4e6;
-  box-shadow: inset 0 -1px 0 rgba(16, 18, 24, 0.14);
+  background: linear-gradient(180deg, #d5dcec, #c2cbdd);
+  box-shadow: inset 0 -1px 0 rgba(16, 18, 24, 0.16);
 }
 
 .key--lime {
-  background: var(--lime);
+  background: linear-gradient(180deg, #e6f76a, var(--lime));
 }
 
 .key--wide {
   grid-column: span 3;
-  height: 8px;
-  background: #ccd4e6;
+  height: 9px;
+  background: linear-gradient(180deg, #d5dcec, #c2cbdd);
 }
 
 .laptop-trackpad {
-  width: 32%;
-  height: 12px;
-  margin: 7px auto 0;
-  border-radius: 4px;
-  background: #d9dfee;
-  box-shadow: inset 0 1px 2px rgba(16, 18, 24, 0.14);
+  width: 30%;
+  height: 14px;
+  margin: 9px auto 0;
+  border-radius: 5px;
+  background: #dbe1ef;
+  box-shadow: inset 0 1px 2px rgba(16, 18, 24, 0.16);
+}
+
+.laptop-shadow {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -18px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(16, 18, 24, 0.3), transparent 70%);
+  filter: blur(7px);
+  transform: translateZ(-40px);
 }
 
 /* résumé viewer */
