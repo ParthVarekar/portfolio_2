@@ -20,7 +20,7 @@
  * (panel box and photo frame inside it). Re-measure if the panel geometry
  * changes.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, renameSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import sharp from "sharp";
@@ -118,13 +118,34 @@ function boxBlur(src, W, H) {
   return dst;
 }
 
+/**
+ * Mean absolute difference between two images, channel-wise (0-765 range).
+ * Both sides are keyed onto the same tile, so the backdrop cancels out and
+ * only the subject is compared: the same shot lands under ~4, a different
+ * photo of the subject lands far above.
+ */
+async function meanDiff(a, b) {
+  const meta = await sharp(a).metadata();
+  const flat = await sharp(b)
+    .resize({ width: meta.width, height: meta.height, fit: "fill" })
+    .raw()
+    .toBuffer();
+  const raw = await sharp(a).removeAlpha().raw().toBuffer();
+  let sum = 0;
+  const n = Math.min(raw.length, flat.length);
+  for (let i = 0; i < n; i++) sum += Math.abs(raw[i] - flat[i]);
+  return sum / n;
+}
+
 /* ---------- main ------------------------------------------------------------ */
 const srcPath = process.argv[2];
 if (!srcPath) {
-  console.error("usage: node scripts/key-portrait.mjs <source> [out]");
+  console.error("usage: node scripts/key-portrait.mjs <source> [out] [--force]");
   process.exit(1);
 }
-const outPath = process.argv[3] ?? path.join(ROOT, "public", "images", "portrait.jpg");
+const force = process.argv.includes("--force");
+const outArg = process.argv[3] && !process.argv[3].startsWith("--") ? process.argv[3] : undefined;
+const outPath = outArg ?? path.join(ROOT, "public", "images", "portrait.jpg");
 
 const { data, info } = await sharp(srcPath).removeAlpha().raw().toBuffer({ resolveWithObject: true });
 const W = info.width;
@@ -232,6 +253,32 @@ const buf = await sharp(out, { raw: { width: W, height: H, channels: 3 } })
   .jpeg({ quality: 88, mozjpeg: true, progressive: true, chromaSubsampling: "4:4:4" })
   .toBuffer();
 
-writeFileSync(outPath, buf);
+/* Refuse a no-op swap: compare the *keyed result* with what is published, so
+ * the comparison is like-for-like (both sit on the same lime tile and the
+ * backdrop cancels out). */
+if (!force && existsSync(outPath)) {
+  const d = await meanDiff(buf, outPath);
+  if (d < 4) {
+    console.log(`\n  The source is the same photograph as the current portrait (mean difference ${d.toFixed(2)}/255).`);
+    console.log("  Writing it would change nothing on the page. Pass --force to override.\n");
+    process.exit(2);
+  }
+  console.log(`mean difference from the current portrait: ${d.toFixed(2)}/255 — a different shot, continuing.`);
+}
+
+/* Write through a temp file and rename, so a scanner holding the old asset
+ * open cannot leave a half-written file behind. */
+const tmp = `${outPath}.tmp`;
+writeFileSync(tmp, buf);
+for (let attempt = 0; attempt < 5; attempt++) {
+  try {
+    renameSync(tmp, outPath);
+    break;
+  } catch (err) {
+    if (attempt === 4) throw err;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+}
+
 const m = await sharp(outPath).metadata();
 console.log(`written ${outPath}  ${m.width}x${m.height}  ${(buf.length / 1024).toFixed(1)} KB`);

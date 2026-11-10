@@ -7,9 +7,9 @@ const nextConfig: NextConfig = {
   experimental: {
     // The client router cache would otherwise reuse a prefetched page segment
     // for 5 minutes, which keeps a swapped asset (or copy) invisible until
-    // the visitor hard-refreshes. Always fetch the segment instead.
+    // the visitor hard-refreshes. 30s is the lowest value Next allows.
     staleTimes: {
-      static: 0,
+      static: 30,
       dynamic: 0,
     },
   },
