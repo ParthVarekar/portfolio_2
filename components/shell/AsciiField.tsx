@@ -3,20 +3,22 @@
 import { useEffect, useRef } from "react";
 
 /**
- * The page's backdrop: a dense field of ASCII glyphs, drawn on canvas behind
- * every card and never inside one.
+ * The page's backdrop: a field of ASCII glyphs, drawn on canvas behind every
+ * card and never inside one.
  *
- * Three things make it read as a living surface rather than wallpaper:
- *
- *  1. Density is a function of position, not a constant — two slow waves
- *     cross at an angle and sweep bands of busy and empty glyphs across the
- *     page, so the field keeps changing and never settles.
- *  2. Glyphs follow the shape of the density field: `/` and `\` take the
- *     rising and falling flanks, `|` the steep parts, `~` the troughs, `o`
- *     the broad plateaus and the small marks the thin gaps.
- *  3. Hover only changes *tone* — a glyph near the cursor lightens toward the
- *     canvas and steps up a band so a heavier character takes its place. The
- *     colour stays in one family; nothing turns lime or blue.
+ *  1. Density is a field, not a constant. Two slow waves cross at an angle
+ *     and sweep broad bands of busy and empty glyphs across the page, so the
+ *     field keeps reorganising and never settles.
+ *  2. The gradient is carried by that density: dense bands print dark and
+ *     solid, thin gaps fall back almost to bare paper. Tone and density rise
+ *     together, so the wave reads as a gradient rather than a texture.
+ *  3. Glyphs follow the shape of the field — `/` and `\` on the rising and
+ *     falling flanks, `|` on the steep parts, `~` in the troughs, `o` on the
+ *     broad plateaus, the small marks in the thin gaps.
+ *  4. Hover leaves a trail. Every recent pointer position keeps a fading
+ *     lobe of light, so the cursor drags a short comet through the field.
+ *     The change is *tone only* — glyphs lift toward the paper and step up a
+ *     band into a heavier character. Nothing turns a different colour.
  *
  * The density field is evaluated on a coarse grid and interpolated, so the
  * cost per frame is flat no matter how small the cells get.
@@ -37,33 +39,42 @@ const GLYPH_EDGE = ["|", "!", "i", "l"];
 const GLYPH_CURVE = ["~", "~", "-", "_"];
 
 /* ---------- grid ---------- */
-const CELL_W = 6;
-const CELL_H = 7.4;
-const FONT_PX = 6.4;
+const CELL_W = 7.2;
+const CELL_H = 8.8;
+const FONT_PX = 7.4;
 /** the density field is sampled every N cells and interpolated */
 const FIELD_STEP = 6;
 
+/** below this the cell is bare paper */
+const EMPTY_BELOW = 0.11;
+
 /** how far the cursor reaches, px */
-const RADIUS = 128;
+const RADIUS = 124;
+/** how long a hover lobe lives, ms */
+const TRAIL_MS = 620;
+/** how many pointer samples the trail keeps */
+const TRAIL_MAX = 18;
 /** idle repaint interval — the wave is slow, so 12fps is plenty */
 const IDLE_MS = 1000 / 12;
 
 /* ---------- tone ---------- */
 /**
- * Tone is a mix toward the site's ink, so the field always reads as a
- * slightly darker version of the canvas — never a different hue. The
- * gradient in the reference comes from *density*: busy plateaus pack many
- * strokes together, thin gaps fall back toward the paper.
+ * Tone is a mix toward the site ink, so the field always reads as a slightly
+ * darker version of the canvas — never a different hue. The gradient comes
+ * from density: busy plateaus print dark and solid, thin gaps fall back
+ * toward the paper.
  */
-const LUM_MIN = 172; // thin areas — barely off the paper
-const LUM_MAX = 58; // dense plateaus
-const ALPHA_MIN = 0.26;
-const ALPHA_MAX = 0.86;
+const LUM_MIN = 198; // thin areas — barely off the paper
+const LUM_MAX = 44; // dense plateaus
+const ALPHA_MIN = 0.2;
+const ALPHA_MAX = 0.95;
+/** the paper's own luminance, so hover can lift a glyph without vanishing */
+const PAPER_LUM = 214;
 
-/** how far a hovered glyph lifts toward the canvas */
-const HOVER_LIFT = 0.42;
+/** how far a hovered glyph lifts toward the paper */
+const HOVER_LIFT = 0.5;
 /** how far a hovered glyph steps up into a heavier band */
-const HOVER_BAND = 0.4;
+const HOVER_BAND = 0.42;
 
 const clamp = (v: number, lo = 0, hi = 1) => (v < lo ? lo : v > hi ? hi : v);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -77,17 +88,22 @@ function hash(x: number, y: number) {
 }
 
 /**
- * The density field at a point: two slow waves crossing at an angle, plus a
- * soft vignette so the field is busiest mid-page. 0 = bare canvas, 1 = solid.
+ * The density field at a point: two slow waves crossing at an angle, pushed
+ * for contrast so the bands read as a gradient, then a soft vignette.
+ * 0 = bare canvas, 1 = solid.
  */
 function densityAt(nx: number, ny: number, time: number) {
-  const w1 = Math.sin((nx * 3.1 + ny * 1.9) * Math.PI + time * 0.9);
-  const w2 = Math.sin((nx * -1.7 + ny * 3.4) * Math.PI - time * 0.62);
-  let d = 0.5 + 0.5 * (w1 * 0.62 + w2 * 0.38);
+  const w1 = Math.sin((nx * 1.5 + ny * 0.9) * Math.PI + time * 0.85);
+  const w2 = Math.sin((nx * -0.85 + ny * 1.7) * Math.PI - time * 0.58);
+  const wave = w1 * 0.66 + w2 * 0.34; // -1..1
+
+  // contrast: push the bands apart so the wave is legible as a gradient
+  let d = 0.5 + 0.5 * wave;
+  d = clamp((d - 0.5) * 1.72 + 0.5);
 
   const dx = (nx - 0.5) * 1.9;
   const dy = (ny - 0.5) * 1.9;
-  d *= 1 - clamp((Math.hypot(dx, dy) - 0.82) / 0.62) * 0.38;
+  d *= 1 - clamp((Math.hypot(dx, dy) - 0.84) / 0.62) * 0.34;
   return clamp(d);
 }
 
@@ -115,13 +131,13 @@ function glyphFor(
   }
 
   // troughs get the curvy marks, plateaus the heavy ones
-  if (v < 0.18) return GLYPH_LIGHT[(r * GLYPH_LIGHT.length) | 0];
-  if (v < 0.36) {
+  if (v < 0.2) return GLYPH_LIGHT[(r * GLYPH_LIGHT.length) | 0];
+  if (v < 0.4) {
     return r < 0.4
       ? GLYPH_CURVE[(r * GLYPH_CURVE.length) | 0]
       : GLYPH_LIGHT[(r * GLYPH_LIGHT.length) | 0];
   }
-  if (v < 0.6) return GLYPH_MID[(r * GLYPH_MID.length) | 0];
+  if (v < 0.62) return GLYPH_MID[(r * GLYPH_MID.length) | 0];
   return GLYPH_HEAVY[(r * GLYPH_HEAVY.length) | 0];
 }
 
@@ -159,10 +175,8 @@ export function AsciiField() {
     let lastPaint = 0;
     let startTime = performance.now();
 
-    let px = -9999;
-    let py = -9999;
-    let glow = 0;
-    let glowTarget = 0;
+    /** the fading hover trail */
+    const trail: { x: number; y: number; t: number }[] = [];
 
     /* ---------- the coarse field ---------- */
     const buildField = (t: number) => {
@@ -171,9 +185,7 @@ export function AsciiField() {
         for (let fx = 0; fx < fw; fx++) {
           const nx = (fx * FIELD_STEP * CELL_W) / w;
           const i = fy * fw + fx;
-          const d = densityAt(nx, ny, t);
-          fieldD[i] = d;
-          // slope from two neighbours of the coarse grid
+          fieldD[i] = densityAt(nx, ny, t);
           const e = 1;
           const dx = fieldD[fy * fw + Math.min(fw - 1, fx + e)] - fieldD[fy * fw + Math.max(0, fx - e)];
           const dy = fieldD[Math.min(fh - 1, fy + e) * fw + fx] - fieldD[Math.max(0, fy - e) * fw + fx];
@@ -194,12 +206,11 @@ export function AsciiField() {
       const tx = fx - x0;
       const ty = fy - y0;
 
-      const d =
-        lerp(
-          lerp(fieldD[y0 * fw + x0], fieldD[y0 * fw + x1], tx),
-          lerp(fieldD[y1 * fw + x0], fieldD[y1 * fw + x1], tx),
-          ty,
-        );
+      const d = lerp(
+        lerp(fieldD[y0 * fw + x0], fieldD[y0 * fw + x1], tx),
+        lerp(fieldD[y1 * fw + x0], fieldD[y1 * fw + x1], tx),
+        ty,
+      );
       const sx = lerp(
         lerp(fieldSX[y0 * fw + x0], fieldSX[y0 * fw + x1], tx),
         lerp(fieldSX[y1 * fw + x0], fieldSX[y1 * fw + x1], tx),
@@ -213,6 +224,24 @@ export function AsciiField() {
       return { d, slope: { dx: sx, dy: sy, mag: Math.hypot(sx, sy) } };
     };
 
+    /** the strongest influence any trail lobe has on a cell */
+    const trailInfluence = (x: number, y: number, now: number) => {
+      let best = 0;
+      for (let i = 0; i < trail.length; i++) {
+        const p = trail[i];
+        const age = (now - p.t) / TRAIL_MS;
+        if (age > 1) continue;
+        const d = Math.hypot(x - p.x, y - p.y);
+        if (d > RADIUS) continue;
+        const f = 1 - d / RADIUS;
+        const radial = f * f * (3 - 2 * f);
+        const fade = (1 - age) * (1 - age);
+        const v = radial * fade;
+        if (v > best) best = v;
+      }
+      return best;
+    };
+
     /* ---------- one full repaint ---------- */
     const paint = (now: number) => {
       const t = reduceMotion ? 0 : (now - startTime) / 1000;
@@ -222,50 +251,38 @@ export function AsciiField() {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
-      const hcx = px / CELL_W;
-      const hcy = py / CELL_H;
-      const reachX = RADIUS / CELL_W;
-      const reachY = RADIUS / CELL_H;
-
       for (let cy = 0; cy < rows; cy++) {
         for (let cx = 0; cx < cols; cx++) {
           const { d, slope } = sampleField(cx, cy);
-          if (d < 0.03) continue; // bare paper
+          if (d < EMPTY_BELOW) continue; // bare paper
 
-          // how close is this cell to the cursor?
-          let near = 0;
-          if (glow > 0.004 && px > -999) {
-            const ox = (cx - hcx) / reachX;
-            const oy = (cy - hcy) / reachY;
-            const dist = Math.hypot(ox, oy);
-            if (dist < 1) {
-              const f = 1 - dist;
-              near = f * f * (3 - 2 * f) * glow;
-            }
-          }
+          const x = cx * CELL_W + CELL_W / 2;
+          const y = cy * CELL_H + CELL_H / 2;
+
+          // how strongly the trail reaches this cell
+          const near = trail.length ? trailInfluence(x, y, now) : 0;
 
           // hover steps the cell into a heavier band, so the character changes
           const band = near * HOVER_BAND;
           const glyph = glyphFor(cx, cy, d, slope, band);
 
           // tone: darker where denser, lifted toward the paper where hovered
-          const jitter = 0.88 + ((hash(cx + 7, cy + 3) % 100) / 100) * 0.22;
-          const lum = lerp(LUM_MIN, LUM_MAX, clamp(d + band * 0.5)) * jitter;
-          const alpha = clamp(
-            lerp(ALPHA_MIN, ALPHA_MAX, clamp(d + band * 0.5)) * (1 - near * 0.18),
-            0,
-            0.92,
-          );
+          const jitter = 0.9 + ((hash(cx + 7, cy + 3) % 100) / 100) * 0.18;
+          const baseLum = lerp(LUM_MIN, LUM_MAX, clamp(d + band * 0.5)) * jitter;
+          const baseAlpha = lerp(ALPHA_MIN, ALPHA_MAX, clamp(d + band * 0.5));
+
+          const lum = lerp(baseLum, Math.min(PAPER_LUM, baseLum + 104), near * HOVER_LIFT);
+          const alpha = clamp(baseAlpha * (1 - near * 0.1) + near * 0.22, 0, 0.97);
 
           // a hovered glyph also grows, so it holds its own in a busy field
-          const size = FONT_PX + near * 1.7;
+          const size = FONT_PX + near * 1.9;
           ctx.font =
             size > FONT_PX + 0.15 ? `600 ${size.toFixed(2)}px ${mono}` : `400 ${FONT_PX}px ${mono}`;
 
           const l = Math.round(lum);
           ctx.fillStyle = `rgba(${l},${Math.round(l * 1.03)},${Math.round(l * 1.16)},${alpha.toFixed(3)})`;
 
-          ctx.fillText(glyph, cx * CELL_W + CELL_W / 2, cy * CELL_H + CELL_H / 2 - near * 0.7);
+          ctx.fillText(glyph, x, y - near * 0.8);
         }
       }
       ctx.font = `400 ${FONT_PX}px ${mono}`;
@@ -275,22 +292,20 @@ export function AsciiField() {
     const frame = (now: number) => {
       raf = 0;
 
-      if (Math.abs(glow - glowTarget) > 0.004) {
-        glow += (glowTarget - glow) * 0.2;
-        if (Math.abs(glow - glowTarget) < 0.006) glow = glowTarget;
-      } else {
-        glow = glowTarget;
-      }
-
       const due = now - lastPaint >= IDLE_MS;
-      const hoverActive = glow > 0.004 || glowTarget > 0.004;
-      if (due || (hoverActive && now - lastPaint >= 32)) {
+      const trailActive = trail.length > 0;
+      if (due || (trailActive && now - lastPaint >= 32)) {
         paint(now);
         lastPaint = now;
       }
 
-      const settling = Math.abs(glow - glowTarget) > 0.004;
-      if (!reduceMotion || settling) {
+      // drop trail lobes that have expired
+      if (trail.length && now - trail[0].t > TRAIL_MS) {
+        while (trail.length && now - trail[0].t > TRAIL_MS) trail.shift();
+      }
+
+      const animating = !reduceMotion || trailActive;
+      if (animating) {
         raf = requestAnimationFrame(frame);
       }
     };
@@ -326,14 +341,18 @@ export function AsciiField() {
 
     /* ---------- pointer ---------- */
     const onMove = (event: PointerEvent) => {
-      px = event.clientX;
-      py = event.clientY;
-      glowTarget = 1;
+      const now = performance.now();
+      const last = trail[trail.length - 1];
+      // only sample when the pointer has actually moved
+      if (!last || Math.hypot(event.clientX - last.x, event.clientY - last.y) > 3) {
+        trail.push({ x: event.clientX, y: event.clientY, t: now });
+        if (trail.length > TRAIL_MAX) trail.shift();
+      }
       kick();
     };
 
     const onLeave = () => {
-      glowTarget = 0;
+      trail.length = 0;
       kick();
     };
 
@@ -347,6 +366,7 @@ export function AsciiField() {
       if (document.hidden) {
         if (raf) cancelAnimationFrame(raf);
         raf = 0;
+        trail.length = 0;
       } else {
         kick();
       }
