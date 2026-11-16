@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { HeroBento } from "@/components/hero/HeroBento";
 import { Machine } from "@/components/machine/Machine";
-import { WorkGrid } from "@/components/work/WorkGrid";
+import { WorkTeaser } from "@/components/work/WorkTeaser";
 import { AboutCard } from "@/components/method/AboutCard";
 import { ContactCard } from "@/components/method/ContactCard";
 import { Reveal } from "@/components/ui/Reveal";
@@ -50,8 +50,7 @@ export default function HomePage() {
               one discipline.
             </h2>
             <p className="section-sub">
-              Local AI, space, biology, optics, robotics and three live client builds. Each
-              one starts from a constraint and ends with evidence.
+              Four of seven chapters. Each one starts from a constraint and ends with evidence.
             </p>
           </div>
           <Link className="section-link" href="/work">
@@ -60,7 +59,7 @@ export default function HomePage() {
           </Link>
         </Reveal>
         <Reveal delay={80}>
-          <WorkGrid />
+          <WorkTeaser />
         </Reveal>
       </section>
 

@@ -2878,6 +2878,170 @@ button,
   margin-top: 9px;
 }
 
+/* ---------- Work teaser (home) ---------- */
+
+/*
+ * Four chapters as paper decks, not cards. A tinted sheet at the back, a
+ * white one in the middle, the screenshot in a white mat on top — the group
+ * reads as a specimen pulled from a drawer. The rest of the work lives on
+ * /work.
+ */
+
+.work-teaser {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(20px, 2.6vw, 34px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deck-tile {
+  display: block;
+  color: inherit;
+}
+
+.deck {
+  position: relative;
+  display: block;
+  /* room for the sheets that sit behind the mat */
+  margin: 9px 9px 0;
+}
+
+.deck-sheet,
+.deck-frame {
+  border-radius: 14px;
+}
+
+.deck-sheet {
+  position: absolute;
+  inset: 0;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.deck-sheet--back {
+  background: var(--deck-tint, var(--surface-3));
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 12px 26px -20px rgba(24, 39, 75, 0.55);
+  transform: translate(-10px, 4px) rotate(-4.4deg) scale(0.965);
+}
+
+.deck-sheet--mid {
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 26px -20px rgba(24, 39, 75, 0.5);
+  transform: translate(10px, 2px) rotate(2.8deg) scale(0.98);
+}
+
+.deck-frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 7px 7px 0;
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 1px 2px rgba(16, 18, 24, 0.05),
+    0 20px 44px -24px rgba(24, 39, 75, 0.4);
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.deck-shot {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--surface-2);
+}
+
+.deck-shot img {
+  transition: transform var(--dur-3) var(--ease-out);
+}
+
+.deck-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 6px 12px;
+}
+
+.deck-tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+}
+
+.deck-name {
+  font-family: var(--font-pixel), monospace;
+  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.deck-line {
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  /* two lines reserved, so every deck in a row ends level */
+  min-height: 2.8em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.deck-tile:focus-visible {
+  border-radius: 18px;
+}
+
+.deck-tile[data-accent="blue"] { --deck-tint: #dbe6fb; }
+.deck-tile[data-accent="lime"] { --deck-tint: #eaf5bb; }
+.deck-tile[data-accent="mint"] { --deck-tint: #d9f1e4; }
+.deck-tile[data-accent="violet"] { --deck-tint: #e4e0fb; }
+.deck-tile[data-accent="sky"] { --deck-tint: #dbeffb; }
+.deck-tile[data-accent="amber"] { --deck-tint: #fbeacb; }
+.deck-tile[data-accent="ink"] { --deck-tint: #e0e5ee; }
+
+@media (hover: hover) {
+  .deck-tile:hover .deck-sheet--back {
+    transform: translate(-16px, 2px) rotate(-6.4deg) scale(0.96);
+  }
+
+  .deck-tile:hover .deck-sheet--mid {
+    transform: translate(16px, 0) rotate(4.6deg) scale(0.975);
+  }
+
+  .deck-tile:hover .deck-frame {
+    transform: translateY(-4px);
+    box-shadow:
+      0 2px 4px rgba(16, 18, 24, 0.06),
+      0 28px 56px -26px rgba(24, 39, 75, 0.5);
+  }
+
+  .deck-tile:hover .deck-shot img {
+    transform: scale(1.03);
+  }
+}
+
+.deck-tile:active .deck-frame {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 980px) {
+  .work-teaser {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 4vw, 26px);
+  }
+}
+
 /* ---------- Pipeline ---------- */
 
 .pipeline-card {
@@ -6381,5 +6545,21 @@ a.about-fact:hover {
   .msg,
   .work-grid .chapter-card {
     animation: none;
+  }
+  /* the decks keep their stacked pose; nothing moves on hover */
+  .deck-sheet,
+  .deck-frame,
+  .deck-shot img {
+    transition: none;
+  }
+  .deck-tile:hover .deck-sheet--back {
+    transform: translate(-10px, 4px) rotate(-4.4deg) scale(0.965);
+  }
+  .deck-tile:hover .deck-sheet--mid {
+    transform: translate(10px, 2px) rotate(2.8deg) scale(0.98);
+  }
+  .deck-tile:hover .deck-frame,
+  .deck-tile:hover .deck-shot img {
+    transform: none;
   }
 }

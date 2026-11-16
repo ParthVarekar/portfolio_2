@@ -80,6 +80,14 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-16 (the work becomes an index, not a wall)
+- The home page no longer carries the seven full chapter cards. It shows **four decks** — H.A.L.O, Susurrus, BioRadar, Client Work — and a link to `/work`, where all seven still live with their filters. Nav → Work is unchanged, so nothing became unreachable.
+- The deck is one object: a tinted sheet at the back, a pale one in the middle, then the screenshot in a white mat with `CH·0n`, the title and the one-line subtitle **printed inside the mat**. The caption used to float over the ASCII field and was hard to read; folding it into the card fixed that and made the stack read as a specimen pulled from a drawer.
+- Sheets rest at `translate(±10px) rotate(∓4.4/2.8deg) scale(.965/.98)`; on hover they spread 6px further and the mat lifts 4px over 200 ms. Under `prefers-reduced-motion` the stack keeps its pose and nothing moves.
+- The section went from four rows of cards to **one row**, about 712px including its head.
+- Captions reserve two lines (`min-height: 2.8em` + clamp) so every deck in a row ends level at any width.
+- Each tile's accessible name is explicit — `Chapter 01: H.A.L.O — A ground controller for the station.` — because the spans would otherwise run together; the deck itself is `aria-hidden`.
+
 ### 2026-11-16 (the about section leads)
 - The home page now opens with **The person**, then the hero, the machine, the work and contact. Only the order changed — no section was restyled.
 - The about section took the class `section--lead` (`padding-top: clamp(112px, 14vw, 150px)`) so it clears the fixed nav, which the hero used to do with its own top padding. Measured: nav bottom 76 / label top 150 at 1440, 66 / 98 at 375.

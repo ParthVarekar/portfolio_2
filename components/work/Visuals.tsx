@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { Project } from "@/content/projects";
 
-const images: Record<string, { src: string; alt: string; position?: string }> = {
+export const workImages: Record<string, { src: string; alt: string; position?: string }> = {
   halo: {
     src: "/images/work/halo-dashboard.jpg",
     alt: "H.A.L.O ground dashboard with procedure steps and detector evidence.",
@@ -61,7 +61,7 @@ export function ChapterVisual({ project }: { project: Project }) {
     );
   }
 
-  const image = images[project.slug];
+  const image = workImages[project.slug];
   if (!image) return null;
 
   return (
