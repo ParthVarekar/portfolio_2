@@ -112,9 +112,21 @@ function formatEta(progress: number, elapsed: number) {
 export function Machine({
   variant = "home",
   showHeader = true,
+  embedded = false,
+  autoWake = false,
+  onPhaseChange,
+  onProgress,
 }: {
   variant?: "home" | "page";
   showHeader?: boolean;
+  /** render as a panel that lives inside another section (no <section> wrapper) */
+  embedded?: boolean;
+  /** start loading the model as soon as support has been detected — the dock mounts on the user's click */
+  autoWake?: boolean;
+  /** report engine phase transitions to a parent (the hero's windmill gauge) */
+  onPhaseChange?: (phase: MachinePhase) => void;
+  /** report download progress (0-1) so the parent can light its own gauge */
+  onProgress?: (progress: number) => void;
 }) {
   const support = useMachineSupport();
   const [mode, setMode] = useState<MachineMode>("local");
@@ -136,6 +148,29 @@ export function Machine({
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const suggestions = variant === "page" ? PAGE_SUGGESTIONS : HOME_SUGGESTIONS;
+
+  const autoWakeRef = useRef(false);
+  const onPhaseChangeRef = useRef(onPhaseChange);
+  const onProgressRef = useRef(onProgress);
+  onPhaseChangeRef.current = onPhaseChange;
+  onProgressRef.current = onProgress;
+
+  useEffect(() => {
+    onPhaseChangeRef.current?.(phase);
+  }, [phase]);
+
+  useEffect(() => {
+    onProgressRef.current?.(progress);
+  }, [progress]);
+
+  useEffect(() => {
+    if (!autoWake || autoWakeRef.current) return;
+    if (support === "checking") return;
+    autoWakeRef.current = true;
+    void wake();
+    // wake is recreated each render; the ref guarantees a single kick
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoWake, support]);
 
   useEffect(() => {
     return () => {
@@ -493,35 +528,8 @@ export function Machine({
               ? "Streaming from your GPU · 0 bytes of this conversation sent."
               : "Running locally · 0 bytes of this conversation sent.";
 
-  return (
-    <section className={showHeader ? "section" : ""} id="machine" aria-labelledby="machine-title">
-      <div className={showHeader ? "shell" : ""}>
-        {showHeader ? (
-          <div className="section-head">
-            <div className="section-head-copy">
-              <span className="section-label">
-                <span className="status-dot status-dot--lime" aria-hidden="true" />
-                II — The machine
-              </span>
-              <h2 className="section-title" id="machine-title">
-                Wake it up.
-              </h2>
-              <p className="section-sub">
-                A real 135M language model in your browser. Ask about the work; the answer is grounded
-                in a small set of notes and shows its sources.
-              </p>
-            </div>
-            <Link className="section-link" href="/machine">
-              Open the machine
-              <ArrowUpRight size={14} aria-hidden="true" />
-            </Link>
-          </div>
-        ) : (
-          <h2 className="sr-only" id="machine-title">
-            The machine
-          </h2>
-        )}
-
+  const panel = (
+    <>
         <div className="machine-panel">
           <div className="machine-head">
             <div className="machine-title">The machine</div>
@@ -908,6 +916,52 @@ export function Machine({
             </p>
           </article>
         </div>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div
+        className="machine-dock"
+        id="machine"
+        role="region"
+        aria-label="The machine — a language model running in your browser"
+      >
+        {panel}
+      </div>
+    );
+  }
+
+  return (
+    <section className={showHeader ? "section" : ""} id="machine" aria-labelledby="machine-title">
+      <div className={showHeader ? "shell" : ""}>
+        {showHeader ? (
+          <div className="section-head">
+            <div className="section-head-copy">
+              <span className="section-label">
+                <span className="status-dot status-dot--lime" aria-hidden="true" />
+                II — The machine
+              </span>
+              <h2 className="section-title" id="machine-title">
+                Wake it up.
+              </h2>
+              <p className="section-sub">
+                A real 135M language model in your browser. Ask about the work; the answer is grounded
+                in a small set of notes and shows its sources.
+              </p>
+            </div>
+            <Link className="section-link" href="/machine">
+              Open the machine
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </Link>
+          </div>
+        ) : (
+          <h2 className="sr-only" id="machine-title">
+            The machine
+          </h2>
+        )}
+
+        {panel}
       </div>
     </section>
   );

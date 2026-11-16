@@ -2102,6 +2102,36 @@ button,
   flex-shrink: 0;
 }
 
+/* ---------- Machine dock (inside the hero) ---------- */
+
+/* The chat lives inside "This page runs a machine." — it appears on click and
+   starts waking. It mounts once; hiding it never throws the model away. */
+
+.machine-dock {
+  margin-top: var(--gap);
+  scroll-margin-top: 96px;
+}
+
+.machine-dock[hidden],
+.machine-dock-wrap[hidden] {
+  display: none;
+}
+
+.machine-dock-wrap {
+  animation: dock-in var(--dur-2) var(--ease-out) both;
+}
+
+@keyframes dock-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Loader */
 
 .loader {
@@ -6583,5 +6613,9 @@ a.about-fact:hover {
   .deck-tile:hover .deck-frame,
   .deck-tile:hover .deck-shot img {
     transform: none;
+  }
+  /* the dock appears without motion */
+  .machine-dock-wrap {
+    animation: none;
   }
 }

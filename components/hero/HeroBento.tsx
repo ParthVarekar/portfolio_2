@@ -1,11 +1,75 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowDown, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { WindmillViewer } from "./WindmillViewer";
 import { Readout } from "./Readout";
 import { DotMatrix } from "./DotMatrix";
 import { MachineStatus } from "@/components/machine/MachineStatus";
+import { Machine } from "@/components/machine/Machine";
+import type { MachinePhase } from "@/lib/machine/types";
+
+/** the windmill card is a live gauge for the chat below it */
+function coreReadout(phase: MachinePhase, progress: number) {
+  switch (phase) {
+    case "loading":
+      return {
+        state: "Waking the machine…",
+        hint: `${Math.round(progress * 100)}% of the way`,
+        lit: Math.max(1, Math.round(progress * 55)),
+        total: 55,
+      };
+    case "generating":
+      return { state: "Working", hint: "Streaming tokens locally", lit: 55, total: 55 };
+    case "ready":
+      return { state: "Core ready", hint: "Model is in your browser", lit: 55, total: 55 };
+    case "error":
+      return { state: "Offline", hint: "The demo still works", lit: 0, total: 55 };
+    default:
+      return { state: "Core idle", hint: "Waiting for a question", lit: 0, total: 55 };
+  }
+}
 
 export function HeroBento() {
+  const [machineOpen, setMachineOpen] = useState(false);
+  // mounted once, on the first open — the model never loads unasked
+  const [dockMounted, setDockMounted] = useState(false);
+  const [machinePhase, setMachinePhase] = useState<MachinePhase>("idle");
+  const [machineProgress, setMachineProgress] = useState(0);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+
+  const core = coreReadout(machinePhase, machineProgress);
+
+  const toggleMachine = () => {
+    if (machineOpen) {
+      setMachineOpen(false);
+      return;
+    }
+    setDockMounted(true);
+    setMachineOpen(true);
+  };
+
+  // on open: the chat is mounted and waking; jump to it so the user sees it.
+  // "instant" because the page's scroll-behavior:smooth would animate, and
+  // the dock's own entrance animation plays as it arrives anyway
+  useEffect(() => {
+    if (!machineOpen) return;
+    const element = dockRef.current;
+    if (!element) return;
+    element.scrollIntoView({ behavior: "instant", block: "start" });
+  }, [machineOpen]);
+
+  // Escape hides the dock again — same as the button
+  useEffect(() => {
+    if (!machineOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMachineOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [machineOpen]);
+
   return (
     <section className="hero shell" aria-labelledby="hero-title">
       <div className="hero-stage">
@@ -36,10 +100,16 @@ export function HeroBento() {
           </p>
 
           <div className="hero-actions">
-            <Link className="btn btn--lime" href="/machine">
+            <button
+              className="btn btn--lime"
+              type="button"
+              aria-expanded={machineOpen}
+              aria-controls="machine-dock"
+              onClick={toggleMachine}
+            >
               <Sparkles size={16} aria-hidden="true" />
-              Wake the machine
-            </Link>
+              {machineOpen ? "Hide the machine" : "Wake the machine"}
+            </button>
             <Link className="btn btn--white" href="#work">
               Read the work
               <ArrowDown size={16} aria-hidden="true" />
@@ -61,7 +131,17 @@ export function HeroBento() {
 
         <div className="core-card settle" style={{ animationDelay: "100ms" }}>
           <div className="core-top">
-            <span className="label">The machine · Idle</span>
+            <span className="label">
+              {machinePhase === "loading"
+                ? "The machine · Waking"
+                : machinePhase === "generating"
+                  ? "The machine · Working"
+                  : machinePhase === "ready"
+                    ? "The machine · Ready"
+                    : machinePhase === "error"
+                      ? "The machine · Offline"
+                      : "The machine · Idle"}
+            </span>
             <MachineStatus compact />
           </div>
 
@@ -69,10 +149,10 @@ export function HeroBento() {
 
           <div className="core-bottom">
             <div className="core-statusline">
-              <span>Core idle</span>
-              <span>Waiting for a question</span>
+              <span>{core.state}</span>
+              <span>{core.hint}</span>
             </div>
-            <DotMatrix lit={0} />
+            <DotMatrix lit={core.lit} total={core.total} />
             <div className="core-pills">
               <span className="pill pill--outline">SmolLM2 · 135M</span>
               <span className="pill pill--outline">4K context</span>
@@ -82,8 +162,18 @@ export function HeroBento() {
         </div>
       </div>
 
-      <Readout />
+      {dockMounted ? (
+        <div className="machine-dock-wrap" ref={dockRef} hidden={!machineOpen} id="machine-dock">
+          <Machine
+            embedded
+            autoWake
+            onPhaseChange={setMachinePhase}
+            onProgress={setMachineProgress}
+          />
+        </div>
+      ) : null}
 
+      <Readout />
     </section>
   );
 }

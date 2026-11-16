@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { HeroBento } from "@/components/hero/HeroBento";
-import { Machine } from "@/components/machine/Machine";
 import { WorkTeaser } from "@/components/work/WorkTeaser";
 import { AboutCard } from "@/components/method/AboutCard";
 import { ContactCard } from "@/components/method/ContactCard";
@@ -34,8 +33,6 @@ export default function HomePage() {
       </section>
 
       <HeroBento />
-
-      <Machine />
 
       <section className="section shell" id="work" aria-labelledby="work-title">
         <Reveal className="section-head">
