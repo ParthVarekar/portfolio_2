@@ -80,6 +80,24 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-17 (the machine folded into the hero)
+- The standalone **Wake it up.** section is gone from the home page. **This page runs a machine.** is now the only machine surface: one click on **Wake the machine** mounts the chat dock inside the hero section, the model starts downloading on the spot, and the chat is already waking when it arrives.
+- Mounting is lazy (first click only, so 78 MB never loads unasked) and idempotent: the dock is hidden, never unmounted, so the machine (and the conversation in it) survives repeated Hide/Wake cycles. Escape and the button toggle it; `aria-expanded`/`aria-controls` wire the button to the dock.
+- The windmill card is now a live gauge for the chat beneath it: it flips from `The machine · Idle` to `Waking` to `Ready` with the download percentage in the status line and a dot matrix that fills with the model's progress (55 pips). Phase and progress are reported up through optional `onPhaseChange`/`onProgress` props — zero new state machines.
+- The scroll-jump dance was investigated and dropped: the page's `scroll-behavior: smooth` made every non-user scrollInert in this environment, and programmatic scrolls landed inconsistently anyway. The dock lands via `scrollIntoView({ behavior: "instant" })`, which is deterministic everywhere and was verified to land the dock exactly at `scroll-padding-top: 110px` on desktop and mobile.
+- `Machine` gained `embedded` (renders the panel in a plain wrapper, keeping the standalone `/machine` page untouched), `autoWake` (kicks `wake()` once WebGPU support resolves), and the phase/progress callbacks.
+- WebLLM's caches were wiped for testing and will re-download on the user's next visit, as they would on any first visit.
+
+### 2026-11-17 (work folders fanned out)
+- Each of the four work folders now carries **three real images from the project itself** — a huge upgrade from the tinted placeholder sheets:
+  - H.A.L.O — dashboard, answers panel, architecture diagram.
+  - Susurrus — live-site hero screenshot, the Dictation Studio and Context Command Sandbox cards (cropped from his full-page capture, `susurrus-live.jpg`, `susurrus-dictation.jpg`, `susurrus-context.jpg`). No purple title cards anywhere; they were AI-ish banners.
+  - BioRadar — aerial estuary (his landing page hero), Mandovi estuary and Kolleru Lake storks (real photos from his repo, `bioradar-estuary.jpg`, `bioradar-mandovi.jpg`, `bioradar-kolleru.jpg`). No koala, obviously.
+  - Client Work — TheArtEvents, Gully Culture and SocialxBrand Pilot.
+- The folder is smaller (220px cap, 16:11 photo, tighter caption type), the sheets splay visibly past the edges (`translate(±31px) rotate(∓6.4/3.5deg)` at rest; ±44px on hover), and mobile tucks the stack in to fit its narrower gutters.
+- Captions reserve two lines so every folder ends level at any width.
+- Layout root cause noted: the page's `scroll-behavior: smooth` means `scrollIntoView({behavior: "auto"})` and plain `scrollTo()` do **nothing** without a user gesture; only `behavior: "instant"`, or a wheel/keyboard gesture, scrolls. It does not affect human browsing (smooth animation) but any future code that scrolls programmatically must use `"instant"`.
+
 ### 2026-11-16 (the work becomes an index, not a wall)
 - The home page no longer carries the seven full chapter cards. It shows **four decks** — H.A.L.O, Susurrus, BioRadar, Client Work — and a link to `/work`, where all seven still live with their filters. Nav → Work is unchanged, so nothing became unreachable.
 - The deck is one object: a tinted sheet at the back, a pale one in the middle, then the screenshot in a white mat with `CH·0n`, the title and the one-line subtitle **printed inside the mat**. The caption used to float over the ASCII field and was hard to read; folding it into the card fixed that and made the stack read as a specimen pulled from a drawer.
