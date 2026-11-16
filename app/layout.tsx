@@ -4,6 +4,7 @@ import { sans, pixel, mono, momoSignature } from "./fonts";
 import { NavPill } from "@/components/shell/NavPill";
 import { Footer } from "@/components/shell/Footer";
 import { CommandPalette } from "@/components/shell/CommandPalette";
+import { AsciiField } from "@/components/shell/AsciiField";
 import { LoopGuard } from "@/components/shell/LoopGuard";
 import "./globals.css";
 
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-scroll-behavior="smooth"
     >
       <body>
+        <AsciiField />
         <a className="skip-link" href="#main">
           Skip to content
         </a>
