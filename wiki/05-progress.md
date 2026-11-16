@@ -80,6 +80,13 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-16 (ASCII backdrop — second pass)
+- User feedback: too dense, the hover change was invisible, and the wave gradient could not be read. Three fixes.
+- **Density down**: cell 6×7.4 → 7.2×8.8 px, and cells below `EMPTY_BELOW` (0.11) are left as bare paper so the thin parts of the wave actually clear out. Canvas coverage 25.7 % → **15.0 %**.
+- **Gradient now legible**: the wave frequencies were halved (3.1/1.9 → 1.5/0.9 and −1.7/3.4 → −0.85/1.7) so it sweeps broad bands instead of a fine plaid, and the density curve got a ×1.72 contrast push. The tone range widened — luminance 198 (thin) → 44 (dense) at alpha 0.20 → 0.95 — so density and tone rise together and the band reads as a gradient. A 16×8 tile map of the field shows the diagonal banding directly.
+- **Hover trail**: every pointer sample is kept in a ring buffer (18 samples, 620 ms) and each cell takes the strongest lobe that reaches it, so the cursor drags a fading comet. Measured on a swept path: glyphs on the path average luminance **149.3** vs **126.5** beside it.
+- The tone lift was also fixed: previously hover only dropped alpha by 18 %, which was invisible against a busy field. Now a hovered glyph lifts up to 104 luminance toward the paper (capped at 214 so it never vanishes) *and* steps up a band into a heavier character.
+
 ### 2026-11-11 (ASCII backdrop)
 - User direction: an ASCII field as the page background — contour-aware glyphs, a travelling density wave, hover that only changes *tone*, and roughly double the density of the first pass. It must never appear inside a card.
 - `components/shell/AsciiField.tsx` — one fixed canvas behind `main`, so it sits under the content and the opaque cards (`--surface` white) hide it completely.
