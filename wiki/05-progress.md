@@ -80,6 +80,12 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-16 (the about section leads)
+- The home page now opens with **The person**, then the hero, the machine, the work and contact. Only the order changed — no section was restyled.
+- The about section took the class `section--lead` (`padding-top: clamp(112px, 14vw, 150px)`) so it clears the fixed nav, which the hero used to do with its own top padding. Measured: nav bottom 76 / label top 150 at 1440, 66 / 98 at 375.
+- The hero keeps its original padding, so the seam between the two is 217px at 1440 — a normal section break.
+- Open: the label still reads **IV — The person** while sitting first. Renumbering is a three-word edit if wanted.
+
 ### 2026-11-16 (the fish, rebuilt as halftone silhouettes)
 - User reference: a fish rendered entirely in ASCII, the body a solid mass of strokes that dithers out toward the edge, with the eye punched out as a hole. The earlier hand-authored glyph sprites read as scribbles, so the fish became **geometry**, not text.
 - **Body**: a teardrop — blunt at the tail root (0.34 of full height), widest a little forward of the middle, tapering to a point at the nose. Profile `base + (1−base)·(4t(1−t))^0.42`.
