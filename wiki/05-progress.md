@@ -80,6 +80,14 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-16 (a school in the waves)
+- User idea: the waving ASCII had produced accidental shapes, so why not put small swimming ASCII fish in it — in a slightly different colour, and where a fish overlaps a wave the fish keeps its colour so it reads as being seen *through* the water.
+- **Sprites**: a small fish ` ,__ / <( O > / ` `--' `, a broader one ` ,-----. / <(   O   > / '-----' `, and a jellyfish ` .-. / ( o ) / (   ) / \_/ `. All mirrored when heading left (`<`↔`>`, `(`↔`)`, `'`↔`` ` ``).
+- **Colour**: the waves are neutral ink (r, g×1.03, b×1.16); the creatures are a step bluer — fish `rgb(22,68,146)`, jellyfish `rgb(24,92,124)` at 0.92 alpha, drawn at weight 700. Identifiable without leaving the palette.
+- **Priority**: a creature cell is drawn *instead of* the wave glyph, then the wave glyph is re-drawn over it at 0.14 alpha — so the water passes back across the fish and it sits under the surface rather than on top of it.
+- **Motion**: fish swim at 13–39 px/s (× scale) and wrap around the edges, bobbing on a per-fish sine with a slow independent vertical drift; jellyfish drift at 5–14 px/s. The school is stocked by width (a fish per ~165 px, a jelly per ~560 px) and seeded, so it looks the same on every visit.
+- Verified: creatures paint in a distinct blue (385–505 strongly blue pixels vs ~130k neutral), and 283 of 287 creature pixels had moved to new positions 900 ms later.
+
 ### 2026-11-16 (ASCII backdrop — second pass)
 - User feedback: too dense, the hover change was invisible, and the wave gradient could not be read. Three fixes.
 - **Density down**: cell 6×7.4 → 7.2×8.8 px, and cells below `EMPTY_BELOW` (0.11) are left as bare paper so the thin parts of the wave actually clear out. Canvas coverage 25.7 % → **15.0 %**.
