@@ -80,6 +80,17 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-11 (ASCII backdrop)
+- User direction: an ASCII field as the page background — contour-aware glyphs, a travelling density wave, hover that only changes *tone*, and roughly double the density of the first pass. It must never appear inside a card.
+- `components/shell/AsciiField.tsx` — one fixed canvas behind `main`, so it sits under the content and the opaque cards (`--surface` white) hide it completely.
+- **Density** is a field, not a constant: two sine waves cross at an angle and sweep bands of busy and empty across the page, so the field keeps changing and never settles. Measured: 95.6 % of painted cells change between two frames 700 ms apart.
+- **Contour glyphs** come from the local slope of that field — `/` on the rising flank, `\` on the falling one, `|` / `!` / `i` / `l` on steep edges, `~` in the troughs, `o` (with `0 # @` as siblings) on the broad plateaus, and `. , ' \` "` for the thin gaps. `+ = *` carry the mid-weights.
+- **Tone** is a mix toward the site ink, never a different hue: luminance 172 (thin) → 58 (dense) at alpha 0.26 → 0.86 over the periwinkle canvas (lum 207). Measured mean glyph luminance 119 — a tone darker than the paper, not ink-black.
+- **Hover** lifts a glyph toward the canvas (`HOVER_LIFT`) *and* steps it up a band so a heavier character takes its place (`HOVER_BAND`), so the cursor reads as brighter and more present without any colour change. Measured: glyphs within 90 px average lum 127.9 vs 117.0 further out.
+- **Density doubled**: the margin strip went from 10.1 % → 24.8 % alpha coverage, with the cell shrunk 6.6×8.4 → 6×7.4 px and the vignette softened (0.85 → 0.38) so the edges carry their own texture.
+- **Cost is flat**: the density field is evaluated on a coarse grid (every 6 cells) and interpolated, so the per-frame work does not grow with the cell count. Idle repaint is 12 fps; the wave is slow enough that it reads continuous.
+- `prefers-reduced-motion` renders one static frame — verified 99.8 % identical pixels 700 ms apart — and the pointer listeners are never attached.
+
 ### 2026-11-10 (portrait published with its green screen)
 - User direction after seeing the keyed result: **"i want to use the image with the green screen or background, not the lime one"**. The photo is now shipped exactly as supplied — `public/images/parth-green.jpg` (1000×1498, from the 1025×1535 upload) — and mounted in the lime PORTRAIT panel as a print: 24 px rounded corners, a 1 px ink hairline (0.14) and a soft drop shadow so it sits on the tile instead of floating.
 - The keyed variants (`portrait.jpg`, `parth-v2.jpg`) were deleted; `scripts/key-portrait.mjs` stays in the repo as a tool but no longer feeds the published asset. It still refuses duplicate swaps (mean difference < 4/255 against the published file → "same photograph", exit 2).
