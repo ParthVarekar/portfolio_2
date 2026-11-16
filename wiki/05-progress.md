@@ -80,6 +80,16 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-16 (the fish, rebuilt as halftone silhouettes)
+- User reference: a fish rendered entirely in ASCII, the body a solid mass of strokes that dithers out toward the edge, with the eye punched out as a hole. The earlier hand-authored glyph sprites read as scribbles, so the fish became **geometry**, not text.
+- **Body**: a teardrop — blunt at the tail root (0.34 of full height), widest a little forward of the middle, tapering to a point at the nose. Profile `base + (1−base)·(4t(1−t))^0.42`.
+- **Fluke**: a convex trapezoid with a narrow neck (0.2 of the body height) that widens to 0.98 at the tip, so there is a visible **waist** between tail and body. Signed distance via point-in-polygon + nearest edge.
+- **Eye**: a hole — cells inside it are never drawn, so the eye is the paper showing through the body.
+- **Halftone**: every cell's density is compared against a **4×4 Bayer matrix**, so the body is solid in the middle and stipples out over ~1.2 cells at the edge. Deterministic — the fish never flicker.
+- **Strokes**: the body is vertical bars (`|`, with `!` for texture); the dithered flanks pick up `/` and `\`, matching the contour vocabulary of the waves.
+- Two sizes: small 23×9 cells, big 35×13 cells. Colours: small `rgb(22,92,164)` cyan, big `rgb(58,128,182)` pale — both a step bluer than the neutral wave ink. A fish per ~200 px of width plus one big fish per ~700 px.
+- The silhouette was tuned by rendering it as plain text offline (`fishDensity` + Bayer printed to the console) rather than by eye in the browser — four iterations were needed before the fluke stopped merging into the body.
+
 ### 2026-11-16 (a school in the waves)
 - User idea: the waving ASCII had produced accidental shapes, so why not put small swimming ASCII fish in it — in a slightly different colour, and where a fish overlaps a wave the fish keeps its colour so it reads as being seen *through* the water.
 - **Sprites**: a small fish ` ,__ / <( O > / ` `--' `, a broader one ` ,-----. / <(   O   > / '-----' `, and a jellyfish ` .-. / ( o ) / (   ) / \_/ `. All mirrored when heading left (`<`↔`>`, `(`↔`)`, `'`↔`` ` ``).
