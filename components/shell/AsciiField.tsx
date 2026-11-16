@@ -3,8 +3,9 @@
 import { useEffect, useRef } from "react";
 
 /**
- * The page's backdrop: a field of ASCII glyphs, drawn on canvas behind every
- * card and never inside one.
+ * The page's backdrop: a field of ASCII glyphs with a small school of ASCII
+ * swimmers living in it. Drawn on canvas behind every card and never inside
+ * one.
  *
  *  1. Density is a field, not a constant. Two slow waves cross at an angle
  *     and sweep broad bands of busy and empty glyphs across the page, so the
@@ -15,7 +16,11 @@ import { useEffect, useRef } from "react";
  *  3. Glyphs follow the shape of the field — `/` and `\` on the rising and
  *     falling flanks, `|` on the steep parts, `~` in the troughs, `o` on the
  *     broad plateaus, the small marks in the thin gaps.
- *  4. Hover leaves a trail. Every recent pointer position keeps a fading
+ *  4. A school of small ASCII fish and jellyfish swims through it. They are
+ *     a step bluer than the neutral ink of the waves, so they read as alive.
+ *     Where a creature crosses a wave it keeps its colour and the wave passes
+ *     back over it as a whisper — the fish is seen *through* the water.
+ *  5. Hover leaves a trail. Every recent pointer position keeps a fading
  *     lobe of light, so the cursor drags a short comet through the field.
  *     The change is *tone only* — glyphs lift toward the paper and step up a
  *     band into a heavier character. Nothing turns a different colour.
@@ -37,6 +42,57 @@ const GLYPH_FALL = ["\\", "\\", "\\"];
 const GLYPH_EDGE = ["|", "!", "i", "l"];
 /** curvy and trough areas */
 const GLYPH_CURVE = ["~", "~", "-", "_"];
+
+/* ---------- creatures ---------- */
+const SPRITE_FISH = [
+  " ,__ ",
+  "<( O >",
+  " `--' ",
+];
+
+/** the broader fish — same glyph size, more of them, so it stays ASCII art */
+const SPRITE_FISH_WIDE = [
+  "  ,-----.  ",
+  " <(   O   >",
+  "  '-----'  ",
+];
+
+const SPRITE_JELLY = [
+  " .-. ",
+  "( o )",
+  "(   )",
+  " \\_/ ",
+];
+
+/** mirrored, for swimmers heading the other way */
+const MIRROR: Record<string, string> = {
+  "<": ">",
+  ">": "<",
+  "(": ")",
+  ")": "(",
+  "'": "`",
+  "`": "'",
+};
+
+const CREATURE_BLUE = [22, 68, 146] as const; // fish
+const CREATURE_TEAL = [24, 92, 124] as const; // jellyfish
+/** the water that passes back over a creature, so it sits under the surface */
+const WATER_HAZE = 0.14;
+
+type Critter = {
+  sprite: string[];
+  color: readonly number[];
+  x: number;
+  y: number;
+  baseY: number;
+  dir: 1 | -1;
+  speed: number;
+  scale: number;
+  phase: number;
+  bob: number;
+  bobRate: number;
+  drift: number;
+};
 
 /* ---------- grid ---------- */
 const CELL_W = 7.2;
@@ -178,6 +234,48 @@ export function AsciiField() {
     /** the fading hover trail */
     const trail: { x: number; y: number; t: number }[] = [];
 
+    /** the school */
+    const critters: Critter[] = [];
+    /** the cells the creatures occupy: cell index -> glyph */
+    const critterAt = new Map<number, string>();
+    /** the colour of the creature in a given cell */
+    const critterColor = new Map<number, readonly number[]>();
+
+    /** seeded, so the school looks the same on every visit */
+    let seed = 0x5eed1234;
+    const rand = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
+
+    const spawn = (kind: "fish" | "jelly", fromLeft: boolean): Critter => {
+      const sprite =
+        kind === "jelly"
+          ? SPRITE_JELLY
+          : rand() < 0.45
+            ? SPRITE_FISH_WIDE
+            : SPRITE_FISH;
+      const scale = kind === "fish" && sprite === SPRITE_FISH && rand() < 0.3 ? 2 : 1;
+      const sw = sprite[0].length * CELL_W * scale;
+      const dir: 1 | -1 = rand() < 0.72 ? 1 : -1;
+      const x = fromLeft ? -sw - rand() * 240 : w + rand() * 240;
+      const baseY = h * (0.12 + rand() * 0.74);
+      return {
+        sprite,
+        color: kind === "fish" ? CREATURE_BLUE : CREATURE_TEAL,
+        x,
+        y: baseY,
+        baseY,
+        dir,
+        speed: (kind === "fish" ? 13 + rand() * 26 : 5 + rand() * 9) * scale,
+        scale,
+        phase: rand() * Math.PI * 2,
+        bob: 5 + rand() * 16,
+        bobRate: 0.35 + rand() * 0.75,
+        drift: 0.4 + rand() * 0.9,
+      };
+    };
+
     /* ---------- the coarse field ---------- */
     const buildField = (t: number) => {
       for (let fy = 0; fy < fh; fy++) {
@@ -242,6 +340,53 @@ export function AsciiField() {
       return best;
     };
 
+    /* ---------- move the school ---------- */
+    const moveCritters = (dt: number, t: number) => {
+      critterAt.clear();
+      critterColor.clear();
+
+      for (const c of critters) {
+        c.x += c.dir * c.speed * dt;
+
+        // bobbing, with a slow drift so they do not all rise together
+        c.baseY += Math.sin(t * c.drift + c.phase) * 4 * dt;
+        c.baseY = clamp(c.baseY, h * 0.08, h * 0.92);
+        c.y = c.baseY + Math.sin(t * c.bobRate + c.phase) * c.bob;
+
+        const sw = c.sprite[0].length * CELL_W * c.scale;
+        const sh = c.sprite.length * CELL_H * c.scale;
+
+        // wrap around the edges
+        if (c.dir > 0 && c.x > w + 8) {
+          c.x = -sw - 8;
+          c.baseY = h * (0.12 + rand() * 0.76);
+        } else if (c.dir < 0 && c.x < -sw - 8) {
+          c.x = w + 8;
+          c.baseY = h * (0.12 + rand() * 0.76);
+        }
+
+        // stamp the sprite into the cell maps
+        for (let r = 0; r < c.sprite.length; r++) {
+          const row = c.sprite[r];
+          for (let col = 0; col < row.length; col++) {
+            const ch = row[col];
+            if (ch === " ") continue;
+            const glyph = c.dir > 0 ? ch : (MIRROR[ch] ?? ch);
+            for (let sy = 0; sy < c.scale; sy++) {
+              for (let sx = 0; sx < c.scale; sx++) {
+                const cellX = Math.floor((c.x + (col + sx) * CELL_W) / CELL_W);
+                const cellY = Math.floor((c.y + (r + sy) * CELL_H) / CELL_H);
+                if (cellX < 0 || cellY < 0 || cellX >= cols || cellY >= rows) continue;
+                const key = cellY * cols + cellX;
+                critterAt.set(key, glyph);
+                critterColor.set(key, c.color);
+              }
+            }
+          }
+        }
+      }
+    };
+
     /* ---------- one full repaint ---------- */
     const paint = (now: number) => {
       const t = reduceMotion ? 0 : (now - startTime) / 1000;
@@ -258,6 +403,22 @@ export function AsciiField() {
 
           const x = cx * CELL_W + CELL_W / 2;
           const y = cy * CELL_H + CELL_H / 2;
+
+          // a creature in this cell takes priority over the wave
+          const key = cy * cols + cx;
+          const critter = critterAt.get(key);
+          if (critter) {
+            const color = critterColor.get(key) ?? CREATURE_BLUE;
+            ctx.font = `700 ${FONT_PX + 0.4}px ${mono}`;
+            ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},0.92)`;
+            ctx.fillText(critter, x, y);
+            // the water passes back over it — a fish seen through the waves
+            const haze = glyphFor(cx, cy, d, slope, 0);
+            ctx.font = `400 ${FONT_PX}px ${mono}`;
+            ctx.fillStyle = `rgba(16,18,24,${WATER_HAZE.toFixed(3)})`;
+            ctx.fillText(haze, x, y);
+            continue;
+          }
 
           // how strongly the trail reaches this cell
           const near = trail.length ? trailInfluence(x, y, now) : 0;
@@ -291,6 +452,9 @@ export function AsciiField() {
     /* ---------- the loop ---------- */
     const frame = (now: number) => {
       raf = 0;
+
+      const dt = Math.min(0.05, (now - lastPaint) / 1000) || 1 / 60;
+      moveCritters(dt, reduceMotion ? 0 : (now - startTime) / 1000);
 
       const due = now - lastPaint >= IDLE_MS;
       const trailActive = trail.length > 0;
@@ -334,6 +498,14 @@ export function AsciiField() {
       canvas.style.height = `${h}px`;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // stock the water
+      critters.length = 0;
+      const fishCount = Math.max(4, Math.round(w / 165));
+      for (let i = 0; i < fishCount; i++) critters.push(spawn("fish", i % 2 === 0));
+      const jellyCount = Math.max(1, Math.round(w / 560));
+      for (let i = 0; i < jellyCount; i++) critters.push(spawn("jelly", i % 2 === 0));
+
       startTime = performance.now();
       paint(performance.now());
       lastPaint = performance.now();
