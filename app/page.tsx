@@ -10,6 +10,29 @@ import { Reveal } from "@/components/ui/Reveal";
 export default function HomePage() {
   return (
     <>
+      <section className="section section--lead shell" id="about" aria-labelledby="about-title">
+        <Reveal className="section-head">
+          <div className="section-head-copy">
+            <span className="section-label">
+              <span className="status-dot status-dot--blue" aria-hidden="true" />
+              IV — The person
+            </span>
+            <h2 className="section-title" id="about-title">
+              The person
+              <br />
+              behind the machine.
+            </h2>
+          </div>
+          <Link className="section-link" href="/about">
+            More about me
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </Link>
+        </Reveal>
+        <Reveal delay={80}>
+          <AboutCard />
+        </Reveal>
+      </section>
+
       <HeroBento />
 
       <Machine />
@@ -38,29 +61,6 @@ export default function HomePage() {
         </Reveal>
         <Reveal delay={80}>
           <WorkGrid />
-        </Reveal>
-      </section>
-
-      <section className="section shell" id="about" aria-labelledby="about-title">
-        <Reveal className="section-head">
-          <div className="section-head-copy">
-            <span className="section-label">
-              <span className="status-dot status-dot--blue" aria-hidden="true" />
-              IV — The person
-            </span>
-            <h2 className="section-title" id="about-title">
-              The person
-              <br />
-              behind the machine.
-            </h2>
-          </div>
-          <Link className="section-link" href="/about">
-            More about me
-            <ArrowUpRight size={14} aria-hidden="true" />
-          </Link>
-        </Reveal>
-        <Reveal delay={80}>
-          <AboutCard />
         </Reveal>
       </section>
 

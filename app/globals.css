@@ -1512,6 +1512,11 @@ button,
   padding-top: clamp(36px, 5vw, 56px);
 }
 
+/* The first section on a page clears the fixed nav. */
+.section--lead {
+  padding-top: clamp(112px, 14vw, 150px);
+}
+
 .section-head {
   display: flex;
   align-items: flex-end;
