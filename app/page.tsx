@@ -12,10 +12,6 @@ export default function HomePage() {
       <section className="section section--lead shell" id="about" aria-labelledby="about-title">
         <Reveal className="section-head">
           <div className="section-head-copy">
-            <span className="section-label">
-              <span className="status-dot status-dot--blue" aria-hidden="true" />
-              IV — The person
-            </span>
             <h2 className="section-title" id="about-title">
               The person
               <br />
@@ -37,10 +33,6 @@ export default function HomePage() {
       <section className="section shell" id="work" aria-labelledby="work-title">
         <Reveal className="section-head">
           <div className="section-head-copy">
-            <span className="section-label">
-              <span className="status-dot status-dot--blue" aria-hidden="true" />
-              III — The work
-            </span>
             <h2 className="section-title" id="work-title">
               Seven chapters,
               <br />
@@ -63,10 +55,6 @@ export default function HomePage() {
       <section className="section shell" id="contact" aria-labelledby="contact-title">
         <Reveal className="section-head">
           <div className="section-head-copy">
-            <span className="section-label">
-              <span className="status-dot status-dot--lime" aria-hidden="true" />
-              V — Contact
-            </span>
             <h2 className="section-title" id="contact-title">
               Say hello.
             </h2>

@@ -39,10 +39,6 @@ export default function MachinePage() {
   return (
     <div className="page shell">
       <header className="page-head">
-        <span className="section-label">
-          <span className="status-dot status-dot--lime" aria-hidden="true" />
-          The machine
-        </span>
         <h1 className="page-title">
           A model in
           <br />
@@ -66,10 +62,6 @@ export default function MachinePage() {
       <section className="section" aria-labelledby="machine-how-title">
         <div className="section-head">
           <div className="section-head-copy">
-            <span className="section-label">
-              <span className="status-dot status-dot--blue" aria-hidden="true" />
-              Under the hood
-            </span>
             <h2 className="section-title" id="machine-how-title">
               What actually
               <br />

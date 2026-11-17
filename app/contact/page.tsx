@@ -15,10 +15,6 @@ export default function ContactPage() {
   return (
     <div className="page shell">
       <header className="page-head">
-        <span className="section-label">
-          <span className="status-dot status-dot--lime" aria-hidden="true" />
-          Contact
-        </span>
         <h1 className="page-title">
           Say hello.
         </h1>

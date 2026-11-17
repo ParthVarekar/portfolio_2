@@ -80,6 +80,13 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-17 (section overlines deleted site-wide)
+- The user boxed the small numbered overlines — "● IV — THE PERSON", "● III — THE WORK" — and asked for "this kind of things" to be removed everywhere.
+- Every `.section-label` block is gone: home (about / work / contact), `/about` (page head + "The short version"), `/work` (page head + "Next"), `/machine` (page head + "Under the hood"), `/contact`, `/colophon`, and the optional header inside `Machine` ("II — The machine").
+- The `.section-label` CSS (flex, 10px mono uppercase, dotted rule via `::after`) is deleted too; headings now start directly under the page/section heads. The roman numerals are no longer referenced anywhere.
+- Left alone deliberately: the hero identity line ("Parth Varekar · Mumbai, IN" + "Open to work"), the in-card micro-labels ("PORTRAIT", "ABOUT", "CURRENTLY") and the machine's live status pills — these are status/identity, not section numbering. Say the word if those should go too.
+- Verified at 1440 and 375: zero `.section-label` in the DOM on every route, no overflow, headings sit 84px (desktop) / 62px (mobile) below the nav, typecheck and build green, all routes 200.
+
 ### 2026-11-17 (every hash anchor and scroll-jump removed)
 - The user asked for the "wake the machine" tap to stop jumping the page to the top, and for **no anchor to any section anywhere in the site**.
 - Root cause of the wake-button jump: programmatic focus moved into the freshly-mounted face, and the browser scrolls to reveal a focused element — softened into a glide by `html { scroll-behavior: smooth }` and `scroll-padding-top: 110px`.

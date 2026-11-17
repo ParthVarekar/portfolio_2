@@ -38,10 +38,6 @@ export default function AboutPage() {
   return (
     <div className="page shell">
       <header className="page-head">
-        <span className="section-label">
-          <span className="status-dot status-dot--lime" aria-hidden="true" />
-          About
-        </span>
         <h1 className="page-title">
           A builder
           <br />
@@ -58,10 +54,6 @@ export default function AboutPage() {
       <section className="section section--tight" aria-labelledby="about-story-title">
         <div className="section-head">
           <div className="section-head-copy">
-            <span className="section-label">
-              <span className="status-dot status-dot--blue" aria-hidden="true" />
-              The short version
-            </span>
             <h2 className="section-title" id="about-story-title">
               How I got
               <br />

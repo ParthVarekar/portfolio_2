@@ -945,10 +945,6 @@ export function Machine({
         {showHeader ? (
           <div className="section-head">
             <div className="section-head-copy">
-              <span className="section-label">
-                <span className="status-dot status-dot--lime" aria-hidden="true" />
-                II — The machine
-              </span>
               <h2 className="section-title" id="machine-title">
                 Wake it up.
               </h2>

@@ -43,10 +43,6 @@ export default function ColophonPage() {
   return (
     <div className="page shell">
       <header className="page-head">
-        <span className="section-label">
-          <span className="status-dot status-dot--blue" aria-hidden="true" />
-          Colophon
-        </span>
         <h1 className="page-title">
           The fine print,
           <br />

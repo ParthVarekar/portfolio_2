@@ -17,10 +17,6 @@ export default function WorkPage() {
     <div className="page shell">
       <header className="page-head page-head-split">
         <div className="page-head-copy">
-          <span className="section-label">
-            <span className="status-dot status-dot--blue" aria-hidden="true" />
-            The work · 2025–2026
-          </span>
           <h1 className="page-title">
             Seven chapters.
             <br />
@@ -59,10 +55,6 @@ export default function WorkPage() {
       <section className="section section--tight" aria-labelledby="work-contact-title">
         <div className="section-head">
           <div className="section-head-copy">
-            <span className="section-label">
-              <span className="status-dot status-dot--lime" aria-hidden="true" />
-              Next
-            </span>
             <h2 className="section-title" id="work-contact-title">
               Have a brief
               <br />
