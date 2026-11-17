@@ -80,7 +80,7 @@ export function CommandPalette() {
     if (!open) return;
     setQuery("");
     setActive(0);
-    const timer = window.setTimeout(() => inputRef.current?.focus(), 30);
+    const timer = window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 30);
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {

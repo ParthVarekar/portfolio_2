@@ -80,6 +80,19 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-17 (every hash anchor and scroll-jump removed)
+- The user asked for the "wake the machine" tap to stop jumping the page to the top, and for **no anchor to any section anywhere in the site**.
+- Root cause of the wake-button jump: programmatic focus moved into the freshly-mounted face, and the browser scrolls to reveal a focused element — softened into a glide by `html { scroll-behavior: smooth }` and `scroll-padding-top: 110px`.
+- Fixes, site-wide:
+  - `html`: `scroll-behavior: smooth` and `scroll-padding-top` deleted; `data-scroll-behavior="smooth"` on `<html>` deleted; the `scroll-behavior: auto` override in the reduced-motion block became redundant and went too. `overscroll-behavior: contain` on the chat panel stays — that is scroll containment, not an anchor.
+  - All programmatic `.focus()` calls now pass `{ preventScroll: true }` (hero open/close, machine input ×2, command palette input).
+  - **Hero "Read the work"** `href="#work"` → `href="/work"`.
+  - **Footer "Back to top"** (`href="#main"`) deleted.
+  - **"How it works"** links (`/colophon#machine`, in the machine rail and on /machine) → `/colophon`.
+  - **Skip link** (`href="#main"`) and its CSS deleted — the user said no anchors anywhere; this one costs keyboard/screen-reader users the one-key jump past the nav. A focus-without-scroll alternative exists if wanted.
+  - `<main id="main">` keeps its landmark id.
+- Verified: scroll tracer attached across open → Escape → open — zero scroll events, `scrollY` constant, zero `a[href*="#"]` in the rendered DOM, no console errors, all routes 200.
+
 ### 2026-11-17 (the machine lives inside the hero card — the real merge)
 - The user's actual ask: the white **"This page runs a machine."** card turns into the chat on click — no second panel appears below the hero. The previous bottom-dock version did exactly that and was wrong.
 - The hero card now has two **faces**: a welcome face (eyebrow / title / sub / CTAs / foot) and a **machine face** (a slim "Hide the machine" chip + the chat). One click flips the card; the windmill card keeps acting as a live gauge (`Idle → Waking → Ready`, 55 pips).

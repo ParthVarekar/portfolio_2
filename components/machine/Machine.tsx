@@ -200,7 +200,7 @@ export function Machine({
     setMessages([]);
     lastProjectRef.current = null;
     setInput("");
-    window.setTimeout(() => inputRef.current?.focus(), 40);
+    window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 40);
   };
 
   const wake = async () => {
@@ -252,7 +252,7 @@ export function Machine({
       setProgress(1);
       setStatusText("Model ready.");
       setPhase("ready");
-      window.setTimeout(() => inputRef.current?.focus(), 80);
+      window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 80);
     } catch (cause) {
       if (cancelledRef.current) return;
       setPhase("error");
@@ -873,7 +873,7 @@ export function Machine({
                   Reset chat
                   <RotateCcw size={13} aria-hidden="true" />
                 </button>
-                <Link className="rail-link" href="/colophon#machine">
+                <Link className="rail-link" href="/colophon">
                   How it works
                   <ArrowUpRight size={13} aria-hidden="true" />
                 </Link>

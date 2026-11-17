@@ -131,7 +131,7 @@ export default function MachinePage() {
               Small enough to load quickly, large enough to answer a question about the work.
             </p>
           </div>
-          <Link className="section-link" href="/colophon#machine">
+          <Link className="section-link" href="/colophon">
             Read the colophon
             <ArrowUpRight size={14} aria-hidden="true" />
           </Link>

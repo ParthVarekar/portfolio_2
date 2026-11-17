@@ -60,13 +60,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`${sans.variable} ${pixel.variable} ${mono.variable} ${momoSignature.variable}`}
-      data-scroll-behavior="smooth"
     >
       <body>
         <AsciiField />
-        <a className="skip-link" href="#main">
-          Skip to content
-        </a>
         <NavPill />
         <main id="main">{children}</main>
         <Footer />

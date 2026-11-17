@@ -67,12 +67,12 @@ export function HeroBento() {
   useEffect(() => {
     if (machineOpen) {
       prevOpen.current = true;
-      const timer = window.setTimeout(() => closeButtonRef.current?.focus(), 90);
+      const timer = window.setTimeout(() => closeButtonRef.current?.focus({ preventScroll: true }), 90);
       return () => window.clearTimeout(timer);
     }
     if (prevOpen.current) {
       prevOpen.current = false;
-      const timer = window.setTimeout(() => wakeButtonRef.current?.focus(), 90);
+      const timer = window.setTimeout(() => wakeButtonRef.current?.focus({ preventScroll: true }), 90);
       return () => window.clearTimeout(timer);
     }
   }, [machineOpen]);
@@ -121,7 +121,7 @@ export function HeroBento() {
                 <Sparkles size={16} aria-hidden="true" />
                 {machineOpen ? "Hide the machine" : "Wake the machine"}
               </button>
-              <Link className="btn btn--white" href="#work">
+              <Link className="btn btn--white" href="/work">
                 Read the work
                 <ArrowDown size={16} aria-hidden="true" />
               </Link>

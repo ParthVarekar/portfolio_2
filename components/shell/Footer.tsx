@@ -69,9 +69,6 @@ export function Footer() {
                 <li>
                   <Link href="/machine">Ask the machine</Link>
                 </li>
-                <li>
-                  <a href="#main">Back to top ↑</a>
-                </li>
               </ul>
             </div>
           </div>

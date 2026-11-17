@@ -59,8 +59,6 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 110px;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
@@ -211,24 +209,6 @@ button,
 
 .nowrap {
   white-space: nowrap;
-}
-
-.skip-link {
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  transform: translate(-50%, -160%);
-  z-index: 3000;
-  background: var(--ink);
-  color: white;
-  padding: 10px 16px;
-  border-radius: 999px;
-  font-size: 13px;
-  transition: transform var(--dur-1) var(--ease-out);
-}
-
-.skip-link:focus {
-  transform: translate(-50%, 0);
 }
 
 .shell {
@@ -6286,9 +6266,6 @@ a.about-fact:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
 
   *,
   *::before,
