@@ -80,6 +80,17 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-17 (the machine lives inside the hero card — the real merge)
+- The user's actual ask: the white **"This page runs a machine."** card turns into the chat on click — no second panel appears below the hero. The previous bottom-dock version did exactly that and was wrong.
+- The hero card now has two **faces**: a welcome face (eyebrow / title / sub / CTAs / foot) and a **machine face** (a slim "Hide the machine" chip + the chat). One click flips the card; the windmill card keeps acting as a live gauge (`Idle → Waking → Ready`, 55 pips).
+- `Machine` gained `compact` (rail + three note cards dropped; chat fills the card) in addition to `embedded`. `/machine` page renders exactly as before.
+- The chat panel mounts **once** (first click only, so 78 MB never loads unasked) and is hidden, never unmounted, afterwards — model, conversation and scroll position all persist across toggles. Escape and the chip toggle it; `aria-expanded`/`aria-controls` wired both ways.
+- Focus management lives in one effect, not in the click handler: on open, focus lands on the hide-chip; on close, it returns to the wake button. Focusing a `display:none` element is a no-op, so both must happen post-commit with a timeout — the earlier rAF-in-handler approach silently dropped focus.
+- The close chip sits in a normal-flow toolbar row above the panel, never overlapping the panel title or the pills (verified at 1440 and 375 — no overlap, no overflow).
+- `overflow-anchor: none` on the faces so removing the focused element doesn't trigger a scroll jump.
+- Found while testing: programmatic scrolls are swallowed on this page (`scroll-behavior: smooth`), wheel/keyboard work fine. And the **nav collapses on scroll by design** (`COLLAPSE_AFTER = 110`) — not a bug.
+- Headless quirk: fullPage screenshots paint fixed elements (nav pill, skip link) inside the captured page. Viewport screenshots are honest; crops of fullPage are only suitable for static content.
+
 ### 2026-11-17 (the machine folded into the hero)
 - The standalone **Wake it up.** section is gone from the home page. **This page runs a machine.** is now the only machine surface: one click on **Wake the machine** mounts the chat dock inside the hero section, the model starts downloading on the spot, and the chat is already waking when it arrives.
 - Mounting is lazy (first click only, so 78 MB never loads unasked) and idempotent: the dock is hidden, never unmounted, so the machine (and the conversation in it) survives repeated Hide/Wake cycles. Escape and the button toggle it; `aria-expanded`/`aria-controls` wire the button to the dock.

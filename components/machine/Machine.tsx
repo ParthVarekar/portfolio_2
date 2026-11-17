@@ -113,6 +113,7 @@ export function Machine({
   variant = "home",
   showHeader = true,
   embedded = false,
+  compact = false,
   autoWake = false,
   onPhaseChange,
   onProgress,
@@ -121,6 +122,8 @@ export function Machine({
   showHeader?: boolean;
   /** render as a panel that lives inside another section (no <section> wrapper) */
   embedded?: boolean;
+  /** compact fit: drop the rail and the notes, keep the chat — for swapping a hero card into the machine */
+  compact?: boolean;
   /** start loading the model as soon as support has been detected — the dock mounts on the user's click */
   autoWake?: boolean;
   /** report engine phase transitions to a parent (the hero's windmill gauge) */
@@ -807,6 +810,7 @@ export function Machine({
               </div>
             </div>
 
+            {compact ? null : (
             <aside className="machine-rail" aria-label="Machine details">
               <div className="rail-core">
                 <span className="rail-orb" data-state={orbState} aria-hidden="true" />
@@ -875,9 +879,11 @@ export function Machine({
                 </Link>
               </div>
             </aside>
+            )}
           </div>
         </div>
 
+        {compact ? null : (
         <div className="machine-notes">
           <article className="note-card">
             <h3>
@@ -916,13 +922,14 @@ export function Machine({
             </p>
           </article>
         </div>
+        )}
     </>
   );
 
   if (embedded) {
     return (
       <div
-        className="machine-dock"
+        className={compact ? "machine-dock machine-dock--compact" : "machine-dock"}
         id="machine"
         role="region"
         aria-label="The machine — a language model running in your browser"

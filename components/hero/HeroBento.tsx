@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowDown, Sparkles } from "lucide-react";
+import { ArrowDown, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { WindmillViewer } from "./WindmillViewer";
 import { Readout } from "./Readout";
@@ -10,7 +10,7 @@ import { MachineStatus } from "@/components/machine/MachineStatus";
 import { Machine } from "@/components/machine/Machine";
 import type { MachinePhase } from "@/lib/machine/types";
 
-/** the windmill card is a live gauge for the chat below it */
+/** the windmill card is a live gauge for the chat inside the hero card */
 function coreReadout(phase: MachinePhase, progress: number) {
   switch (phase) {
     case "loading":
@@ -34,10 +34,12 @@ function coreReadout(phase: MachinePhase, progress: number) {
 export function HeroBento() {
   const [machineOpen, setMachineOpen] = useState(false);
   // mounted once, on the first open — the model never loads unasked
-  const [dockMounted, setDockMounted] = useState(false);
+  const [machineMounted, setMachineMounted] = useState(false);
   const [machinePhase, setMachinePhase] = useState<MachinePhase>("idle");
   const [machineProgress, setMachineProgress] = useState(0);
-  const dockRef = useRef<HTMLDivElement | null>(null);
+  const wakeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const prevOpen = useRef(false);
 
   const core = coreReadout(machinePhase, machineProgress);
 
@@ -46,21 +48,11 @@ export function HeroBento() {
       setMachineOpen(false);
       return;
     }
-    setDockMounted(true);
+    setMachineMounted(true);
     setMachineOpen(true);
   };
 
-  // on open: the chat is mounted and waking; jump to it so the user sees it.
-  // "instant" because the page's scroll-behavior:smooth would animate, and
-  // the dock's own entrance animation plays as it arrives anyway
-  useEffect(() => {
-    if (!machineOpen) return;
-    const element = dockRef.current;
-    if (!element) return;
-    element.scrollIntoView({ behavior: "instant", block: "start" });
-  }, [machineOpen]);
-
-  // Escape hides the dock again — same as the button
+  // Escape closes the machine again — same as the button
   useEffect(() => {
     if (!machineOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -70,62 +62,113 @@ export function HeroBento() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [machineOpen]);
 
+  // move focus into the newly visible face, after React has committed it —
+  // focusing a hidden element is a no-op, so this must run post-commit
+  useEffect(() => {
+    if (machineOpen) {
+      prevOpen.current = true;
+      const timer = window.setTimeout(() => closeButtonRef.current?.focus(), 90);
+      return () => window.clearTimeout(timer);
+    }
+    if (prevOpen.current) {
+      prevOpen.current = false;
+      const timer = window.setTimeout(() => wakeButtonRef.current?.focus(), 90);
+      return () => window.clearTimeout(timer);
+    }
+  }, [machineOpen]);
+
   return (
     <section className="hero shell" aria-labelledby="hero-title">
       <div className="hero-stage">
         <div className="hero-card settle" style={{ animationDelay: "30ms" }}>
-          <div className="hero-eyebrow">
-            <span className="label">Parth Varekar · Mumbai, IN</span>
-            <span className="hero-availability">
-              <span className="status-dot status-dot--lime" aria-hidden="true" />
-              Open to work
-            </span>
+          {/* the welcome face — the card before the machine is awake */}
+          <div className="hero-face" hidden={machineOpen} aria-hidden={machineOpen}>
+            <div className="hero-eyebrow">
+              <span className="label">Parth Varekar · Mumbai, IN</span>
+              <span className="hero-availability">
+                <span className="status-dot status-dot--lime" aria-hidden="true" />
+                Open to work
+              </span>
+            </div>
+
+            <h1 className="hero-title" id="hero-title" aria-label="This page runs a machine.">
+              <span className="hero-title-line" aria-hidden="true">
+                This page
+              </span>
+              <span className="hero-title-line" aria-hidden="true">
+                runs a
+              </span>
+              <span className="hero-title-line" aria-hidden="true">
+                machine<span className="hero-period">.</span>
+              </span>
+            </h1>
+
+            <p className="hero-sub">
+              A real language model, inside your browser. Ask it about the systems I build.
+              Nothing leaves your device.
+            </p>
+
+            <div className="hero-actions">
+              <button
+                className="btn btn--lime"
+                id="machine-wake"
+                ref={wakeButtonRef}
+                type="button"
+                aria-expanded={machineOpen}
+                aria-controls="machine"
+                onClick={toggleMachine}
+              >
+                <Sparkles size={16} aria-hidden="true" />
+                {machineOpen ? "Hide the machine" : "Wake the machine"}
+              </button>
+              <Link className="btn btn--white" href="#work">
+                Read the work
+                <ArrowDown size={16} aria-hidden="true" />
+              </Link>
+            </div>
+
+            <div className="hero-foot">
+              <span className="scroll-cue">
+                <ArrowDown size={13} aria-hidden="true" data-loop />
+                Scroll to open
+              </span>
+              <span className="hero-fact">
+                Built in Mumbai
+                <br />
+                Runs in your browser
+              </span>
+            </div>
           </div>
 
-          <h1 className="hero-title" id="hero-title" aria-label="This page runs a machine.">
-            <span className="hero-title-line" aria-hidden="true">
-              This page
-            </span>
-            <span className="hero-title-line" aria-hidden="true">
-              runs a
-            </span>
-            <span className="hero-title-line" aria-hidden="true">
-              machine<span className="hero-period">.</span>
-            </span>
-          </h1>
-
-          <p className="hero-sub">
-            A real language model, inside your browser. Ask it about the systems I build.
-            Nothing leaves your device.
-          </p>
-
-          <div className="hero-actions">
-            <button
-              className="btn btn--lime"
-              type="button"
-              aria-expanded={machineOpen}
-              aria-controls="machine-dock"
-              onClick={toggleMachine}
-            >
-              <Sparkles size={16} aria-hidden="true" />
-              {machineOpen ? "Hide the machine" : "Wake the machine"}
-            </button>
-            <Link className="btn btn--white" href="#work">
-              Read the work
-              <ArrowDown size={16} aria-hidden="true" />
-            </Link>
-          </div>
-
-          <div className="hero-foot">
-            <span className="scroll-cue">
-              <ArrowDown size={13} aria-hidden="true" data-loop />
-              Scroll to open
-            </span>
-            <span className="hero-fact">
-              Built in Mumbai
-              <br />
-              Runs in your browser
-            </span>
+          {/* the machine face — the same card, turned on */}
+          <div
+            className="hero-face hero-face--machine"
+            hidden={!machineOpen}
+            aria-hidden={!machineOpen}
+          >
+            <div className="machine-face-head">
+              <button
+                className="machine-close"
+                id="machine-close"
+                ref={closeButtonRef}
+                type="button"
+                aria-expanded={machineOpen}
+                aria-controls="machine"
+                onClick={toggleMachine}
+              >
+                <X size={14} aria-hidden="true" />
+                Hide the machine
+              </button>
+            </div>
+            {machineMounted ? (
+              <Machine
+                embedded
+                compact
+                autoWake
+                onPhaseChange={setMachinePhase}
+                onProgress={setMachineProgress}
+              />
+            ) : null}
           </div>
         </div>
 
@@ -161,17 +204,6 @@ export function HeroBento() {
           </div>
         </div>
       </div>
-
-      {dockMounted ? (
-        <div className="machine-dock-wrap" ref={dockRef} hidden={!machineOpen} id="machine-dock">
-          <Machine
-            embedded
-            autoWake
-            onPhaseChange={setMachinePhase}
-            onProgress={setMachineProgress}
-          />
-        </div>
-      ) : null}
 
       <Readout />
     </section>

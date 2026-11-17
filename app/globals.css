@@ -2102,26 +2102,89 @@ button,
   flex-shrink: 0;
 }
 
-/* ---------- Machine dock (inside the hero) ---------- */
+/* ---------- Machine face (inside the hero card) ---------- */
 
-/* The chat lives inside "This page runs a machine." — it appears on click and
-   starts waking. It mounts once; hiding it never throws the model away. */
+/* The chat lives inside "This page runs a machine." — the white card that
+   carries the "Wake the machine" button turns into the machine on click and
+   back when it is hidden. It mounts once; hiding it never throws the model
+   away. */
 
-.machine-dock {
-  margin-top: var(--gap);
-  scroll-margin-top: 96px;
+.hero-face {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  /* the welcome face is replaced by the machine face on click — without
+     this the browser re-anchors the scroll and the page jumps */
+  overflow-anchor: none;
 }
 
-.machine-dock[hidden],
-.machine-dock-wrap[hidden] {
+.hero-face[hidden] {
   display: none;
 }
 
-.machine-dock-wrap {
-  animation: dock-in var(--dur-2) var(--ease-out) both;
+.hero-face--machine {
+  animation: face-in var(--dur-2) var(--ease-out) both;
 }
 
-@keyframes dock-in {
+/* the close chip lives in its own slim row above the panel — it never
+   overlaps the panel title or the pills */
+.machine-face-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.machine-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .machine-close:hover {
+    background: var(--surface-3);
+    color: var(--ink);
+  }
+}
+
+.hero-face--machine .machine-dock {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.machine-dock--compact .machine-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.machine-dock--compact .machine-body {
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+}
+
+.machine-dock--compact .chat-scroll {
+  min-height: 304px;
+}
+
+@keyframes face-in {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -6614,8 +6677,8 @@ a.about-fact:hover {
   .deck-tile:hover .deck-shot img {
     transform: none;
   }
-  /* the dock appears without motion */
-  .machine-dock-wrap {
+  /* the machine face appears without motion */
+  .hero-face--machine {
     animation: none;
   }
 }
