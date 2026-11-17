@@ -3386,13 +3386,20 @@ button,
   position: relative;
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(16, 18, 24, 0.68);
+  justify-content: center;
+  text-align: center;
+}
+
+/* the name is the one place the tile speaks in a signature, not a label */
+.portrait-name {
+  font-family: var(--font-momo-signature), var(--font-sans), system-ui, sans-serif;
+  font-size: clamp(1.85rem, 3vw, 2.7rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  word-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--ink);
 }
 
 .about-body {
@@ -5272,7 +5279,7 @@ button,
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
 }
 
@@ -5285,11 +5292,6 @@ button,
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(16, 18, 24, 0.66);
-}
-
-.portrait-coords {
-  font-size: 9px;
-  letter-spacing: 0.08em;
 }
 
 .about-facts {

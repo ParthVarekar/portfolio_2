@@ -80,6 +80,13 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-17 (portrait tile: labels out, signature name in)
+- User marked two green boxes on the about tile — "PORTRAIT" (top-left) and "19.0176° N · 72.8562° E" (bottom-right) — and asked for both to be deleted. The red box around the name asked for it to be enlarged and centred in "a nice font".
+- `AboutCard`: the `Portrait` label is gone; the top row now holds only "Open to work", right-aligned (`justify-content: flex-end`). The coordinates span and its `.portrait-coords` CSS are deleted.
+- The footer is a single centred `Parth Varekar` set in **Momo Signature** — the handwritten face already loaded for the CRT boot — so the name reads as a signature on the lime tile rather than another mono label. `white-space: nowrap`, `word-spacing: 0.14em`, `clamp(1.85rem, 3vw, 2.7rem)`: 43.2px on a 1440 desktop (378px wide, inside the 398px content box) and 29.6px at 375 (259px inside 288px).
+- Removed the now-unused `.portrait-coords` rule; `.label--ink` stays because the contact card still uses it.
+- Verified: name centred within 2px of the tile centre at 1440 and 375, one line at both, no overflow, `portrait-top` text is just "Open to work", zero coordinates nodes, typecheck/build green, `/` and `/about` 200.
+
 ### 2026-11-17 (section overlines deleted site-wide)
 - The user boxed the small numbered overlines — "● IV — THE PERSON", "● III — THE WORK" — and asked for "this kind of things" to be removed everywhere.
 - Every `.section-label` block is gone: home (about / work / contact), `/about` (page head + "The short version"), `/work` (page head + "Next"), `/machine` (page head + "Under the hood"), `/contact`, `/colophon`, and the optional header inside `Machine` ("II — The machine").

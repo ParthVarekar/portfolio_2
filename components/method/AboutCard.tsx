@@ -25,7 +25,6 @@ export function AboutCard() {
     <div className="about-card">
       <div className="about-portrait">
         <div className="portrait-top">
-          <span className="label label--ink">Portrait</span>
           <span className="portrait-status">
             <span className="status-dot status-dot--lime" aria-hidden="true" />
             Open to work
@@ -43,8 +42,7 @@ export function AboutCard() {
         </div>
 
         <div className="portrait-meta">
-          <span>Parth Varekar</span>
-          <span className="portrait-coords">19.0176° N · 72.8562° E</span>
+          <span className="portrait-name">Parth Varekar</span>
         </div>
       </div>
 
