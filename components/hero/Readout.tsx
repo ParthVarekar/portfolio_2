@@ -1,7 +1,3 @@
-import Link from "next/link";
-import { Fragment } from "react";
-import { ArrowUpRight } from "lucide-react";
-import { site } from "@/content/site";
 import { Clock } from "./Clock";
 
 const readouts = [
@@ -32,8 +28,8 @@ const readouts = [
 ];
 
 /**
- * One instrument panel under the hero: readouts, the statement, and the
- * chapter index — separated by hairlines instead of floating as three bands.
+ * One instrument panel under the hero: the readouts and the statement,
+ * separated by a hairline instead of floating as two bands.
  */
 export function Readout() {
   return (
@@ -72,22 +68,6 @@ export function Readout() {
           dictation, browser labs. This page is the same idea, in your tab.
         </p>
       </div>
-
-      <nav className="readout-index" aria-label="Chapters">
-        {site.chapters.map((chapter, index) => (
-          <Fragment key={chapter.href}>
-            <Link className="readout-index-item" href={chapter.href}>
-              <span className="n">{chapter.number}</span>
-              {chapter.title}
-            </Link>
-            <span className="readout-leader" aria-hidden="true" />
-          </Fragment>
-        ))}
-        <Link className="readout-index-item" href="/work">
-          All work
-          <ArrowUpRight size={12} aria-hidden="true" />
-        </Link>
-      </nav>
     </section>
   );
 }

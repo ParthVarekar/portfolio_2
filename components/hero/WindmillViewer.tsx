@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Wind } from "lucide-react";
 import type { BufferGeometry, Material, Object3D } from "three";
 import { Core } from "./Core";
 
@@ -30,7 +29,6 @@ const REST_YAW = -0.26;
 const IDLE_SPEED = 1; // rad/s, about 10 rpm
 const MAX_BOOST = 10;
 const GUST_BOOST = 6.5;
-const RAD_PER_SEC_TO_RPM = 60 / (Math.PI * 2);
 
 const towerRadiusAt = (y: number) => TOWER.r0 - (y - TOWER.y0) * TOWER_SLOPE;
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -237,8 +235,6 @@ function buildWindmill(THREE: Three) {
 export function WindmillViewer() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const readoutRef = useRef<HTMLSpanElement>(null);
-  const gustRef = useRef<() => void>(() => undefined);
   const [status, setStatus] = useState<ViewStatus>("loading");
 
   useEffect(() => {
@@ -327,9 +323,11 @@ export function WindmillViewer() {
 
           const verticalHalfFov = THREE.MathUtils.degToRad(camera.fov / 2);
           const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * camera.aspect);
+          // 1.12 keeps the full blade sweep inside the taller, control-free
+          // stage — 1.04 clipped the top blade at phone aspect ratios
           const distance =
             FRAME.depth +
-            Math.max(FRAME.halfHeight / Math.tan(verticalHalfFov), FRAME.halfWidth / Math.tan(horizontalHalfFov)) * 1.04;
+            Math.max(FRAME.halfHeight / Math.tan(verticalHalfFov), FRAME.halfWidth / Math.tan(horizontalHalfFov)) * 1.12;
           camera.position.set(
             0,
             FRAME.centerY + Math.sin(CAMERA_ELEVATION) * distance,
@@ -351,7 +349,6 @@ export function WindmillViewer() {
         let lookTargetY = 0;
         let elapsed = 0;
         let last = 0;
-        let lastReadoutAt = 0;
         let visible = true;
         let lastPointer: { x: number; y: number; at: number } | null = null;
 
@@ -378,11 +375,6 @@ export function WindmillViewer() {
           windmill.glow.color.copy(glowBase).multiplyScalar(0.86 + power * 0.3);
           windmill.doorLight.intensity = 0.5 + power * 0.9;
           windmill.windowLight.intensity = 0.22 + power * 0.4;
-
-          if (now - lastReadoutAt > 220 && readoutRef.current) {
-            lastReadoutAt = now;
-            readoutRef.current.textContent = String(Math.round(speed * RAD_PER_SEC_TO_RPM)).padStart(2, "0");
-          }
 
           renderer.render(scene, camera);
           frameId = window.requestAnimationFrame(tick);
@@ -423,7 +415,6 @@ export function WindmillViewer() {
         const gust = () => {
           boost = Math.min(MAX_BOOST, boost + GUST_BOOST);
         };
-        gustRef.current = gust;
 
         const intersectionObserver = new IntersectionObserver(
           ([entry]) => {
@@ -438,8 +429,6 @@ export function WindmillViewer() {
           window.addEventListener("pointermove", onPointerMove, { passive: true });
           document.documentElement.addEventListener("pointerleave", onPointerGone);
           canvas.addEventListener("click", gust);
-        } else if (readoutRef.current) {
-          readoutRef.current.textContent = "00";
         }
 
         renderer.render(scene, camera);
@@ -474,41 +463,19 @@ export function WindmillViewer() {
     return () => {
       disposed = true;
       window.cancelAnimationFrame(frameId);
-      gustRef.current = () => undefined;
       teardown?.();
     };
   }, []);
 
   return (
-    <>
-      <div className="windmill-stage" ref={stageRef} data-status={status}>
-        <canvas
-          ref={canvasRef}
-          className="windmill-canvas"
-          role="img"
-          aria-label="A small white and lime windmill, turning in the breeze"
-        />
-        {status === "error" ? <Core state="idle" /> : null}
-      </div>
-
-      <div className="windmill-controls">
-        <span className="windmill-readout">
-          Rotor ·{" "}
-          <span className="windmill-rpm" ref={readoutRef}>
-            10
-          </span>{" "}
-          rpm
-        </span>
-        <button
-          className="windmill-gust"
-          type="button"
-          onClick={() => gustRef.current()}
-          disabled={status !== "ready"}
-        >
-          <Wind size={14} aria-hidden="true" />
-          Send a gust
-        </button>
-      </div>
-    </>
+    <div className="windmill-stage" ref={stageRef} data-status={status}>
+      <canvas
+        ref={canvasRef}
+        className="windmill-canvas"
+        role="img"
+        aria-label="A small white and lime windmill, turning in the breeze"
+      />
+      {status === "error" ? <Core state="idle" /> : null}
+    </div>
   );
 }

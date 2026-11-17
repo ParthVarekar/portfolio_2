@@ -80,6 +80,16 @@
 - The subject's alpha bbox is x 98–882, y 278–1535 (38 % wide, head at 18 % down), which sits well inside the 0.705 frame at every breakpoint.
 - Verified 1440 / 900 / 768 / 390: figure fully in frame, no horizontal overflow, no green or white halo on the edges.
 
+### 2026-11-17 (hero cards: chrome out, content in)
+- The user boxed every remaining label in the hero pair and asked for all of it deleted, then for the survivors to be enlarged so the cards don't collapse into empty space: the hero eyebrow ("Parth Varekar · Mumbai, IN" + "Open to work"), the hero footer ("Scroll to open", "Built in Mumbai / Runs in your browser"), the core card's top row ("The machine · Idle", "WebGPU ready"), its rotor readout + dot matrix, its "Send a gust" button and "Waiting for a question" status line, its three spec pills, and the readout chapter-index bar.
+- Deleted the matching markup, CSS and now-dead imports (`DotMatrix`, `MachineStatus`, `Windmill`); `HeroBento` no longer lifts phase/progress state, so the windmill is a pure object again. `Readout` is the four cells + clock + statement.
+- Enlarged what remained: hero title `--t-hero` 7.4vw/6.854rem → **8.6vw/7.8rem** (123.84px at 1440; longest line 626 inside 657 = 95%), sub `clamp(1.05rem, 1.35vw, 1.2rem)`, action gap, readout cell padding `26/24/24`, readout value `clamp(1.55rem, 2.3vw, 2.2rem)`, story padding `30/30/32` and quote `clamp(1.3rem, 2.15vw, 1.7rem)`.
+- With the eyebrow and footer gone, the welcome face is vertically centred (`.hero-face:not(.hero-face--machine) { justify-content: center }`), so the leftover height sits evenly above and below the copy instead of pooling at the bottom.
+- The windmill stage now fills the core card (no controls row); camera fit multiplier 1.04 → **1.12** because the taller stage clipped the top blade at phone aspect ratios.
+- Found the split-layout gap: at ≤960px the hero becomes full-width but the title kept the two-column vw scale, leaving the right half of the card empty. Added `--t-hero: clamp(3.35rem, 12.9vw, 7.8rem)` inside the 960 breakpoint and raised the 560px cap to 4.5rem (only bites 514–560px; 375px is unchanged at 52.5px). Longest line now fills 77–86% at every stacked width instead of 53%.
+- In-card machine QA: opening the chat still grows the hero card (624→768 at 1440, 429→793 at 375) because a usable chat needs ~390px of scroll area; no clipping, no overflow, no scroll jump, Escape/close returns focus to the wake button, and the windmill card stretches to match. The chat keeps its internal scroll; `/machine` is untouched.
+- Verified at 1440 / 1081 / 1024 / 961 / 960 / 900 / 768 / 600 / 560 / 514 / 375: zero horizontal overflow; all 13 content routes 200, `/nope` 404; typecheck and production build green.
+
 ### 2026-11-17 (portrait tile: labels out, signature name in)
 - User marked two green boxes on the about tile — "PORTRAIT" (top-left) and "19.0176° N · 72.8562° E" (bottom-right) — and asked for both to be deleted. The red box around the name asked for it to be enlarged and centred in "a nice font".
 - `AboutCard`: the `Portrait` label is gone; the top row now holds only "Open to work", right-aligned (`justify-content: flex-end`). The coordinates span and its `.portrait-coords` CSS are deleted.

@@ -30,7 +30,7 @@
   --font-sans: var(--font-geist-sans);
   --font-pixel: var(--font-geist-pixel-square);
   --font-mono: var(--font-geist-mono);
-  --t-hero: clamp(3.35rem, 7.4vw, 6.854rem);
+  --t-hero: clamp(3.35rem, 8.6vw, 7.8rem);
   --t-act: clamp(2.2rem, 4.4vw, 4.236rem);
   --t-h2: clamp(1.75rem, 3vw, 2.618rem);
   --t-body: 1.0625rem;
@@ -714,26 +714,6 @@ button,
   pointer-events: none;
 }
 
-.hero-eyebrow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: clamp(26px, 4vw, 44px);
-}
-
-.hero-availability {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
 .hero-title {
   font-family: var(--font-pixel), monospace;
   font-weight: 400;
@@ -754,9 +734,9 @@ button,
 }
 
 .hero-sub {
-  margin-top: clamp(20px, 3vw, 30px);
+  margin-top: clamp(22px, 3.2vw, 34px);
   max-width: 46ch;
-  font-size: var(--t-lede);
+  font-size: clamp(1.05rem, 1.35vw, 1.2rem);
   line-height: 1.62;
   color: var(--ink-2);
 }
@@ -765,41 +745,7 @@ button,
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: clamp(22px, 3vw, 32px);
-}
-
-.hero-foot {
-  margin-top: auto;
-  padding-top: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border-top: 1px solid var(--line);
-}
-
-.scroll-cue {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-.scroll-cue svg {
-  animation: nudge 2.4s ease-in-out infinite;
-}
-
-.hero-fact {
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  text-align: right;
+  margin-top: clamp(24px, 3.4vw, 38px);
 }
 
 /* ---------- Core card ---------- */
@@ -846,17 +792,6 @@ button,
   border: 1px solid rgba(255, 255, 255, 0.18);
   z-index: -1;
   pointer-events: none;
-}
-
-.core-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.core-top .label {
-  color: rgba(16, 18, 24, 0.66);
 }
 
 .core-stage {
@@ -972,67 +907,7 @@ button,
   opacity: 1;
 }
 
-.windmill-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 2px 12px;
-}
-
-.windmill-readout {
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(16, 18, 24, 0.62);
-}
-
-.windmill-rpm {
-  font-family: var(--font-pixel), monospace;
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-.windmill-gust {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid rgba(16, 18, 24, 0.08);
-  border-radius: 999px;
-  padding: 8px 13px;
-  background: var(--lime);
-  color: var(--ink);
-  font-size: 0.76rem;
-  font-weight: 700;
-  box-shadow: 0 5px 14px rgba(12, 48, 99, 0.15);
-  transition: transform var(--dur-2) var(--ease-out), background var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
-}
-
-.windmill-gust:hover:not(:disabled) {
-  transform: translateY(-1px);
-  background: #e7ff67;
-  box-shadow: 0 8px 18px rgba(12, 48, 99, 0.22);
-}
-
-.windmill-gust:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.windmill-gust:disabled {
-  cursor: wait;
-  opacity: 0.72;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .windmill-gust {
-    display: none;
-  }
-
   .windmill-canvas {
     cursor: default;
   }
@@ -1148,33 +1023,9 @@ button,
   box-shadow: 0 0 10px rgba(219, 238, 77, 0.65);
 }
 
-.core-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.core-statusline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(16, 18, 24, 0.62);
-}
-
-.core-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
 /* ---------- Readout band ---------- */
-/* One instrument panel: readouts, statement, chapter index — hairline
-   separated instead of three floating bands under the hero. */
+/* One instrument panel: the readouts and the statement, hairline separated
+   instead of floating as two bands under the hero. */
 .readout {
   margin-top: var(--gap);
   border-radius: var(--r-card);
@@ -1193,7 +1044,7 @@ button,
   flex-direction: column;
   gap: 9px;
   min-width: 0;
-  padding: 20px 22px 18px;
+  padding: 26px 24px 24px;
   border-left: 1px solid var(--line);
 }
 
@@ -1203,7 +1054,7 @@ button,
 
 .readout-value {
   font-family: var(--font-pixel), monospace;
-  font-size: clamp(1.45rem, 2.1vw, 1.95rem);
+  font-size: clamp(1.55rem, 2.3vw, 2.2rem);
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -1280,56 +1131,12 @@ button,
 
 .readout-story {
   border-top: 1px solid var(--line);
-  padding: 24px 26px 26px;
+  padding: 30px 30px 32px;
 }
 
 .readout-story .story-quote {
   max-width: 68ch;
-}
-
-.readout-index {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 13px 24px;
-  border-top: 1px solid var(--line);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.readout-index::-webkit-scrollbar {
-  display: none;
-}
-
-.readout-index-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-  font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  transition: color var(--dur-1) var(--ease-out);
-}
-
-.readout-index-item .n {
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-.readout-index-item:hover {
-  color: var(--ink);
-}
-
-.readout-leader {
-  flex: 1 1 20px;
-  min-width: 14px;
-  height: 1px;
-  background-image: linear-gradient(90deg, rgba(16, 18, 24, 0.2) 0 2px, transparent 2px 5px);
-  background-size: 5px 1px;
+  font-size: clamp(1.3rem, 2.15vw, 1.7rem);
 }
 
 @media (max-width: 900px) {
@@ -2072,6 +1879,12 @@ button,
   /* the welcome face is replaced by the machine face on click — without
      this the browser re-anchors the scroll and the page jumps */
   overflow-anchor: none;
+}
+
+/* without the overline and footer, the welcome copy is the whole card:
+   centre it so the leftover height is balanced above and below */
+.hero-face:not(.hero-face--machine) {
+  justify-content: center;
 }
 
 .hero-face[hidden] {
@@ -5978,6 +5791,14 @@ a.about-fact:hover {
     margin-left: auto;
   }
 
+  /* once the hero spans the full width, let the title grow with it —
+     12.9vw keeps the longest line at ~78% of the card below the split
+     (up to 86% where the 4.5rem cap bites), instead of leaving the
+     right half empty */
+  :root {
+    --t-hero: clamp(3.35rem, 12.9vw, 7.8rem);
+  }
+
   .hero-stage {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -6086,7 +5907,9 @@ a.about-fact:hover {
 
 @media (max-width: 560px) {
   :root {
-    --t-hero: clamp(2.75rem, 14vw, 3.6rem);
+    /* the 4.5rem cap only bites between 514–560px; at 375px the
+       14vw term still sets the size, unchanged */
+    --t-hero: clamp(2.75rem, 14vw, 4.5rem);
     --r-card: 24px;
   }
 
@@ -6113,16 +5936,6 @@ a.about-fact:hover {
 
   .hero-title {
     line-height: 0.96;
-  }
-
-  .hero-foot {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .hero-fact {
-    text-align: left;
   }
 
   .core-card {
@@ -6585,7 +6398,6 @@ a.about-fact:hover {
 /* Press feedback: proportional, never bouncy */
 .tech-chip:active,
 .source-chip:active,
-.readout-index-item:active,
 .page-index-list a:active,
 .footer-col a:active,
 .notfound-routes a:active {
@@ -6594,7 +6406,6 @@ a.about-fact:hover {
 
 .tech-chip,
 .source-chip,
-.readout-index-item,
 .page-index-list a,
 .footer-col a,
 .notfound-routes a {
