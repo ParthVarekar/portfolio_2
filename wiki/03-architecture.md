@@ -34,6 +34,7 @@ UI (components/machine/Machine.tsx) — wake/load, stream, stop, reset; dev-only
   ├─ detection: WebGPU + shader-f16 (lib/machine/detect, useMachineSupport) → "webgpu" | "instant"
   ├─ worker: @mlc-ai/web-llm in a Web Worker (lib/machine/worker.ts)
   └─ brain: lib/brain/index.ts → plan(message, {memory, history, live, web})
+       0. reflexes.ts    maths, date/time, live data, injection, harm, self-harm, gibberish — code only
        1. smalltalk.ts   greetings / thanks / who-are-you / capabilities — instant, never the model
        2. understand.ts  subject (entities.ts aliases), facet (overview/how/results/meta/problem/lesson,
                          education/experience/skills/contact/now/story/hire/list/search), follow-up
@@ -41,7 +42,10 @@ UI (components/machine/Machine.tsx) — wake/load, stream, stop, reset; dev-only
        3. retrieve.ts    2-4 fact cards for that subject+facet (~2,600 chars); MiniSearch for "search"
        4a. about Parth → prompt.ts portfolioPrompt (persona + 5 rules; FACTS + QUESTION in the last
            user turn; previous exchange only for follow-ups) → model → clean.ts finalise
-       4b. general     → model's own knowledge, or Wikipedia (web.ts) when Web is on
+       4b. general     → mode factual / creative / chat. Web on: web.ts → Wikidata fact (finished
+                         cited sentence, no model) or ranked Wikipedia passage → model. Web off:
+                         factual → no guess + one-click "Look it up" (that question only);
+                         chat/creative → model, with the same check button on explanations
        no model (instant mode) → compose.ts picks the best sentences from the same cards
 ```
 

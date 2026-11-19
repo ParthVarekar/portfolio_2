@@ -94,19 +94,48 @@ function invented(sentence: string, known: Set<string>): boolean {
 }
 
 /**
+ * For poems, stories and code: keep line breaks, list markers and backticks,
+ * drop only echoed prompt labels and repeated lines, and cap the length.
+ */
+export function finaliseCreative(raw: string): string {
+  const lines = raw
+    .replace(LABEL_LINE, "")
+    .replace(LEAD_IN, "")
+    .split("\n")
+    // the chat shows plain text, so markdown code fences are just noise around the code
+    .filter((line) => !/^\s*```[\w+-]*\s*$/.test(line));
+  const seen = new Set<string>();
+  const kept: string[] = [];
+  for (const line of lines) {
+    const key = line.trim().toLowerCase();
+    if (key && key.length > 12 && seen.has(key)) break; // looping
+    if (key) seen.add(key);
+    kept.push(line.replace(/\s+$/, ""));
+    if (kept.length >= 24) break;
+  }
+  return kept.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
  * At temperature 0 a 0.5B model often answers in one bare clause ("Yes, he
  * uses Docker."). Keep its words, then add the supporting sentences the
  * composer picked from the same cards — skipping any that repeat it.
  */
-export function withDetail(answer: string, detail: string, minLength = 90): string {
+export function withDetail(answer: string, detail: string, minLength = 90, supporting = false): string {
   if (answer.length >= minLength || !detail) return answer;
   const said = new Set(contentWords(answer));
-  const extra = sentences(detail).filter((sentence) => {
+  const overlap = (sentence: string) => {
     const words = contentWords(sentence);
-    if (words.length === 0) return false;
-    const repeated = words.filter((word) => said.has(word)).length / words.length;
-    return repeated < 0.6;
-  });
+    return words.length === 0 ? 0 : words.filter((word) => said.has(word)).length / words.length;
+  };
+  let extra = sentences(detail).filter((sentence) => contentWords(sentence).length > 0 && overlap(sentence) < 0.6);
+  if (supporting) {
+    // "Argentina." → the sentence that says Argentina won, not the passage's opening line
+    const backed = extra.filter((sentence) => overlap(sentence) > 0);
+    extra = (backed.length > 0 ? backed : extra).slice(0, 1);
+    // a bare name ("Elon Musk.") adds nothing the backing sentence doesn't say better
+    if (backed.length > 0 && answer.split(/\s+/).length <= 3) return extra[0];
+  }
   return extra.length > 0 ? `${answer} ${extra.slice(0, 2).join(" ")}` : answer;
 }
 

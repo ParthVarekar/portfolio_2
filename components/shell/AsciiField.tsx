@@ -3,738 +3,719 @@
 import { useEffect, useRef } from "react";
 
 /**
- * The page's backdrop: a field of ASCII glyphs with a small school of ASCII
- * fish swimming in it. Drawn on canvas behind every card and never inside
- * one.
+ * The page's backdrop: an ASCII renderer.
  *
- *  1. Density is a field, not a constant. Two slow waves cross at an angle
- *     and sweep broad bands of busy and empty glyphs across the page, so the
- *     field keeps reorganising and never settles.
- *  2. The gradient is carried by that density: dense bands print dark and
- *     solid, thin gaps fall back almost to bare paper. Tone and density rise
- *     together, so the wave reads as a gradient rather than a texture.
- *  3. Glyphs follow the shape of the field — `/` and `\` on the rising and
- *     falling flanks, `|` on the steep parts, `~` in the troughs, `o` on the
- *     broad plateaus, the small marks in the thin gaps.
- *  4. The fish are real shapes, not glyph rows: a tapered body, a fluke with
- *     a narrow neck, an eye punched out as a hole. The body is filled with a
- *     Bayer dither, so the silhouette is solid in the middle and dissolves
- *     into stipple at the edge — the way a halftone reads. They are bluer
- *     than the waves, and where a fish crosses a wave it keeps its colour
- *     while the water passes back over it, so it looks like it is being
- *     seen through the surface.
- *  5. Hover is a ribbon, not a spotlight. A small lobe sits under the
- *     cursor — just wider than the pointer — and the path behind it is kept
- *     as a continuous, tapering strip. Older parts of the strip thin out and
- *     break into specks, so a drag reads like a snake or a ribbon in the
- *     air. Hovered glyphs shift from the ink toward a dark, faded green:
- *     the site's lime pulled down so the tint never competes with the cards.
+ * One fixed monospace grid covers the viewport, and every cell's character
+ * comes from the brightness of a scene underneath — the way an ASCII shader
+ * works. Shapes are never outlined; they emerge from glyph density.
  *
- * The density field is evaluated on a coarse grid and interpolated, so the
- * cost per frame is flat no matter how small the cells get.
+ *  1. The scene is painted each frame into a tiny offscreen canvas at one
+ *     pixel per cell: the red channel holds water, green holds fish (blue
+ *     marks the teal school). Waves are volumetric bands, brightest in their
+ *     core; fish are filled, shaded bodies with a dorsal fin, a wagging tail
+ *     and the eye left empty, so it reads as a hole.
+ *  2. That canvas is read back and each cell's value picks a glyph from a
+ *     ramp — water `.` `_` `-` `>` `o` `0`, fish `.` `:` `+` `o` `0` `@` —
+ *     and an opacity step.
+ *  3. Under everything sits a faint, static field of dots, so the page always
+ *     carries the grid even where nothing is swimming.
+ *  4. The cursor trail lights cells along the pointer's path in green — thick
+ *     at the head, thinning and breaking into specks as it ages — a loop of
+ *     glyphs that follows you and dissolves behind you.
+ *
+ * Glyphs are stamped from a pre-rendered atlas (drawImage), never shaped as
+ * text per frame. The scene runs at ~20 fps; the trail at full frame rate
+ * only while it is visible. Reduced motion gets one still frame and no trail.
  */
-
-/* ---------- glyph vocabulary ---------- */
-/** broad, flat areas — `o` is the workhorse */
-const GLYPH_HEAVY = ["o", "o", "o", "o", "0", "#", "@"];
-/** mid-weight fill */
-const GLYPH_MID = ["+", "=", "*"];
-/** light fill for the thinnest areas */
-const GLYPH_LIGHT = [".", ".", ",", "'", "`", '"'];
-/** contour glyphs — chosen by the local slope of the density field */
-const GLYPH_RISE = ["/", "/", "1"];
-const GLYPH_FALL = ["\\", "\\", "\\"];
-const GLYPH_EDGE = ["|", "!", "i", "l"];
-/** curvy and trough areas */
-const GLYPH_CURVE = ["~", "~", "-", "_"];
 
 /* ---------- grid ---------- */
-const CELL_W = 7.2;
-const CELL_H = 8.8;
-const FONT_PX = 7.4;
-/** the density field is sampled every N cells and interpolated */
-const FIELD_STEP = 6;
+const CELL_W = 9;
+const CELL_H = 12;
+const FONT_PX = 10.5;
+const SCENE_MS = 1000 / 20;
 
-/** below this the cell is bare paper */
-const EMPTY_BELOW = 0.11;
+/* ---------- trail ---------- */
+const TRAIL_LIFE = 1500; // ms a point of the trail lives
+const TRAIL_MAX = 160;
 
-/** the head of the hover trail: just wider than the cursor, px */
-const HEAD_RADIUS = 24;
-/** the tail narrows to this as it ages, px */
-const TAIL_RADIUS = 7;
-/** how long a hover trail lives, ms */
-const TRAIL_MS = 1300;
-/** how many pointer samples the trail keeps */
-const TRAIL_MAX = 64;
-/** only sample the pointer after it has moved this far, px */
-const TRAIL_STEP = 2.4;
-/** idle repaint interval — the wave is slow, so 12fps is plenty */
-const IDLE_MS = 1000 / 12;
+/* ---------- glyphs and palettes ---------- */
+const GLYPHS = ["·", ".", ":", "-", "_", "~", ">", "+", "o", "%", "°", "0", "@", "*"] as const;
+type Glyph = (typeof GLYPHS)[number];
+const GLYPH_INDEX = new Map<string, number>(GLYPHS.map((g, i) => [g, i]));
 
-/* ---------- tone ---------- */
-/**
- * Tone is a mix toward the site ink, so the field always reads as a slightly
- * darker version of the canvas — never a different hue. The gradient comes
- * from density: busy plateaus print dark and solid, thin gaps fall back
- * toward the paper.
- */
-const LUM_MIN = 198; // thin areas — barely off the paper
-const LUM_MAX = 44; // dense plateaus
-const ALPHA_MIN = 0.2;
-const ALPHA_MAX = 0.95;
-/** how far a hovered glyph steps up into a heavier band */
-const HOVER_BAND = 0.45;
-/**
- * The hover tint. `#4fee9e` pulled down toward the ink so it reads as a dark,
- * faded green rather than neon; the per-cell density keeps it from ever
- * becoming one flat colour.
- */
-const HOVER_GREEN = [56, 178, 116] as const;
-const HOVER_GREEN_MIX = 0.95;
+/** opacity steps per palette */
+const LEVELS = 8;
+
+const PALETTES = {
+  dots: { rgb: "54,72,112", max: 0.3 },
+  water: { rgb: "40,86,164", max: 0.78 },
+  fish: { rgb: "24,78,168", max: 0.92 },
+  teal: { rgb: "16,124,150", max: 0.9 },
+  trail: { rgb: "30,150,90", max: 0.95 },
+} as const;
+type Palette = keyof typeof PALETTES;
+const PALETTE_ORDER: Palette[] = ["dots", "water", "fish", "teal", "trail"];
+
+const WATER_RAMP: Glyph[] = [".", "_", "-", "-", ">", ">", "o", "0"];
+const FISH_RAMP: Glyph[] = [".", ":", ":", "+", "o", "o", "o", "0"];
+const TRAIL_RAMP: Glyph[] = ["·", "·", "°", "%", "o", "o", "0", "@"];
 
 const clamp = (v: number, lo = 0, hi = 1) => (v < lo ? lo : v > hi ? hi : v);
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-/** cheap deterministic per-cell noise */
-function hash(x: number, y: number) {
-  let h = (x * 73856093) ^ (y * 19349663);
-  h = (h ^ (h >> 13)) * 1274126177;
-  h ^= h >> 16;
-  return Math.abs(h);
+/** cheap deterministic hash → 0..1 */
+function hash(a: number, b: number, c = 0) {
+  let h = (a * 73856093) ^ (b * 19349663) ^ (c * 83492791);
+  h = (h ^ (h >>> 13)) * 1274126177;
+  h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
 }
 
-/**
- * The density field at a point: two slow waves crossing at an angle, pushed
- * for contrast so the bands read as a gradient, then a soft vignette.
- * 0 = bare canvas, 1 = solid.
- */
-function densityAt(nx: number, ny: number, time: number) {
-  const w1 = Math.sin((nx * 1.5 + ny * 0.9) * Math.PI + time * 0.85);
-  const w2 = Math.sin((nx * -0.85 + ny * 1.7) * Math.PI - time * 0.58);
-  const wave = w1 * 0.66 + w2 * 0.34; // -1..1
+/* ---------- creatures ---------- */
 
-  // contrast: push the bands apart so the wave is legible as a gradient
-  let d = 0.5 + 0.5 * wave;
-  d = clamp((d - 0.5) * 1.72 + 0.5);
-
-  const dx = (nx - 0.5) * 1.9;
-  const dy = (ny - 0.5) * 1.9;
-  d *= 1 - clamp((Math.hypot(dx, dy) - 0.84) / 0.62) * 0.34;
-  return clamp(d);
-}
-
-/**
- * Pick the glyph for a cell from its density and its slope.
- * `band` shifts the whole vocabulary up or down, which is how hover raises a
- * cell's presence without recolouring it.
- */
-function glyphFor(
-  cx: number,
-  cy: number,
-  d: number,
-  slope: { dx: number; dy: number; mag: number },
-  band: number,
-) {
-  const v = clamp(d + band);
-  const r = hash(cx, cy) / 2147483647;
-
-  // contour glyphs take over wherever the field has a real slope
-  if (slope.mag > 0.05) {
-    const dir = slope.dy !== 0 ? slope.dx / slope.dy : 9;
-    if (Math.abs(dir) < 0.5) return GLYPH_EDGE[(r * GLYPH_EDGE.length) | 0];
-    if (slope.dy > 0) return GLYPH_RISE[(r * GLYPH_RISE.length) | 0];
-    return GLYPH_FALL[(r * GLYPH_FALL.length) | 0];
-  }
-
-  // troughs get the curvy marks, plateaus the heavy ones
-  if (v < 0.2) return GLYPH_LIGHT[(r * GLYPH_LIGHT.length) | 0];
-  if (v < 0.4) {
-    return r < 0.4
-      ? GLYPH_CURVE[(r * GLYPH_CURVE.length) | 0]
-      : GLYPH_LIGHT[(r * GLYPH_LIGHT.length) | 0];
-  }
-  if (v < 0.62) return GLYPH_MID[(r * GLYPH_MID.length) | 0];
-  return GLYPH_HEAVY[(r * GLYPH_HEAVY.length) | 0];
-}
-
-/* ---------- the fish ---------- */
-
-/**
- * A 4x4 Bayer matrix. Comparing a cell's density against this ordered
- * threshold gives a regular halftone: solid in the body, stippling out at
- * the edge. Deterministic, so the fish never flicker.
- */
-const BAYER = [
-  0, 8, 2, 10,
-  12, 4, 14, 6,
-  3, 11, 1, 9,
-  15, 7, 13, 5,
-];
-
-/** the body of a fish is built from vertical strokes, like the reference */
-const FISH_BODY_GLYPH = ["|", "|", "|", "!", "|", "|"];
-
-type FishSpec = {
-  /** width and height in cells */
-  w: number;
-  h: number;
-  /** how soft the edge of the silhouette is, in cells */
-  soft: number;
-  /** how blunt the tail root is, 0 = a point */
-  base: number;
-};
-
-const FISH_SMALL: FishSpec = { w: 23, h: 9, soft: 1.2, base: 0.34 };
-const FISH_BIG: FishSpec = { w: 35, h: 13, soft: 1.3, base: 0.34 };
-
-/** distance from a point to a segment */
-function distToSegment(
-  px: number,
-  py: number,
-  ax: number,
-  ay: number,
-  bx: number,
-  by: number,
-) {
-  const vx = bx - ax;
-  const vy = by - ay;
-  const wx = px - ax;
-  const wy = py - ay;
-  const len2 = vx * vx + vy * vy;
-  const t = len2 === 0 ? 0 : clamp((wx * vx + wy * vy) / len2);
-  return Math.hypot(px - (ax + vx * t), py - (ay + vy * t));
-}
-
-function pointInPoly(px: number, py: number, poly: number[][]) {
-  let inside = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [xi, yi] = poly[i];
-    const [xj, yj] = poly[j];
-    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
-      inside = !inside;
-    }
-  }
-  return inside;
-}
-
-/** signed distance to a polygon — negative inside */
-function sdPoly(px: number, py: number, poly: number[][]) {
-  let d = Infinity;
-  for (let i = 0; i < poly.length; i++) {
-    const a = poly[i];
-    const b = poly[(i + 1) % poly.length];
-    d = Math.min(d, distToSegment(px, py, a[0], a[1], b[0], b[1]));
-  }
-  return pointInPoly(px, py, poly) ? -d : d;
-}
-
-/**
- * The density of one fish at a point, in cell units: 1 is solid body, 0 is
- * outside. The body is a teardrop — blunt at the tail root, widest a little
- * forward of the middle, tapering to the nose. The fluke is a convex
- * trapezoid with a narrow neck, so there is a waist between tail and body.
- * The eye is punched out, so it reads as a hole.
- */
-function fishDensity(px: number, py: number, spec: FishSpec) {
-  const { w, h, soft, base } = spec;
-  const x0 = w * 0.36; // tail root
-  const x1 = w * 0.97; // nose
-  const cy = h * 0.5;
-  const maxH = h * 0.33;
-
-  const t = clamp((px - x0) / (x1 - x0), 0, 1);
-  const half = maxH * (base + (1 - base) * Math.pow(Math.max(0, 4 * t * (1 - t)), 0.42));
-  let d = Math.abs(py - cy) - half;
-
-  // the fluke: narrow at the body, wide at the tip
-  const tail = [
-    [x0 + 0.6, cy - maxH * 0.2],
-    [x0 - w * 0.24, cy - maxH * 0.98],
-    [x0 - w * 0.27, cy + maxH * 0.98],
-    [x0 + 0.6, cy + maxH * 0.2],
-  ];
-  d = Math.min(d, sdPoly(px, py, tail));
-
-  // the eye is a hole
-  const ex = x1 - (x1 - x0) * 0.26;
-  const ey = cy - h * 0.12;
-  if (Math.hypot(px - ex, py - ey) < h * 0.115) return -1;
-
-  // soften the edge over roughly a cell and a half
-  return clamp(0.5 - d / soft);
-}
-
-const CREATURE_CYAN = [22, 92, 164] as const; // small fish
-const CREATURE_PALE = [58, 128, 182] as const; // the bigger fish
-/** the water that passes back over a creature, so it sits under the surface */
-const WATER_HAZE = 0.14;
-
-type Critter = {
-  spec: FishSpec;
-  color: readonly number[];
-  x: number;
+type Fish = {
+  /** length in cells */
+  len: number;
+  teal: boolean;
+  x: number; // centre, cells
   y: number;
   baseY: number;
   dir: 1 | -1;
-  speed: number;
-  phase: number;
+  speed: number; // cells per second
+  boost: number;
+  vy: number;
   bob: number;
-  bobRate: number;
-  drift: number;
+  phase: number;
+  wag: number;
 };
 
+type Bubble = { x: number; y: number; born: number; life: number; wobble: number };
+
 export function AsciiField() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const dotsRef = useRef<HTMLCanvasElement | null>(null);
+  const sceneRef = useRef<HTMLCanvasElement | null>(null);
+  const trailRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const dotsCanvas = dotsRef.current;
+    const sceneCanvas = sceneRef.current;
+    const trailCanvas = trailRef.current;
+    if (!dotsCanvas || !sceneCanvas || !trailCanvas) return;
+    const dctx = dotsCanvas.getContext("2d");
+    const sctx = sceneCanvas.getContext("2d");
+    const tctx = trailCanvas.getContext("2d");
+    if (!dctx || !sctx || !tctx) return;
 
     const mono =
       getComputedStyle(document.documentElement).getPropertyValue("--font-geist-mono").trim() ||
       "ui-monospace, monospace";
-
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const withTrail = finePointer && !reduceMotion;
 
     let w = 0;
     let h = 0;
+    let dpr = 1;
     let cols = 0;
     let rows = 0;
-    let dpr = 1;
+    /** phones: text sits straight on the backdrop more often, so it is calmer */
+    let calm = 1;
+    let scrollY = window.scrollY;
+    const start = performance.now();
 
-    // the coarse density field
-    let fw = 0;
-    let fh = 0;
-    let fieldD = new Float32Array(0);
-    let fieldSX = new Float32Array(0);
-    let fieldSY = new Float32Array(0);
-    let fieldMag = new Float32Array(0);
+    /* ---------- the glyph atlas ---------- */
+    const atlas = document.createElement("canvas");
+    const actx = atlas.getContext("2d");
 
-    let raf = 0;
-    let lastPaint = 0;
-    let startTime = performance.now();
+    const buildAtlas = () => {
+      if (!actx) return;
+      const rowsTotal = PALETTE_ORDER.length * LEVELS;
+      atlas.width = Math.ceil(GLYPHS.length * CELL_W * dpr);
+      atlas.height = Math.ceil(rowsTotal * CELL_H * dpr);
+      actx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      actx.clearRect(0, 0, GLYPHS.length * CELL_W, rowsTotal * CELL_H);
+      actx.textAlign = "center";
+      actx.textBaseline = "middle";
+      PALETTE_ORDER.forEach((name, p) => {
+        const { rgb, max } = PALETTES[name];
+        const bold = name === "fish" || name === "teal" || name === "trail";
+        actx.font = `${bold ? 700 : 400} ${FONT_PX}px ${mono}`;
+        for (let level = 1; level <= LEVELS; level++) {
+          const alpha = (level / LEVELS) * max * (name === "trail" ? 1 : calm);
+          actx.fillStyle = `rgba(${rgb},${alpha.toFixed(3)})`;
+          const row = p * LEVELS + (level - 1);
+          GLYPHS.forEach((glyph, i) => actx.fillText(glyph, (i + 0.5) * CELL_W, (row + 0.5) * CELL_H));
+        }
+      });
+    };
 
-    /** the fading hover trail */
-    const trail: { x: number; y: number; t: number }[] = [];
-    /** the ribbon's influence on each cell, rebuilt every paint */
-    let hoverMask = new Float32Array(0);
-    /** the live cursor, so the head stays lit while the pointer is still */
-    let pointerX = -1;
-    let pointerY = -1;
-    let pointerInside = false;
+    /** stamp one glyph into a cell (cx, cy are cell coordinates) */
+    const stamp = (
+      context: CanvasRenderingContext2D,
+      cx: number,
+      cy: number,
+      glyph: Glyph,
+      palette: Palette,
+      level: number,
+    ) => {
+      const l = Math.max(1, Math.min(LEVELS, Math.round(level)));
+      const gi = GLYPH_INDEX.get(glyph) ?? 0;
+      const row = PALETTE_ORDER.indexOf(palette) * LEVELS + (l - 1);
+      const sw = CELL_W * dpr;
+      const sh = CELL_H * dpr;
+      context.drawImage(atlas, gi * sw, row * sh, sw, sh, cx * CELL_W, cy * CELL_H, CELL_W, CELL_H);
+    };
 
-    /** the school */
-    const critters: Critter[] = [];
-    /** the cells the creatures occupy: cell index -> glyph */
-    const critterAt = new Map<number, string>();
-    /** the colour of the creature in a given cell */
-    const critterColor = new Map<number, readonly number[]>();
+    /* ---------- the dot field (static) ---------- */
+    const drawDots = () => {
+      dctx.clearRect(0, 0, w, h);
+      for (let cy = 0; cy < rows; cy++) {
+        for (let cx = 0; cx < cols; cx++) {
+          // a slow, soft density: denser toward the left and the bottom, like a halftone wash
+          const nx = cx / cols;
+          const ny = cy / rows;
+          const wash =
+            0.5 +
+            0.28 * Math.sin(nx * 4.1 + ny * 2.3) +
+            0.22 * Math.sin(nx * -2.7 + ny * 5.2 + 1.3) -
+            nx * 0.25 +
+            ny * 0.15;
+          const r = hash(cx, cy, 7);
+          if (r > clamp(wash, 0.15, 0.95)) continue;
+          const glyph: Glyph = wash > 0.7 && r < 0.06 ? "°" : r < 0.6 ? "·" : ".";
+          stamp(dctx, cx, cy, glyph, "dots", 1 + clamp(wash) * 3 + hash(cx, cy, 3) * 1.5);
+        }
+      }
+    };
 
-    /** seeded, so the school looks the same on every visit */
+    /* ---------- the scene field: one pixel per cell ---------- */
+    const field = document.createElement("canvas");
+    const fctx = field.getContext("2d", { willReadFrequently: true });
+
+    const fishes: Fish[] = [];
+    const bubbles: Bubble[] = [];
+
     let seed = 0x5eed1234;
     const rand = () => {
       seed = (seed * 1664525 + 1013904223) >>> 0;
       return seed / 4294967296;
     };
 
-    const spawn = (big: boolean, fromLeft: boolean): Critter => {
-      const spec = big ? FISH_BIG : FISH_SMALL;
-      const sw = spec.w * CELL_W;
-      const dir: 1 | -1 = rand() < 0.74 ? 1 : -1;
-      const x = fromLeft ? -sw - rand() * 260 : w + rand() * 260;
-      const baseY = h * (0.12 + rand() * 0.74);
+    const newFish = (len: number, teal: boolean, onScreen: boolean, y?: number, dir?: 1 | -1, x?: number): Fish => {
+      const d: 1 | -1 = dir ?? (rand() < 0.65 ? 1 : -1);
+      const baseY = y ?? rows * (0.12 + rand() * 0.76);
       return {
-        spec,
-        color: big ? CREATURE_PALE : CREATURE_CYAN,
-        x,
+        len,
+        teal,
+        x: x ?? (onScreen ? rand() * cols : d > 0 ? -len - rand() * 30 : cols + len + rand() * 30),
         y: baseY,
         baseY,
-        dir,
-        speed: (big ? 8 + rand() * 10 : 12 + rand() * 20) * (dir > 0 ? 1 : -1),
+        dir: d,
+        speed: (len > 30 ? 2 : len > 14 ? 3.2 : 5.2) * (0.8 + rand() * 0.4),
+        boost: 0,
+        vy: 0,
+        bob: 0.4 + rand() * 1.1,
         phase: rand() * Math.PI * 2,
-        bob: 6 + rand() * 18,
-        bobRate: 0.3 + rand() * 0.7,
-        drift: 0.4 + rand() * 0.9,
+        wag: 4 + rand() * 3,
       };
     };
 
-    /* ---------- the coarse field ---------- */
-    const buildField = (t: number) => {
-      for (let fy = 0; fy < fh; fy++) {
-        const ny = (fy * FIELD_STEP * CELL_H) / h;
-        for (let fx = 0; fx < fw; fx++) {
-          const nx = (fx * FIELD_STEP * CELL_W) / w;
-          const i = fy * fw + fx;
-          fieldD[i] = densityAt(nx, ny, t);
-          const e = 1;
-          const dx = fieldD[fy * fw + Math.min(fw - 1, fx + e)] - fieldD[fy * fw + Math.max(0, fx - e)];
-          const dy = fieldD[Math.min(fh - 1, fy + e) * fw + fx] - fieldD[Math.max(0, fy - e) * fw + fx];
-          fieldSX[i] = dx;
-          fieldSY[i] = dy;
-          fieldMag[i] = Math.hypot(dx, dy);
-        }
+    const stock = () => {
+      fishes.length = 0;
+      bubbles.length = 0;
+      seed = 0x5eed1234;
+      const wide = w > 900;
+      if (wide) fishes.push(newFish(44, false, true, rows * 0.66, 1, cols * 0.3));
+      const mids = Math.max(1, Math.round(w / 640));
+      for (let i = 0; i < mids; i++) {
+        // spread the mid fish across the width so they don't stack on each other
+        // narrow screens get smaller fish, so none of them fills the space behind a paragraph
+        const size = (20 + rand() * 6) * Math.max(0.62, Math.min(1, cols / 120));
+        fishes.push(newFish(size, false, true, rows * (0.18 + 0.3 * i), undefined, cols * ((i + 0.6) / (mids + 0.4))));
+      }
+      // a teal school that travels together and scatters together
+      // the school keeps to the upper water, away from the big fish
+      const schoolY = rows * (0.22 + rand() * 0.2);
+      const schoolX = cols * (0.55 + rand() * 0.35);
+      const schoolDir: 1 | -1 = rand() < 0.5 ? 1 : -1;
+      const size = wide ? 8 : 5;
+      for (let i = 0; i < size; i++) {
+        const fish = newFish(
+          6 + rand() * 2.5,
+          true,
+          true,
+          schoolY + (rand() - 0.5) * 9,
+          schoolDir,
+          schoolX + (rand() - 0.5) * 18 - i * 3 * schoolDir,
+        );
+        fish.speed = 5;
+        fishes.push(fish);
       }
     };
 
-    const sampleField = (cx: number, cy: number) => {
-      const fx = cx / FIELD_STEP;
-      const fy = cy / FIELD_STEP;
-      const x0 = Math.min(fw - 1, Math.max(0, Math.floor(fx)));
-      const y0 = Math.min(fh - 1, Math.max(0, Math.floor(fy)));
-      const x1 = Math.min(fw - 1, x0 + 1);
-      const y1 = Math.min(fh - 1, y0 + 1);
-      const tx = fx - x0;
-      const ty = fy - y0;
+    /** a swell's shape, fixed by its index so it keeps its identity under scroll */
+    const swell = (j: number) => ({
+      amp: 3 + hash(j, 11) * 3.5, // rows
+      len: 55 + hash(j, 23) * 60, // cols
+      speed: (2.4 + hash(j, 37) * 3) * (hash(j, 41) < 0.8 ? 1 : -1),
+      phase: hash(j, 53) * Math.PI * 2,
+      thick: 9 + hash(j, 61) * 6,
+    });
+    const SWELL_GAP = 27; // rows between swells
+    const PARALLAX = 0.2;
 
-      const d = lerp(
-        lerp(fieldD[y0 * fw + x0], fieldD[y0 * fw + x1], tx),
-        lerp(fieldD[y1 * fw + x0], fieldD[y1 * fw + x1], tx),
-        ty,
-      );
-      const sx = lerp(
-        lerp(fieldSX[y0 * fw + x0], fieldSX[y0 * fw + x1], tx),
-        lerp(fieldSX[y1 * fw + x0], fieldSX[y1 * fw + x1], tx),
-        ty,
-      );
-      const sy = lerp(
-        lerp(fieldSY[y0 * fw + x0], fieldSY[y0 * fw + x1], tx),
-        lerp(fieldSY[y1 * fw + x0], fieldSY[y1 * fw + x1], tx),
-        ty,
-      );
-      return { d, slope: { dx: sx, dy: sy, mag: Math.hypot(sx, sy) } };
+    const paintWaves = (t: number) => {
+      if (!fctx) return;
+      const offset = (scrollY * PARALLAX) / CELL_H;
+      const first = Math.floor((offset - SWELL_GAP) / SWELL_GAP);
+      const last = Math.ceil((offset + rows + SWELL_GAP) / SWELL_GAP);
+      fctx.lineWidth = 1;
+      for (let j = first; j <= last; j++) {
+        const s = swell(j);
+        const base = j * SWELL_GAP - offset + SWELL_GAP * 0.4;
+        const k = (Math.PI * 2) / s.len;
+        // the band is drawn as stacked strokes, so its brightness follows the crest:
+        // thin at the top and bottom edges, brightest in the core — a volume, not a line
+        for (let d = 0; d <= s.thick; d++) {
+          const u = d / s.thick;
+          const profile = Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.15)), 0.9) * (1 - u * 0.35);
+          if (profile <= 0.02) continue;
+          fctx.beginPath();
+          for (let x = -1; x <= cols + 1; x++) {
+            const theta = k * x - k * s.speed * t + s.phase;
+            const y = base + s.amp * (Math.sin(theta) + 0.32 * Math.sin(2 * theta + 1.1)) + d;
+            if (x === -1) fctx.moveTo(x, y);
+            else fctx.lineTo(x, y);
+          }
+          const level = Math.round(255 * profile);
+          fctx.strokeStyle = `rgb(${level},0,0)`;
+          fctx.stroke();
+        }
+      }
+      // let some stretches of each swell fade out: multiply by a slow horizontal mask
+      fctx.globalCompositeOperation = "multiply";
+      const mask = fctx.createLinearGradient(0, 0, cols, 0);
+      const phase = (t * 0.03) % 1;
+      for (let i = 0; i <= 6; i++) {
+        const stop = i / 6;
+        const v = 0.7 + 0.3 * Math.sin((stop + phase) * Math.PI * 4);
+        const c = Math.round(255 * v);
+        mask.addColorStop(stop, `rgb(${c},255,255)`);
+      }
+      fctx.fillStyle = mask;
+      fctx.fillRect(0, 0, cols, rows);
+      fctx.globalCompositeOperation = "source-over";
     };
 
     /**
-     * Stamp one capsule of the ribbon into the cell mask. The capsule narrows
-     * from the cursor's radius down to the tail radius as it ages, and the
-     * oldest third drops cells out by a per-cell hash — that is the part that
-     * makes the trail disintegrate instead of fading as a whole.
+     * A fish, painted into the field: a deep, rounded body lit from above,
+     * a forked tail that wags from the root, a dorsal and a belly fin, a gill
+     * line, and the eye left empty so it reads as a hole in the glyphs. The
+     * body goes to the green channel; fins and tail also set blue, so they
+     * print in teal and every fish is two-toned.
      */
-    const stampCapsule = (ax: number, ay: number, bx: number, by: number, ageA: number, ageB: number) => {
-      const pad = HEAD_RADIUS + CELL_W;
-      const minX = Math.min(ax, bx) - pad;
-      const maxX = Math.max(ax, bx) + pad;
-      const minY = Math.min(ay, by) - pad;
-      const maxY = Math.max(ay, by) + pad;
+    const paintFish = (fish: Fish, t: number) => {
+      if (!fctx) return;
+      const L = fish.len;
+      // cells are taller than wide: H is in rows, so this keeps a deep body on screen
+      const H = (L * CELL_W) / CELL_H / 1.55;
+      const body = fish.teal ? 255 : 0;
+      const fin = 255;
+      fctx.save();
+      fctx.translate(fish.x, fish.y);
+      fctx.scale(fish.dir, 1);
 
-      const cx0 = Math.max(0, Math.floor(minX / CELL_W));
-      const cx1 = Math.min(cols - 1, Math.floor(maxX / CELL_W));
-      const cy0 = Math.max(0, Math.floor(minY / CELL_H));
-      const cy1 = Math.min(rows - 1, Math.floor(maxY / CELL_H));
-      if (cx0 > cx1 || cy0 > cy1) return;
+      // forked tail, wagging from the root
+      fctx.save();
+      fctx.translate(-0.36 * L, 0);
+      fctx.rotate(Math.sin(t * fish.wag + fish.phase) * 0.3);
+      fctx.beginPath();
+      fctx.moveTo(0.06 * L, -0.08 * H);
+      fctx.lineTo(-0.3 * L, -0.78 * H);
+      fctx.quadraticCurveTo(-0.17 * L, 0, -0.3 * L, 0.78 * H);
+      fctx.lineTo(0.06 * L, 0.08 * H);
+      fctx.closePath();
+      const tail = fctx.createLinearGradient(0, 0, -0.3 * L, 0);
+      tail.addColorStop(0, `rgb(0,200,${fin})`);
+      tail.addColorStop(1, `rgb(0,120,${fin})`);
+      fctx.fillStyle = tail;
+      fctx.fill();
+      fctx.restore();
 
-      const vx = bx - ax;
-      const vy = by - ay;
-      const len2 = vx * vx + vy * vy;
+      // dorsal fin, swept back
+      fctx.beginPath();
+      fctx.moveTo(0.16 * L, -0.46 * H);
+      fctx.quadraticCurveTo(-0.02 * L, -1.02 * H, -0.24 * L, -0.86 * H);
+      fctx.quadraticCurveTo(-0.16 * L, -0.55 * H, -0.24 * L, -0.34 * H);
+      fctx.closePath();
+      fctx.fillStyle = `rgb(0,165,${fin})`;
+      fctx.fill();
 
-      for (let cy = cy0; cy <= cy1; cy++) {
-        const py = cy * CELL_H + CELL_H / 2;
-        for (let cx = cx0; cx <= cx1; cx++) {
-          const px = cx * CELL_W + CELL_W / 2;
+      // belly fin
+      fctx.beginPath();
+      fctx.moveTo(0.06 * L, 0.44 * H);
+      fctx.quadraticCurveTo(-0.04 * L, 0.86 * H, -0.16 * L, 0.74 * H);
+      fctx.lineTo(-0.12 * L, 0.4 * H);
+      fctx.closePath();
+      fctx.fillStyle = `rgb(0,140,${fin})`;
+      fctx.fill();
 
-          const u = len2 === 0 ? 0 : clamp(((px - ax) * vx + (py - ay) * vy) / len2);
-          const dist = Math.hypot(px - (ax + vx * u), py - (ay + vy * u));
-          const age = ageA + (ageB - ageA) * u;
-          const half = lerp(HEAD_RADIUS, TAIL_RADIUS, age);
-          if (dist >= half) continue;
+      // body: deep and rounded, brightest along the back
+      const shade = fctx.createLinearGradient(0, -0.6 * H, 0, 0.6 * H);
+      shade.addColorStop(0, `rgb(0,245,${body})`);
+      shade.addColorStop(0.45, `rgb(0,215,${body})`);
+      shade.addColorStop(1, `rgb(0,110,${body})`);
+      fctx.beginPath();
+      fctx.moveTo(-0.38 * L, 0);
+      fctx.bezierCurveTo(-0.24 * L, -0.72 * H, 0.24 * L, -0.72 * H, 0.5 * L, 0.04 * H);
+      fctx.bezierCurveTo(0.26 * L, 0.66 * H, -0.24 * L, 0.66 * H, -0.38 * L, 0);
+      fctx.fillStyle = shade;
+      fctx.fill();
 
-          const f = 1 - dist / half;
-          const radial = f * f * (3 - 2 * f);
-          const fade = Math.pow(1 - age, 0.7);
-
-          // the oldest part of the ribbon breaks into specks
-          const breakup = clamp((age - 0.45) / 0.55);
-          let grain = 1;
-          if (breakup > 0) {
-            grain = (hash(cx + 31, cy + 67) % 1000) / 1000;
-            if (grain < breakup * 0.92) continue;
-          }
-
-          const v = radial * fade * (breakup > 0 ? 0.7 + grain * 0.3 : 1);
-          const key = cy * cols + cx;
-          if (v > hoverMask[key]) hoverMask[key] = v;
-        }
+      if (L > 10) {
+        // gill line, a shade darker
+        fctx.beginPath();
+        fctx.moveTo(0.2 * L, -0.44 * H);
+        fctx.quadraticCurveTo(0.12 * L, 0, 0.2 * L, 0.42 * H);
+        fctx.strokeStyle = `rgb(0,95,${body})`;
+        fctx.lineWidth = Math.max(0.7, L / 36);
+        fctx.stroke();
       }
+
+      // the eye: a hole, with a bright rim on bigger fish
+      const ex = 0.33 * L;
+      const ey = -0.14 * H;
+      const er = Math.max(0.55, L * 0.034);
+      if (L > 14) {
+        fctx.beginPath();
+        fctx.arc(ex, ey, er + 0.9, 0, Math.PI * 2);
+        fctx.fillStyle = `rgb(0,255,${body})`;
+        fctx.fill();
+      }
+      fctx.beginPath();
+      fctx.arc(ex, ey, er, 0, Math.PI * 2);
+      fctx.fillStyle = "rgb(0,0,0)";
+      fctx.fill();
+
+      fctx.restore();
     };
 
-    /** rebuild the hover ribbon for this frame */
-    const stampHover = (now: number) => {
-      hoverMask.fill(0);
+    /* ---------- the pointer trail ---------- */
+    const trail: Array<{ x: number; y: number; t: number }> = [];
+    let pointer = { x: -1000, y: -1000, inside: false };
+    let trailDrawn = false;
 
-      // the head is steady: it stays under the cursor even when it stops
-      if (pointerInside) {
-        stampCapsule(pointerX, pointerY, pointerX, pointerY, 0, 0);
-      }
-
-      // the body follows every sampled segment, so a fast drag stays joined
-      for (let i = 0; i < trail.length - 1; i++) {
-        const a = trail[i];
-        const b = trail[i + 1];
-        const ageA = clamp((now - a.t) / TRAIL_MS);
-        const ageB = clamp((now - b.t) / TRAIL_MS);
-        if (ageB >= 1) continue;
-        stampCapsule(a.x, a.y, b.x, b.y, ageA, ageB);
-      }
-    };
-
-    /* ---------- move the school ---------- */
-    const moveCritters = (dt: number, t: number) => {
-      critterAt.clear();
-      critterColor.clear();
-
-      for (const c of critters) {
-        c.x += c.speed * dt;
-
-        // bobbing, with a slow drift so they do not all rise together
-        c.baseY += Math.sin(t * c.drift + c.phase) * 5 * dt;
-        c.baseY = clamp(c.baseY, h * 0.1, h * 0.9);
-        c.y = c.baseY + Math.sin(t * c.bobRate + c.phase) * c.bob;
-
-        const sw = c.spec.w * CELL_W;
-        const sh = c.spec.h * CELL_H;
-
-        // wrap around the edges
-        if (c.speed > 0 && c.x > w + 10) {
-          c.x = -sw - 10;
-          c.baseY = h * (0.12 + rand() * 0.74);
-        } else if (c.speed < 0 && c.x < -sw - 10) {
-          c.x = w + 10;
-          c.baseY = h * (0.12 + rand() * 0.74);
-        }
-
-        // stamp the fish into the cell map
-        for (let ry = 0; ry < c.spec.h; ry++) {
-          for (let rx = 0; rx < c.spec.w; rx++) {
-            const density = fishDensity(rx + 0.5, ry + 0.5, c.spec);
-            if (density <= 0) continue;
-            const threshold = (BAYER[(ry & 3) * 4 + (rx & 3)] + 0.5) / 16;
-            if (density < threshold) continue;
-
-            const cellX = Math.floor((c.x + rx * CELL_W) / CELL_W);
-            const cellY = Math.floor((c.y + ry * CELL_H) / CELL_H);
-            if (cellX < 0 || cellY < 0 || cellX >= cols || cellY >= rows) continue;
-
-            // the body is vertical strokes; the flanks pick up the contour marks
-            const edge = density < 0.62;
-            const glyph = edge
-              ? hash(cellX + 3, cellY + 11) % 3 === 0
-                ? c.dir > 0
-                  ? "/"
-                  : "\\"
-                : "|"
-              : FISH_BODY_GLYPH[hash(cellX, cellY) % FISH_BODY_GLYPH.length];
-
-            const key = cellY * cols + cellX;
-            critterAt.set(key, glyph);
-            critterColor.set(key, c.color);
+    /* ---------- moving things ---------- */
+    const move = (dt: number, t: number, now: number) => {
+      const head = trail[trail.length - 1];
+      const fresh = head && now - head.t < 600;
+      for (const fish of fishes) {
+        if (fresh && head) {
+          const hx = head.x / CELL_W;
+          const hy = head.y / CELL_H;
+          const d = Math.hypot((fish.x - hx) * (CELL_W / CELL_H), fish.y - hy);
+          const reach = 12 + fish.len * 0.5;
+          if (d < reach) {
+            const fear = 1 - d / reach;
+            const away: 1 | -1 = fish.x >= hx ? 1 : -1;
+            if (away !== fish.dir && fear > 0.25) {
+              fish.dir = away;
+              if (fish.len > 8 && bubbles.length < 50) {
+                bubbles.push({ x: fish.x, y: fish.y - 1, born: now, life: 1800 + rand() * 1200, wobble: rand() * 6 });
+              }
+            }
+            fish.boost = Math.max(fish.boost, 8 + fear * 14);
+            fish.vy += (fish.y >= hy ? 1 : -1) * fear * 18 * dt;
           }
         }
-      }
-    };
+        fish.x += fish.dir * (fish.speed + fish.boost) * dt;
+        fish.boost *= Math.exp(-dt * 1.4);
+        fish.baseY = clamp(fish.baseY + fish.vy * dt, rows * 0.08, rows * 0.92);
+        fish.vy *= Math.exp(-dt * 2.4);
+        fish.y = fish.baseY + Math.sin(t * 0.9 + fish.phase) * fish.bob;
 
-    /* ---------- one full repaint ---------- */
-    const paint = (now: number) => {
-      const t = reduceMotion ? 0 : (now - startTime) / 1000;
-      buildField(t);
-      stampHover(now);
-
-      ctx.clearRect(0, 0, w, h);
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      for (let cy = 0; cy < rows; cy++) {
-        for (let cx = 0; cx < cols; cx++) {
-          const { d, slope } = sampleField(cx, cy);
-          const key = cy * cols + cx;
-          const near = hoverMask[key];
-
-          // bare paper stays bare unless the ribbon is passing through it
-          if (d < EMPTY_BELOW && near < 0.12) continue;
-
-          const x = cx * CELL_W + CELL_W / 2;
-          const y = cy * CELL_H + CELL_H / 2;
-
-          // a fish in this cell takes priority over the wave and the ribbon
-          const critter = critterAt.get(key);
-          if (critter) {
-            const color = critterColor.get(key) ?? CREATURE_CYAN;
-            ctx.font = `700 ${FONT_PX + 0.5}px ${mono}`;
-            ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},0.92)`;
-            ctx.fillText(critter, x, y);
-            // the water passes back over it — a fish seen through the waves
-            const haze = glyphFor(cx, cy, d, slope, 0);
-            ctx.font = `400 ${FONT_PX}px ${mono}`;
-            ctx.fillStyle = `rgba(16,18,24,${WATER_HAZE.toFixed(3)})`;
-            ctx.fillText(haze, x, y);
-            continue;
-          }
-
-          // the ribbon gives a cell a floor of presence, so hover reads even
-          // in the thin gaps where the wave normally leaves bare paper
-          const presence = clamp(Math.max(d, near * 0.52));
-
-          // hover steps the cell into a heavier band, so the character changes
-          const band = near * HOVER_BAND;
-          const glyph = glyphFor(cx, cy, d, slope, band);
-
-          const jitter = 0.9 + ((hash(cx + 7, cy + 3) % 100) / 100) * 0.18;
-          const baseLum = lerp(LUM_MIN, LUM_MAX, presence) * jitter;
-          const baseAlpha = lerp(ALPHA_MIN, ALPHA_MAX, presence);
-
-          // shift the glyph's own tone toward the dark green, by proximity;
-          // the jitter keeps neighbouring cells from landing on one flat hue
-          const green = clamp(near * (HOVER_GREEN_MIX + (jitter - 0.9) * 0.18));
-          const l = Math.round(baseLum);
-          const r = Math.round(lerp(l, HOVER_GREEN[0], green));
-          const g = Math.round(lerp(l * 1.03, HOVER_GREEN[1], green));
-          const b = Math.round(lerp(l * 1.16, HOVER_GREEN[2], green));
-          const alpha = clamp(baseAlpha + near * 0.42, 0, 0.97);
-
-          // a hovered glyph grows a little, but stays part of the ribbon
-          const size = FONT_PX + near * 1.4;
-          ctx.font =
-            size > FONT_PX + 0.15 ? `700 ${size.toFixed(2)}px ${mono}` : `400 ${FONT_PX}px ${mono}`;
-
-          ctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
-          ctx.fillText(glyph, x, y - near * 0.55);
+        const margin = fish.len * 0.7 + 4;
+        if (fish.dir > 0 && fish.x > cols + margin) {
+          fish.x = -margin;
+          fish.baseY = rows * (0.1 + rand() * 0.8);
+        } else if (fish.dir < 0 && fish.x < -margin) {
+          fish.x = cols + margin;
+          fish.baseY = rows * (0.1 + rand() * 0.8);
+        }
+        // the occasional breath
+        if (fish.len > 12 && rand() < dt * 0.25 && bubbles.length < 50) {
+          bubbles.push({ x: fish.x + fish.dir * fish.len * 0.5, y: fish.y - 1, born: now, life: 2200 + rand() * 1600, wobble: rand() * 6 });
         }
       }
-      ctx.font = `400 ${FONT_PX}px ${mono}`;
-    };
-
-    /* ---------- the loop ---------- */
-    const frame = (now: number) => {
-      raf = 0;
-
-      const dt = Math.min(0.05, (now - lastPaint) / 1000) || 1 / 60;
-      moveCritters(dt, reduceMotion ? 0 : (now - startTime) / 1000);
-
-      const due = now - lastPaint >= IDLE_MS;
-      const trailActive = trail.length > 0;
-      if (due || (trailActive && now - lastPaint >= 32)) {
-        paint(now);
-        lastPaint = now;
-      }
-
-      // drop trail lobes that have expired
-      if (trail.length && now - trail[0].t > TRAIL_MS) {
-        while (trail.length && now - trail[0].t > TRAIL_MS) trail.shift();
-      }
-
-      const animating = !reduceMotion || trailActive;
-      if (animating) {
-        raf = requestAnimationFrame(frame);
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        const b = bubbles[i];
+        b.y -= dt * 2.2;
+        b.x += Math.sin(t * 2.5 + b.wobble) * dt * 0.8;
+        if (now - b.born > b.life || b.y < -2) bubbles.splice(i, 1);
       }
     };
 
-    const kick = () => {
-      if (!raf) raf = requestAnimationFrame(frame);
+    /* ---------- drawing the scene ---------- */
+
+    // numeric ramps and palette rows, so the per-cell loop does no lookups
+    const FISH_IDX = FISH_RAMP.map((g) => GLYPH_INDEX.get(g) ?? 0);
+    const WATER_IDX = WATER_RAMP.map((g) => GLYPH_INDEX.get(g) ?? 0);
+    const ROW_BASE = Object.fromEntries(PALETTE_ORDER.map((name, i) => [name, i * LEVELS])) as Record<Palette, number>;
+    const G = GLYPHS.length;
+    /** a cell's look as one number: atlas row × glyph count + glyph + 1 (0 = empty) */
+    const code = (palette: Palette, level: number, glyph: number) =>
+      (ROW_BASE[palette] + Math.max(1, Math.min(LEVELS, Math.round(level))) - 1) * G + glyph + 1;
+
+    /** per-cell jitter, fixed for the life of the layout */
+    let jitter = new Float32Array(0);
+    /** what each cell currently shows, so a frame only redraws the cells that changed */
+    let shown = new Uint32Array(0);
+    const bubbleAt = new Map<number, number>();
+
+    const drawScene = (now: number) => {
+      if (!fctx) return;
+      const t = reduceMotion ? 0 : (now - start) / 1000;
+      fctx.globalCompositeOperation = "source-over";
+      fctx.fillStyle = "#000";
+      fctx.fillRect(0, 0, cols, rows);
+      paintWaves(t);
+      for (const fish of fishes) paintFish(fish, t);
+      const data = fctx.getImageData(0, 0, cols, rows).data;
+
+      bubbleAt.clear();
+      for (const bubble of bubbles) {
+        const bx = Math.round(bubble.x);
+        const by = Math.round(bubble.y);
+        if (bx < 0 || by < 0 || bx >= cols || by >= rows) continue;
+        const age = clamp((now - bubble.born) / bubble.life);
+        const glyph = GLYPH_INDEX.get(age < 0.5 ? "o" : age < 0.8 ? "°" : "·") ?? 0;
+        bubbleAt.set(by * cols + bx, code("teal", 6 - age * 4, glyph));
+      }
+
+      const sw = CELL_W * dpr;
+      const sh = CELL_H * dpr;
+      const fishLen = FISH_IDX.length;
+      const waterLen = WATER_IDX.length;
+      for (let cell = 0, i = 0; cell < cols * rows; cell++, i += 4) {
+        let next = 0;
+        const fish = data[i + 1] / 255;
+        if (fish > 0.1) {
+          const v = clamp(fish + jitter[cell]);
+          next = code(data[i + 2] > 100 ? "teal" : "fish", 2.5 + v * 5.5, FISH_IDX[Math.min(fishLen - 1, (v * fishLen) | 0)]);
+        } else {
+          const water = data[i] / 255;
+          if (water > 0.07) {
+            const v = clamp(water + jitter[cell]);
+            next = code("water", 1 + v * 7, WATER_IDX[Math.min(waterLen - 1, (v * waterLen) | 0)]);
+          }
+        }
+        const bubble = bubbleAt.get(cell);
+        if (bubble) next = bubble;
+
+        if (next === shown[cell]) continue;
+        shown[cell] = next;
+        const cx = cell % cols;
+        const cy = (cell - cx) / cols;
+        sctx.clearRect(cx * CELL_W, cy * CELL_H, CELL_W, CELL_H);
+        if (next) {
+          const n = next - 1;
+          const row = (n / G) | 0;
+          sctx.drawImage(atlas, (n - row * G) * sw, row * sh, sw, sh, cx * CELL_W, cy * CELL_H, CELL_W, CELL_H);
+        }
+      }
     };
 
-    /* ---------- sizing ---------- */
+    /** forget what is on screen, so the next frame repaints every cell */
+    const resetScene = () => {
+      shown = new Uint32Array(cols * rows);
+      jitter = new Float32Array(cols * rows);
+      for (let cell = 0; cell < cols * rows; cell++) {
+        jitter[cell] = (hash(cell % cols, (cell / cols) | 0, 13) - 0.5) * 0.14;
+      }
+      sctx.clearRect(0, 0, w, h);
+    };
+
+    /* ---------- drawing the trail ---------- */
+    const cellLight = new Map<number, number>();
+
+    const drawTrail = (now: number) => {
+      while (trail.length && now - trail[0].t > TRAIL_LIFE) trail.shift();
+      tctx.clearRect(0, 0, w, h);
+      cellLight.clear();
+      if (trail.length === 0 && !pointer.inside) return false;
+
+      const light = (cx: number, cy: number, v: number) => {
+        if (cx < 0 || cy < 0 || cx >= cols || cy >= rows) return;
+        const key = cy * cols + cx;
+        if (v > (cellLight.get(key) ?? 0)) cellLight.set(key, v);
+      };
+
+      // walk every segment in half-cell steps, so a fast flick stays joined
+      for (let i = 1; i < trail.length; i++) {
+        const a = trail[i - 1];
+        const b = trail[i];
+        const steps = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / (CELL_W * 0.5)));
+        for (let s = 0; s <= steps; s++) {
+          const f = s / steps;
+          const x = a.x + (b.x - a.x) * f;
+          const y = a.y + (b.y - a.y) * f;
+          const age = clamp((now - (a.t + (b.t - a.t) * f)) / TRAIL_LIFE);
+          const cx = Math.floor(x / CELL_W);
+          const cy = Math.floor(y / CELL_H);
+          // older parts of the trail break up into specks
+          if (age > 0.4 && hash(cx, cy, 29) < (age - 0.4) * 1.5) continue;
+          const v = Math.pow(1 - age, 1.1);
+          light(cx, cy, v);
+          // the young part of the trail is thicker
+          if (age < 0.25) {
+            const side = (1 - age / 0.25) * 0.55 * v;
+            light(cx + 1, cy, side);
+            light(cx - 1, cy, side);
+            light(cx, cy + 1, side * 0.8);
+          }
+        }
+      }
+      // the head stays lit under a resting cursor
+      if (pointer.inside) light(Math.floor(pointer.x / CELL_W), Math.floor(pointer.y / CELL_H), 1);
+
+      for (const [key, v] of cellLight) {
+        const cx = key % cols;
+        const cy = (key - cx) / cols;
+        const r = hash(cx, cy, 31);
+        const idx = Math.min(TRAIL_RAMP.length - 1, Math.max(0, Math.floor(v * TRAIL_RAMP.length + (r - 0.5) * 1.6)));
+        stamp(tctx, cx, cy, TRAIL_RAMP[idx], "trail", 1.5 + v * 6.5);
+      }
+      return trail.length > 0;
+    };
+
+    /* ---------- layout ---------- */
+    const sizeCanvas = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.imageSmoothingEnabled = false;
+    };
+
     const layout = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = window.innerWidth;
       h = window.innerHeight;
       cols = Math.ceil(w / CELL_W) + 1;
       rows = Math.ceil(h / CELL_H) + 1;
-      fw = Math.ceil(cols / FIELD_STEP) + 2;
-      fh = Math.ceil(rows / FIELD_STEP) + 2;
-      fieldD = new Float32Array(fw * fh);
-      fieldSX = new Float32Array(fw * fh);
-      fieldSY = new Float32Array(fw * fh);
-      fieldMag = new Float32Array(fw * fh);
-      hoverMask = new Float32Array(cols * rows);
-
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // stock the water
-      critters.length = 0;
-      const small = Math.max(3, Math.round(w / 200));
-      for (let i = 0; i < small; i++) critters.push(spawn(false, i % 2 === 0));
-      const big = Math.max(1, Math.round(w / 700));
-      for (let i = 0; i < big; i++) critters.push(spawn(true, i % 2 === 1));
-
-      startTime = performance.now();
-      paint(performance.now());
-      lastPaint = performance.now();
+      calm = w < 700 ? 0.5 : 1;
+      sizeCanvas(dotsCanvas, dctx);
+      sizeCanvas(sceneCanvas, sctx);
+      sizeCanvas(trailCanvas, tctx);
+      field.width = cols;
+      field.height = rows;
+      buildAtlas();
+      drawDots();
+      stock();
+      resetScene();
+      drawScene(performance.now());
     };
 
-    /* ---------- pointer ---------- */
-    const onMove = (event: PointerEvent) => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      pointerInside = true;
+    /* ---------- loop ---------- */
+    let raf = 0;
+    let lastScene = 0;
+    let lastFrame = performance.now();
 
+    const frame = (now: number) => {
+      raf = 0;
+      const dt = Math.min(0.05, (now - lastFrame) / 1000) || 1 / 60;
+      lastFrame = now;
+      move(dt, (now - start) / 1000, now);
+      if (now - lastScene >= SCENE_MS) {
+        drawScene(now);
+        lastScene = now;
+      }
+      if (withTrail && (trail.length > 0 || trailDrawn)) {
+        trailDrawn = drawTrail(now) || pointer.inside;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+
+    const startLoop = () => {
+      if (!raf && !reduceMotion && !document.hidden) {
+        lastFrame = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    };
+    const stopLoop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    /* ---------- input ---------- */
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
+      pointer = { x: event.clientX, y: event.clientY, inside: true };
       const now = performance.now();
       const last = trail[trail.length - 1];
-      // only sample when the pointer has actually moved, so slow drags still
-      // produce a dense, continuous ribbon
-      if (!last || Math.hypot(pointerX - last.x, pointerY - last.y) > TRAIL_STEP) {
-        trail.push({ x: pointerX, y: pointerY, t: now });
+      if (!last || Math.hypot(pointer.x - last.x, pointer.y - last.y) > 3) {
+        trail.push({ x: pointer.x, y: pointer.y, t: now });
         if (trail.length > TRAIL_MAX) trail.shift();
       }
-      kick();
+      trailDrawn = true;
     };
-
     const onLeave = () => {
-      // let the ribbon age out instead of snapping off the screen
-      pointerInside = false;
-      kick();
+      pointer = { ...pointer, inside: false };
     };
-
-    const onOut = (event: PointerEvent) => {
-      // only treat it as a leave when the pointer actually exits the document
-      if (event.relatedTarget === null) {
-        pointerInside = false;
-        kick();
-      }
+    const onScroll = () => {
+      scrollY = window.scrollY;
+      if (reduceMotion) drawScene(performance.now());
     };
-
     let resizeTimer = 0;
     const onResize = () => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(layout, 140);
     };
-
     const onVisibility = () => {
-      if (document.hidden) {
-        if (raf) cancelAnimationFrame(raf);
-        raf = 0;
-        trail.length = 0;
-        pointerInside = false;
-      } else {
-        kick();
-      }
+      if (document.hidden) stopLoop();
+      else startLoop();
     };
 
     layout();
-    if (!reduceMotion) kick();
+    startLoop();
 
-    if (finePointer && !reduceMotion) {
+    // development only: render one full frame on demand, for visual QA in
+    // environments that throttle animation frames
+    type Hook = { __asciiFrame?: () => void };
+    if (process.env.NODE_ENV !== "production") {
+      (window as unknown as Hook).__asciiFrame = () => {
+        const now = performance.now();
+        move(1 / 30, (now - start) / 1000, now);
+        drawScene(now);
+        if (withTrail) drawTrail(now);
+      };
+    }
+
+    // the atlas is drawn in Geist Mono — redraw once the font has arrived
+    void document.fonts?.ready.then(() => {
+      buildAtlas();
+      drawDots();
+      resetScene();
+      drawScene(performance.now());
+    });
+
+    if (withTrail) {
       window.addEventListener("pointermove", onMove, { passive: true });
-      document.addEventListener("pointerleave", onLeave);
-      window.addEventListener("pointerout", onOut);
+      document.documentElement.addEventListener("pointerleave", onLeave);
       window.addEventListener("blur", onLeave);
     }
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      if (raf) cancelAnimationFrame(raf);
+      delete (window as unknown as Hook).__asciiFrame;
+      stopLoop();
       window.clearTimeout(resizeTimer);
       window.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerleave", onLeave);
-      window.removeEventListener("pointerout", onOut);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("blur", onLeave);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
@@ -742,7 +723,9 @@ export function AsciiField() {
 
   return (
     <div className="ascii-field" aria-hidden="true">
-      <canvas ref={canvasRef} className="ascii-canvas" />
+      <canvas ref={dotsRef} className="ascii-canvas" />
+      <canvas ref={sceneRef} className="ascii-canvas" />
+      <canvas ref={trailRef} className="ascii-canvas ascii-glow" />
     </div>
   );
 }

@@ -11,6 +11,8 @@ export type ChatMessage = {
   content: string;
   sources?: Source[];
   error?: boolean;
+  /** a question the visitor can send to Wikipedia with one click (Web is off) */
+  check?: string;
 };
 
 export type MachinePhase = "idle" | "loading" | "ready" | "generating" | "error";

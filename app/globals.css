@@ -1649,6 +1649,24 @@ button,
   background: #d6e6ff;
 }
 
+/* the one-click "check this on Wikipedia" action, beside the sources */
+.source-chip--check {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  background: var(--lime-soft);
+  color: var(--lime-ink);
+}
+
+.source-chip--check:hover:not(:disabled) {
+  background: var(--lime);
+}
+
+.source-chip--check:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
 .chat-compose {
   display: flex;
   gap: 8px;

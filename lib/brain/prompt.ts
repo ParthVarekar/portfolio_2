@@ -29,12 +29,29 @@ const PORTFOLIO_RULES = [
 const LIST_RULE =
   "The visitor wants an overview of several projects: name each one with a short description, in one or two flowing paragraphs.";
 
-const GENERAL_RULES = [
-  "The visitor asked a general question that is not about Parth.",
-  "Answer in one to three plain sentences.",
-  "If a REFERENCE is given, answer from it. Otherwise answer from general knowledge, and say honestly when you are not sure.",
-  "Do not bring up Parth unless the visitor asks about him.",
-];
+/** factual: a checkable claim about the world; creative: "write me a…"; chat: everything else */
+export type GeneralMode = "factual" | "creative" | "chat";
+
+const GENERAL_RULES: Record<GeneralMode, string[]> = {
+  factual: [
+    "The visitor asked a factual question that is not about Parth.",
+    "Answer in one or two plain sentences.",
+    "You are a very small model and your knowledge stops in 2024: if you are not sure of a name, number or date, say plainly that you are not sure instead of guessing.",
+  ],
+  creative: [
+    "The visitor asked you to write something: a poem, a joke, a story, code or a message.",
+    "Write it, and keep it short — under 120 words. Use line breaks for poems and code.",
+    "Keep it friendly and clean.",
+  ],
+  chat: [
+    "The visitor asked a general question or just wants to chat. It is not about Parth.",
+    "Answer helpfully in one to three plain sentences.",
+    "If you are not sure, say so honestly.",
+  ],
+};
+
+const REFERENCE_RULE =
+  "Answer only from the REFERENCE. Copy names, numbers and dates exactly. If the REFERENCE does not answer the question, say that you could not find it.";
 
 function factLine(card: Card): string {
   const facts = card.facts ? ` Key numbers: ${card.facts}` : "";
@@ -111,8 +128,13 @@ export function portfolioPrompt(
   ];
 }
 
-export function generalPrompt(question: string, reference?: { title: string; text: string }): PromptMessage[] {
-  const system = `${PERSONA}\n\n${GENERAL_RULES.map((rule) => `- ${rule}`).join("\n")}`;
+export function generalPrompt(
+  question: string,
+  mode: GeneralMode,
+  reference?: { title: string; text: string },
+): PromptMessage[] {
+  const rules = [...GENERAL_RULES[mode], ...(reference ? [REFERENCE_RULE] : []), "Do not bring up Parth unless the visitor asks about him."];
+  const system = `${PERSONA}\n\n${rules.map((rule) => `- ${rule}`).join("\n")}`;
   const user = reference
     ? `REFERENCE (Wikipedia, ${reference.title}):\n${reference.text}\n\nQUESTION: ${question}`
     : question;
@@ -127,12 +149,23 @@ export function generalPrompt(question: string, reference?: { title: string; tex
  * randomness there is a chance to invent a fact. General chat gets a little
  * temperature so it doesn't read like a template.
  */
-export function samplingFor(u: Understanding | null) {
+export function samplingFor(u: Understanding | null, mode: GeneralMode = "chat", grounded = false) {
+  if (!u) {
+    // facts and passages are copied, not improvised; poems get room to play
+    const temperature = grounded || mode === "factual" ? 0 : mode === "creative" ? 0.7 : 0.3;
+    return {
+      temperature,
+      top_p: 0.9,
+      repetition_penalty: 1.1,
+      max_tokens: mode === "creative" ? 300 : 170,
+      stop: ["QUESTION", "FACTS:", "REFERENCE"],
+    };
+  }
   return {
-    temperature: u ? 0 : 0.3,
+    temperature: 0,
     top_p: 0.9,
     repetition_penalty: 1.1,
-    max_tokens: u?.ask === "list" || u?.ask === "compare" ? 260 : 170,
+    max_tokens: u.ask === "list" || u.ask === "compare" ? 260 : 170,
     stop: ["QUESTION", "FACTS:", "REFERENCE"],
   };
 }

@@ -7,6 +7,7 @@ import {
   Cpu,
   LifeBuoy,
   RotateCcw,
+  Search,
   Send,
   ShieldCheck,
   Sparkles,
@@ -15,7 +16,6 @@ import {
 import type { ChatCompletionMessageParam, WebWorkerMLCEngine } from "@mlc-ai/web-llm";
 import { MODEL_ID } from "@/lib/machine/model";
 import { freshMemory, plan, type Memory, type Turn } from "@/lib/brain";
-import { tidy } from "@/lib/brain/clean";
 import type { ChatMessage, MachineMode, MachinePhase, Source } from "@/lib/machine/types";
 import { useMachineSupport } from "@/lib/machine/useMachineSupport";
 import { DotMatrix } from "@/components/hero/DotMatrix";
@@ -302,8 +302,11 @@ export function Machine({
       }, 12);
     });
 
-  /** Ask the machine. Resolves with the final answer text. */
-  const ask = async (raw: string): Promise<string> => {
+  /**
+   * Ask the machine. Resolves with the final answer text. `once.web` looks
+   * this one question up without switching Web mode on for the rest.
+   */
+  const ask = async (raw: string, once?: { web?: boolean }): Promise<string> => {
     const question = raw.trim();
     if (!question || busyRef.current) return "";
     const live = modeRef.current === "local" && engineRef.current !== null;
@@ -326,10 +329,10 @@ export function Machine({
         memory: memoryRef.current,
         history: historyRef.current,
         live,
-        web: webRef.current,
+        web: once?.web ?? webRef.current,
       });
       memoryRef.current = next.memory;
-      patch(assistantId, { sources: next.sources });
+      patch(assistantId, { sources: next.sources, check: next.check });
 
       if (next.kind === "reply") {
         answer = next.text;
@@ -346,9 +349,9 @@ export function Machine({
           const delta = chunk.choices[0]?.delta?.content ?? "";
           if (!delta) continue;
           streamed += delta;
-          patch(assistantId, { content: tidy(streamed) });
+          patch(assistantId, { content: next.preview(streamed) });
         }
-        answer = abortedRef.current ? tidy(streamed).trim() : next.finish(streamed);
+        answer = abortedRef.current ? next.preview(streamed).trim() : next.finish(streamed);
         patch(assistantId, { content: answer });
       }
     } catch {
@@ -631,11 +634,26 @@ export function Machine({
                             </span>
                           )}
                         </div>
-                        {message.sources && message.sources.length > 0 && !streaming ? (
+                        {((message.sources && message.sources.length > 0) || message.check) && !streaming ? (
                           <div className="source-chips">
-                            {message.sources.map((source) => (
+                            {message.sources?.map((source) => (
                               <SourceChip key={`${source.label}-${source.url}`} source={source} />
                             ))}
+                            {message.check ? (
+                              <button
+                                type="button"
+                                className="source-chip source-chip--check"
+                                disabled={phase === "generating"}
+                                onClick={() => {
+                                  const question = message.check!;
+                                  patch(message.id, { check: undefined });
+                                  void ask(question, { web: true });
+                                }}
+                              >
+                                <Search size={10} aria-hidden="true" />
+                                Look it up on Wikipedia
+                              </button>
+                            ) : null}
                           </div>
                         ) : null}
                       </div>

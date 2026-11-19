@@ -165,8 +165,9 @@ export function understand(question: string, memory: Memory): Understanding {
   // about Parth; a facet only counts when he is named, the words are specific
   // to a person's career, or the message is too short to be about anything else
   const words = text.trim().split(" ").length;
+  // "who is Elon Musk?" is short and matches the bio words, but is not about Parth
   const personCounts =
-    person !== null && (mentionsParth || SPECIFIC.has(person) || words <= 4);
+    person !== null && (mentionsParth || SPECIFIC.has(person) || (words <= 4 && person !== "overview"));
 
   const aboutParth =
     entities.length > 0 ||
