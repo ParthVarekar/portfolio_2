@@ -8,7 +8,7 @@ export const site = {
   phone: "+91 7400082627",
   url: "https://parthvarekar.in",
   description:
-    "Parth Varekar builds local-first AI systems: offline procedure monitors, zero-cloud dictation, biodiversity intelligence and browser labs. This portfolio runs a real 135M language model inside your browser.",
+    "Parth Varekar builds local-first AI systems: offline procedure monitors, zero-cloud dictation, biodiversity intelligence and browser labs. This portfolio runs a real 0.5B language model inside your browser.",
   github: "https://github.com/ParthVarekar",
   linkedin: "https://www.linkedin.com/in/parth-varekar-601432344",
   nav: [
@@ -29,9 +29,9 @@ export const site = {
 } as const;
 
 export const machineFacts = {
-  model: "SmolLM2-135M-Instruct-q4f16_1-MLC",
-  download: "~78 MB",
-  vram: "~100 MB",
+  model: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
+  download: "~265 MB",
+  vram: "~945 MB",
   context: "4,096 tokens",
   runtime: "WebLLM · WebGPU · Web Worker",
   licence: "Apache 2.0",

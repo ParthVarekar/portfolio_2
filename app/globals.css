@@ -617,6 +617,60 @@ button,
   color: var(--ink-2);
 }
 
+/* Web mode toggle — an opt-in pill button. Off by default; the machine
+   never touches the network until the visitor turns it on. */
+.machine-web {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(16, 18, 24, 0.12);
+  color: var(--ink-2);
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out);
+}
+
+.machine-web svg {
+  display: block;
+  pointer-events: none;
+}
+
+.machine-web:hover {
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink);
+}
+
+.machine-web[data-on="true"] {
+  background: #dff3f5;
+  border-color: rgba(24, 122, 124, 0.35);
+  color: #136d6f;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.machine-web:focus-visible {
+  outline: 2px solid var(--lime-deep);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .machine-web {
+    transition: none;
+  }
+}
+
 .pill--blue {
   background: var(--blue-soft);
   color: var(--blue-strong);
@@ -1891,7 +1945,22 @@ button,
   display: none;
 }
 
+/* the welcome face stays in the layout, invisible, so the card never
+   changes size when the machine wakes — the machine face is layered on
+   top of it instead of making the card taller */
+.hero-face--away {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .hero-face--machine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: inherit;
+  overflow-y: auto;
+  background: var(--surface);
   animation: face-in var(--dur-2) var(--ease-out) both;
 }
 
@@ -1942,15 +2011,52 @@ button,
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .machine-dock--compact .machine-body {
   grid-template-columns: minmax(0, 1fr);
   flex: 1;
+  min-height: 0;
+}
+
+.hero-face--machine .machine-panel {
+  padding: clamp(10px, 1.6vw, 18px);
 }
 
 .machine-dock--compact .chat-scroll {
-  min-height: 304px;
+  min-height: 0;
+  max-height: none;
+  padding: 12px;
+}
+
+.hero-face--machine .chat-panel {
+  min-height: 0;
+}
+
+/* the constant-size card has a small pane: make the empty state fit it */
+.machine-dock--compact .chat-empty {
+  min-height: 0;
+  gap: 8px;
+  padding: 10px;
+}
+
+.machine-dock--compact .chat-empty-orb {
+  display: none;
+}
+
+.machine-dock--compact .chat-empty h3 {
+  font-size: 1.05rem;
+}
+
+.machine-dock--compact .chat-empty p {
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.machine-dock--compact .chat-disclaimer {
+  display: none;
 }
 
 @keyframes face-in {
@@ -2115,19 +2221,21 @@ button,
 .chapter-card {
   display: flex;
   flex-direction: column;
-  min-height: 360px;
-  padding: clamp(18px, 2.2vw, 26px);
+  min-height: 380px;
+  padding: clamp(16px, 2vw, 22px);
   border-radius: var(--r-card);
-  background: var(--surface);
-  box-shadow: var(--shadow-md);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbf7 100%);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(16, 18, 24, 0.05), 0 24px 48px -30px rgba(24, 39, 75, 0.3);
   transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
   position: relative;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .chapter-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
+  transform: translateY(-4px);
+  box-shadow: 0 2px 3px rgba(16, 18, 24, 0.06), 0 46px 78px -36px rgba(24, 39, 75, 0.44);
 }
 
 .chapter-card--halo { grid-column: span 7; }
@@ -2187,12 +2295,13 @@ button,
 .chapter-visual {
   position: relative;
   z-index: 1;
-  height: 148px;
-  margin: 12px 0;
+  height: clamp(164px, 17vw, 218px);
+  margin: 12px 0 16px;
   border-radius: 18px;
   overflow: hidden;
   background: var(--surface-2);
   border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), 0 14px 26px -18px rgba(16, 18, 24, 0.6);
 }
 
 .chapter-visual::after {
@@ -2202,7 +2311,7 @@ button,
   z-index: 2;
   background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1.15px);
   background-size: 17px 17px;
-  opacity: 0.18;
+  opacity: 0.12;
   pointer-events: none;
 }
 
@@ -2211,13 +2320,15 @@ button,
 }
 
 .chapter-card:hover .chapter-visual img {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 
 .chapter-visual-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(16, 18, 24, 0) 52%, rgba(16, 18, 24, 0.52) 100%);
+  background:
+    linear-gradient(180deg, rgba(16, 18, 24, 0) 40%, rgba(8, 10, 16, 0.66) 100%),
+    linear-gradient(90deg, rgba(8, 10, 16, 0.35) 0%, transparent 46%);
   pointer-events: none;
 }
 
@@ -2227,14 +2338,16 @@ button,
   bottom: 10px;
   z-index: 3;
   max-width: calc(100% - 20px);
-  padding: 5px 9px;
-  border-radius: 8px;
-  background: var(--ink);
+  padding: 6px 11px;
+  border-radius: 10px;
+  background: rgba(10, 12, 18, 0.82);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   color: var(--lime);
   font-family: var(--font-mono), monospace;
-  font-size: 8.5px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -2350,13 +2463,14 @@ button,
 .chapter-title {
   position: relative;
   z-index: 1;
-  margin: 12px 0 0;
+  margin: 0;
   font-family: var(--font-pixel), monospace;
   font-weight: 400;
-  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-size: clamp(1.45rem, 2.1vw, 1.85rem);
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.02;
   text-transform: uppercase;
+  text-wrap: balance;
   color: var(--ink);
 }
 
@@ -3572,11 +3686,24 @@ button,
     box-shadow var(--dur-2) var(--ease-out);
 }
 
-.crt-app-glyph--text {
-  font-family: var(--font-mono), monospace;
-  font-size: 13.5px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.crt-app-glyph--linkedin {
+  background: #0a66c2;
+}
+
+.crt-app-glyph--whatsapp {
+  background: #25d366;
+}
+
+.crt-app-glyph--github {
+  background: #181717;
+}
+
+.crt-app-glyph--acrobat {
+  background: #fa0f00;
+}
+
+.crt-app-glyph svg {
+  display: block;
 }
 
 .crt-app:hover .crt-app-glyph {
@@ -3637,28 +3764,6 @@ button,
 
 .crt-sleep {
   color: rgba(255, 255, 255, 0.75);
-}
-
-.crt-battery {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.crt-battery-cell {
-  width: 15px;
-  height: 8px;
-  padding: 1px;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  border-radius: 2px;
-}
-
-.crt-battery-fill {
-  display: block;
-  height: 100%;
-  width: 12%;
-  border-radius: 1px;
-  background: #ff9d8f;
 }
 
 .crt-clock {
@@ -3810,13 +3915,111 @@ button,
 }
 
 .crt-knob {
-  width: 24px;
-  height: 24px;
+  position: relative;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: linear-gradient(180deg, #fbfcfe, #e4e8f1);
+  display: grid;
+  place-items: center;
+  color: rgba(16, 18, 24, 0.52);
+  background: linear-gradient(180deg, #fbfcfe, #e2e6ef);
   box-shadow:
-    inset 0 0 0 1px rgba(16, 18, 24, 0.12),
-    0 1px 2px rgba(16, 18, 24, 0.08);
+    inset 0 0 0 1px rgba(16, 18, 24, 0.14),
+    inset 0 -2px 3px rgba(16, 18, 24, 0.12),
+    0 1px 2px rgba(16, 18, 24, 0.1);
+  cursor: pointer;
+  transition:
+    transform 260ms var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.crt-knob svg {
+  display: block;
+  pointer-events: none;
+}
+
+.crt-knob:hover {
+  color: rgba(16, 18, 24, 0.82);
+}
+
+.crt-knob:focus-visible {
+  outline: 2px solid var(--lime-deep);
+  outline-offset: 2px;
+}
+
+.crt-knob:disabled {
+  color: rgba(16, 18, 24, 0.22);
+  cursor: default;
+}
+
+/* on-screen display: what a real CRT shows when you press its buttons */
+.crt-osd {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 50%;
+  width: 168px;
+  transform: translate(-50%, -50%);
+  padding: 10px 12px 12px;
+  border-radius: 6px;
+  background: rgba(6, 8, 12, 0.78);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 10px 28px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  animation: crt-osd-in 160ms steps(2, end);
+}
+
+.crt-osd-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #eaffb0;
+}
+
+.crt-osd-bar {
+  display: flex;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.crt-osd-bar i {
+  flex: 1;
+  height: 6px;
+  border-radius: 1px;
+  background: rgba(234, 255, 176, 0.16);
+}
+
+.crt-osd-bar i[data-on="true"] {
+  background: #eaffb0;
+  box-shadow: 0 0 6px rgba(234, 255, 176, 0.65);
+}
+
+@keyframes crt-osd-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-knob {
+    transition: none;
+  }
+
+  .crt-osd {
+    animation: none;
+  }
 }
 
 .crt-power {
@@ -3874,288 +4077,6 @@ button,
   background: radial-gradient(ellipse at center, rgba(16, 18, 24, 0.26), transparent 70%);
   filter: blur(8px);
   transform: translateZ(-30px);
-}
-
-/* résumé viewer */
-.resume-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 2600;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: rgba(16, 18, 24, 0.52);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.resume-sheet {
-  width: min(880px, 100%);
-  height: min(86vh, 900px);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 20px;
-  background: var(--surface);
-  box-shadow: 0 40px 90px -30px rgba(16, 18, 24, 0.6);
-}
-
-.resume-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
-}
-
-.resume-title {
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
-.resume-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-}
-
-.resume-actions a {
-  color: var(--blue-strong);
-  font-weight: 600;
-}
-
-.resume-actions button {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--ink);
-  cursor: pointer;
-  transition: background var(--dur-1) var(--ease-out);
-}
-
-.resume-actions button:hover {
-  background: var(--surface-3);
-}
-
-.resume-scroll {
-  flex: 1;
-  overflow-y: auto;
-  background: var(--surface-3);
-}
-
-.resume-doc {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: clamp(20px, 3vw, 34px);
-  background: var(--surface);
-  min-height: 100%;
-}
-
-.resume-head {
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--line);
-}
-
-.resume-name {
-  font-family: var(--font-pixel), monospace;
-  font-weight: 400;
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-
-.resume-role {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--ink-2);
-}
-
-.resume-contact {
-  margin-top: 8px;
-  font-family: var(--font-mono), monospace;
-  font-size: 10.5px;
-  color: var(--ink-3);
-}
-
-.resume-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  margin-top: 8px;
-}
-
-.resume-links a {
-  font-family: var(--font-mono), monospace;
-  font-size: 10.5px;
-  color: var(--blue-strong);
-}
-
-.resume-links a:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.resume-section {
-  margin-top: 22px;
-}
-
-.resume-section h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
-.resume-section h3::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background-image: linear-gradient(90deg, rgba(16, 18, 24, 0.2) 0 2px, transparent 2px 5px);
-  background-size: 5px 1px;
-}
-
-.resume-section p {
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--ink-2);
-}
-
-.resume-highlights {
-  margin-top: 10px;
-  display: grid;
-  gap: 7px;
-}
-
-.resume-highlights li {
-  position: relative;
-  padding-left: 15px;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--ink-2);
-}
-
-.resume-highlights li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 8px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--lime-deep);
-}
-
-.resume-highlights strong {
-  color: var(--ink);
-  font-weight: 650;
-}
-
-.resume-skills {
-  margin-top: 10px;
-  display: grid;
-  gap: 9px;
-}
-
-.resume-skills > div {
-  display: grid;
-  grid-template-columns: 128px minmax(0, 1fr);
-  gap: 14px;
-  padding-bottom: 9px;
-  border-bottom: 1px solid var(--line);
-}
-
-.resume-skills dt {
-  font-family: var(--font-mono), monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  padding-top: 2px;
-}
-
-.resume-skills dd {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--ink-2);
-}
-
-.resume-project {
-  margin-top: 16px;
-}
-
-.resume-project-head,
-.resume-job-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.resume-project-head a,
-.resume-project-head > span:first-child {
-  font-family: var(--font-pixel), monospace;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-}
-
-.resume-project-head a:hover {
-  color: var(--blue-strong);
-}
-
-.resume-project-role,
-.resume-job-head span {
-  font-family: var(--font-mono), monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.04em;
-  color: var(--ink-3);
-  text-align: right;
-}
-
-.resume-job {
-  margin-top: 14px;
-}
-
-.resume-job-head strong {
-  font-size: 13.5px;
-  font-weight: 650;
-  color: var(--ink);
-}
-
-@media (max-width: 640px) {
-  .resume-skills > div {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
-  }
-
-  .resume-project-role,
-  .resume-job-head span {
-    text-align: left;
-  }
-}
-
-.resume-frame {
-  flex: 1;
-  width: 100%;
-  border: 0;
-  background: var(--surface-3);
 }
 
 @media (max-width: 860px) {
@@ -5785,6 +5706,12 @@ a.about-fact:hover {
 
   .nav-menu-btn {
     display: inline-flex;
+  }
+
+  /* The desktop nav clips while it folds (overflow: hidden). On phones it never
+     folds, and the dropdown menu hangs below the pill, so let it show. */
+  .nav-animated {
+    overflow: visible;
   }
 
   .nav-cta {

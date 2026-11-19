@@ -26,7 +26,7 @@
 ## In-browser LLM research
 
 - WebLLM `@mlc-ai/web-llm` 0.2.87 is current (Nov 2026). WebGPU only, OpenAI-shaped chat API, Web Worker support.
-- `SmolLM2-135M-Instruct-q4f16_1-MLC`: ~78 MB total (72 MB weights + ~6 MB WebGPU lib); context 4,096 (overridden); `required_features: ["shader-f16"]` — GPUs without f16 shaders fall back to demo mode. Not in WebLLM's prebuilt config; merged in as a custom model record (`lib/machine/model.ts`, Apache 2.0, mlc-ai CDN).
+- `Qwen2.5-0.5B-Instruct-q4f16_1-MLC`: ~265 MB on the wire (usedStorage, mlc-ai CDN, Apache 2.0); ~945 MB VRAM per web-llm prebuilt record; 4,096 context; `low_resource_required: true`. Ships in web-llm's `prebuiltAppConfig.model_list`, so the engine passes the prebuilt id — no custom record. The MLC kernels need `shader-f16` (kept) or the site falls back to demo mode. SmolLM2-360M (~195 MB) was the lighter fallback; 0.5B Qwen was picked for best instruction-following at this size class. Supersedes the SmolLM2-135M record (2026-11-17).
 - Browser support: Chrome/Edge 113+, Firefox 141+ on Windows, Safari 26+/iOS 26+ with WebGPU.
 - First load: roughly 10–45 s on typical broadband, 1–3 s from cache. Generation is fast for short answers.
 - 0.5B quality is limited; retrieval grounding, short answers, source chips and a refusal line are required.

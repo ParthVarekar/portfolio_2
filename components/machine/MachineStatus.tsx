@@ -26,7 +26,7 @@ export function MachineStatus({ compact = false }: { compact?: boolean }) {
   return (
     <span className="pill pill--outline">
       <span className="status-dot status-dot--coral" aria-hidden="true" />
-      DEMO MODE
+      INSTANT ANSWERS
     </span>
   );
 }

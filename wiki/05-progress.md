@@ -65,6 +65,81 @@
 
 ## Changelog
 
+### 2026-11-19 (the chat rebuilt from scratch around the same 0.5B model)
+- User: the chat was "horrible", "like talking to a dumb idiot"; wanted it to know everything about Parth, answer about him and his work, and use the internet if needed — rebuilt from scratch. When offered a cloud model, the user ruled it out: the point of the portfolio is showing a model run well *in the browser*, so Qwen2.5-0.5B stays.
+- Diagnosis of the old system: no conversation memory at all; a keyword screen that refused anything off-script (including general questions); seven post-hoc checks that replaced the model's sentence with a raw note ("The notes show: …"); retrieval by keyword overlap with no idea of the question's subject.
+- New `lib/brain/` (old `lib/rag/`, `lib/machine/{fallback,smalltalk,demo}.ts` and `content/demo-answers.json` deleted; `web.ts` moved in):
+  - `entities.ts` aliases for Parth, all 7 chapters, 12 side projects, clients and this site; `understand.ts` decides subject, facet and follow-ups in code; `knowledge.ts` ~80 cards (knowledge.json prose + generated details/skills/contact/now/story cards from the same content the pages render); `retrieve.ts` picks 1-4 cards; `prompt.ts` short persona + rules, FACTS next to the question, previous exchange only for follow-ups, vague questions rewritten ("tell me more" → "How does H.A.L.O work?", "it" → the subject); `clean.ts` keeps the model's words and only drops loops, fragments, markdown, unsupported numbers/percentages and sentences made mostly of words absent from the facts, then adds the composer's best supporting sentences when the model's reply is a bare clause; `compose.ts` answers without the model.
+  - Answered straight from cards even with the model awake: project list, contact, skills, "why hire him", role on a project — the 0.5B dropped or repeated list items and invented claims there.
+  - General questions now answered by the model's own knowledge (Paris, Tokyo, a neural network explanation), or from Wikipedia with Web on. Personal questions (age, family, salary…) get a polite deflection.
+  - Greedy decoding (temperature 0) for questions about Parth, 0.3 for general chat; GPU pre-warm during loading took the first answer from ~32 s to ~3-6 s.
+- `Machine.tsx` rewritten on the same props and markup (hero card + /machine unchanged visually): conversation memory, source chips that open case studies in place, "instant" naming instead of "demo", dev-only `window.__machine.ask()` hook for QA.
+- Copy updated: /machine (how-it-works step 03, intro, can-do list), colophon (stack row, machine note), contact CTA, and the three knowledge cards that describe the machine.
+- Live-verified with the real model in the browser (weights seeded into the Cache API from a shell download because the preview pane's network ran at ~65 KB/s; temp files deleted): ~40 questions across overview, follow-ups, results, role, search ("which project uses a Kalman filter?" → COSTA), compare, contact, hire, education, internship, general knowledge and small talk. Typecheck and production build green.
+- Known limits: answers on "how it works" can still paraphrase loosely; comparisons are kept to one sentence each; the model can't do multi-step reasoning across many projects at once.
+
+### 2026-11-17 (the fallback became an answering system)
+- User: mobile visitors won't download the model, so the no-model path must answer “no matter what”.
+- Replaced the 12-answer keyword demo with `lib/machine/fallback.ts`, a modelless QA composer over the curated KB (69 chunks).
+- Pipeline: small talk → notes QA (evidence questions emit the note's `facts` verbatim, e.g. “The notes show: 80 of 80 planted species…”; other questions compose the question-best sentence in the top note plus one contiguous neighbour) → Wikipedia only when Web mode is on and the notes can't answer → the exact refusal string.
+- Follow-ups chain (“and how many tests?” after COSTA answered with COSTA's facts); sources chips always cite the note/article used; ~470-char cap, whole sentences.
+- User-facing copy renamed “Demo mode” → “Instant answers” (rail, chat foot, empty state, pills, colophon, machine page, KB chunks); internal mode value unchanged.
+- Live-verified on /machine (WebGPU cached): greeting/identity canned answers, H.A.L.O, evidence-facts answers, internship, COSTA two-sentence reply, Web off → exact refusal, Web on → Wikipedia answers with cited sources, `weather in Mumbai right now` → exact refusal.
+- typecheck + production build green; routes all 200; no console errors; no horizontal overflow at 375 px.
+
+### 2026-11-17 (the machine learned to answer properly)
+- User: "the llm does not work really well" — asked for accuracy on everything plus general chatting, and for a proper knowledge base about Parth and his work.
+- **Model swap**: SmolLM2-135M → **Qwen2.5-0.5B-Instruct-q4f16_1-MLC** (~265 MB, ~945 MB VRAM, 4,096 ctx, Apache 2.0, prebuilt in web-llm — no custom record). User picked it over SmolLM2-360M (~195 MB) and Llama-3.2-1B (~700 MB). Detection still requires `shader-f16`; demo mode unchanged as fallback.
+- **Knowledge base 45 → 69 chunks**: fixed mojibake (`d�cor`), added the rest of the catalogue (Enterprise Knowledge Assistant, Codeframe, Agent Safety Net, Nexus-AI, Shorts Intelligence OS, StudyOS, 2'nd Brain, Local File Intelligence, Parth Operating Assistant, WMC Virtual Lab, Firdosh Marble Arts, ProtoVinci, Credence, Color Vision Assistant) and personal facts (KC College of Engineering Thane, 2028, CGPA 8.31, MHT-CET; Imarticus data-analytics internship Feb–Mar 2026, 50,000+ records, five Power BI dashboards, −15% reporting; EduSkills Full-Stack Java cert A+; hire/links/internship chunks; verification habits; this-site chunks rewritten).
+- **Web mode (opt-in, default OFF)**: globe pill in the machine header (all modes including compact). Notes first; questions the notes cannot answer → Wikipedia (opensearch with a stopword-stripped core, UK→US spelling, ≥2-token overlap or a trailing-entity fallback, extract must carry the question's subject vocabulary; aborts to the exact refusal on any failure). Answers cite the Wikipedia page as a source chip; with Web off the machine never touches the network beyond the one-time model download.
+- **Small talk**: deterministic replies for greetings, how-are-you, who/what are you, identity/model questions, capability questions, thanks, goodbyes, jokes and complaints — `lib/machine/smalltalk.ts`. The 0.5B model never sees these turns; the old `hello → refusal` failure is gone.
+- **Answer-quality layers**: noise blocklist in the retrieval signal screen (`right`, `real`, `ready`, `now`, `today`, `color`, `colour`, `sky`, `answer`, `life`, `world`, `time`), English-theme escape hatch (`test`, `verify`, `contact`, `hire`, …), evidence-intent checked before how-intent, `extractiveAnswer()` (question-best sentence, decimals & acronyms protected from sentence splitting) replaces all first-sentence fallbacks, weak-answer check now returns two sentences.
+- **Copy updated**: `~265 MB` readout, machine page (how steps, can/cannot lists, metadata), colophon (credits, spec table, privacy bullets), demo-answers.json extended to 26 entries, machineFacts in site.ts.
+- **Live-verified** (WebGPU, /machine): greetings/identity, H.A.L.O/BioRadar/contact/tests answers, Mumbai population (12.5M city / 20M metro), speed of light (299,792,458 m/s), capitals of France/Japan, Einstein, client sites; `What colour is the sky?` honestly answered from the sky article with a Wikipedia source chip; `weather in Mumbai right now` → exact refusal. Typecheck + build green, 0 console errors, no horizontal overflow at 375 px.
+- Known honesty edge: hyper-generic questions with Web **off** that share vocabulary with the KB can still get a notes-first answer (lexical ceiling); with Web **on**, notes always win for portfolio questions.
+
+### 2026-11-17 (the wake-the-machine card no longer grows)
+- User boxed the wake-the-machine state and asked that the card size stays the same.
+- Fix: the welcome face stays in the layout, invisible (`hero-face--away`), which is what sizes the card; the machine face is layered on top of it (`position:absolute; inset:0; z-index:2; padding:inherit; background:var(--surface)`) and never contributes height.
+- The chat shrinks to fit and scrolls internally (chat area ~302 px at 1440, ~225 px at 768, ~129 px at 375, with internal scrolling of the empty/loading/chat states).
+- Compact mode now hides the three spec pills ("Local", "SmolLM2 · 135M", "4K context"), the empty-state orb and the disclaimer line; only the status pill remains in the machine header.
+- Verified at 1440/1200/960/900/768/600/375: card height identical before wake, after wake and after close; scrollY identical; core (windmill) card unchanged; typecheck + production build green; no console errors.
+
+### 2026-11-17 (the two CRT knobs actually do something)
+- The decorative knobs on the CRT chin are now functional, mapping to the two things a real CRT has buttons for.
+- Left knob (sun): brightness — five levels (Dim/Low/Normal/Bright/Vivid). Right knob (half-disc): contrast — five levels (Soft/Low/Normal/Sharp/Vivid).
+- Each press steps one level, rotates the knob by 38° per level (±76°), and applies `filter: brightness()/contrast()` to the CRT screen only.
+- An OSD overlay appears (`BRIGHTNESS 115%` / `CONTRAST 113%`, 10 phosphor segments) and fades after 1.7 s; `role="status"` announces it to screen readers.
+- Knobs are disabled when the CRT is off; reduced-motion disables the knob rotation transition and the OSD animation.
+- Verified on /contact and /: clicking cycles levels and filter, OSD appears then disappears after ~1.7 s, build + typecheck green, no console errors.
+
+### 2026-11-17 (work cards restyled, sloppy images deleted)
+- User asked for nicer project cards on /work and for the nice images to be used everywhere, with the old AI-generated title cards (Qwen3-ASR + Gemma, BioRadar title card) removed.
+- Card restyle: gradient paper surface, 1px hairline border, layered soft shadow, taller cover (clamp(164px,17vw,218px)), inset highlight, two-stop shade (bottom + left), blurred lime-on-ink tag, 1.06 cover zoom on hover, balanced pixel title. Grid spans and the client-work card are unchanged.
+- Image swaps everywhere: card thumbnails in `components/work/Visuals.tsx` (susurrus-live, bioradar-estuary, roboforge-banner), case-study heroes + galleries in `content/projects.ts`, plus the home folder preview already used them.
+- Deleted every unused AI title card / intro loop / tmp export from `public/images/work` (shot/intro/banner files and `tmp-*.webp`); none referenced anywhere.
+- Verified: 200 on /work and every /work/* route, no broken images, all nine card thumbnails naturalWidth>0, no horizontal overflow at 1440px, /work LCP warning resolved, typecheck + production build green.
+
+### 2026-11-17 (CRT desktop: real app icons, laptop battery removed)
+- User supplied the CRT interface reference and asked for the actual application icons plus removal of the laptop battery indicator.
+- The five desktop apps now render inline-SVG replicas of the real marks at brand colours on brand-coloured tiles: Gmail "M" (white tile), LinkedIn (#0A66C2, white "in"), WhatsApp (#25D366, white bubble), GitHub (#181717, white octocat) and Adobe Acrobat Reader (#FA0F00, white swirl). No external icon files; nothing fetched at runtime.
+- The `crt-battery` cell+fill+"12%" JSX and its CSS are deleted; the `sleep: off/soon` pill and the live IST clock remain on the task bar.
+- Verified: typecheck and production build green, /contact 200, five icon SVGs present in the DOM, zero `.crt-battery` matches in the DOM or CSS.
+
+### 2026-11-17 (drifting clouds behind the windmill)
+- User supplied `cloud.glb` (ProtoVinci code-built paper cloud, 6 meshes, paperBright material) and asked for a few behind the windmill section, going across.
+- Asset copied to `public/models/cloud.glb`.
+- `components/hero/WindmillViewer.tsx` loads it with `GLTFLoader` in the existing Three.js scene; four parallax copies (near/fast/low, far/slow/high) drift left-to-right with a slow bob and a small roll, wrapping off-screen at |x|>4.6. No shadows, no interaction, reduced-motion renders them static.
+- Cloud failure degrades to a clear sky with a console warning instead of a broken hero.
+- Verified: `/models/cloud.glb` 200 (~120 KB gzip), `/` 200, no console errors, reduce-motion pixel diff vs a cloud-aborted load isolates ~20k changed pixels to the cloud band, typecheck and production build green.
+
+### 2026-11-17 (résumé button goes straight to the PDF)
+- User feedback on the contact CRT desktop: clicking **Résumé** opened an in-page modal viewer (designed HTML sheet) that looked bad at that size.
+- The Résumé app is now a plain anchor to `/resume/parth-varekar-resume.pdf` with `target="_blank"`, so it opens the PDF directly in a new tab like any desktop app.
+- Removed the viewer entirely: the `resumeOpen` state + Escape/backdrop/close handling in `components/contact/Computer.tsx`, the modal JSX, and the `.resume-modal` / `.resume-sheet` / `.resume-doc` / related CSS from `app/globals.css` (including the unused `.resume-frame`).
+- `content/resume.ts` is kept for reference; the PDF remains the source of truth.
+- Verified: typecheck and production build green; no console errors; the other desktop apps are unchanged.
+
 ### 2026-11-10 (portrait photo in the About card)
 - User supplied a portrait (arms folded, white shirt) plus a reference screenshot of the About card; the black `PV` monogram disc in the left PORTRAIT panel is now the photo.
 - Asset: `public/images/portrait.jpg` (960×1438, 91 KB) rendered with `next/image` (`fill`, `object-fit: cover`, `object-position: 50% 16%`), lazy-loaded; ~26 KB served at w=640, ~11 KB at w=384.

@@ -8,8 +8,8 @@ export const workImages: Record<string, { src: string; alt: string; position?: s
     position: "center top",
   },
   susurrus: {
-    src: "/images/work/susurrus-shot.webp",
-    alt: "Susurrus title frame showing two local models, one hears and one edits.",
+    src: "/images/work/susurrus-live.jpg",
+    alt: "Susurrus live dictation on Windows with the two-model pipeline running locally.",
     position: "center",
   },
   "chumps-lab": {
@@ -18,8 +18,8 @@ export const workImages: Record<string, { src: string; alt: string; position?: s
     position: "center top",
   },
   bioradar: {
-    src: "/images/work/bioradar-shot.webp",
-    alt: "BioRadar title frame with an India-curated species reference.",
+    src: "/images/work/bioradar-estuary.jpg",
+    alt: "BioRadar reference imagery of an Indian water body feeding the eDNA pipeline.",
     position: "center",
   },
   costa: {
@@ -28,8 +28,8 @@ export const workImages: Record<string, { src: string; alt: string; position?: s
     position: "center top",
   },
   roboforge: {
-    src: "/images/work/roboforge-shot.webp",
-    alt: "RoboForge terminal output showing a simulated rover and applied trim.",
+    src: "/images/work/roboforge-banner.png",
+    alt: "RoboForge banner showing the rover, simulation and reality-gap loop.",
     position: "center",
   },
 };
@@ -72,6 +72,7 @@ export function ChapterVisual({ project }: { project: Project }) {
         fill
         sizes="(max-width: 720px) 92vw, (max-width: 960px) 46vw, 40vw"
         style={{ objectFit: "cover", objectPosition: image.position ?? "center" }}
+        priority={project.slug === "halo"}
       />
       <span className="chapter-visual-shade" aria-hidden="true" />
       <span className="chapter-visual-tag">{project.kicker}</span>

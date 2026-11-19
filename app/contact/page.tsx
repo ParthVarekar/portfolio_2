@@ -121,8 +121,8 @@ export default function ContactPage() {
             Ask the machine first.
           </h2>
           <p className="panel-sub">
-            It runs in your browser and answers from a small set of notes about the work. If
-            it cannot answer, email is still the direct path.
+            It runs in your browser and knows Parth&apos;s projects, skills and story. If it
+            cannot answer, email is still the direct path.
           </p>
         </div>
         <Link className="btn btn--lime" href="/machine">

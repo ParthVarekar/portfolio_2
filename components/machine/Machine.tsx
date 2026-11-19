@@ -13,93 +13,35 @@ import {
   Square,
 } from "lucide-react";
 import type { ChatCompletionMessageParam, WebWorkerMLCEngine } from "@mlc-ai/web-llm";
-import { MODEL_ID, BROWSER_MODEL } from "@/lib/machine/model";
-import { hasPortfolioSignal, isEvidenceQuestion, isFollowUpQuestion, projectInQuestion, retrieve, topFactHit, weakAnswerCheck } from "@/lib/rag";
-import { buildMessages, REFUSAL } from "@/lib/rag/prompt";
-import { matchDemo } from "@/lib/machine/demo";
+import { MODEL_ID } from "@/lib/machine/model";
+import { freshMemory, plan, type Memory, type Turn } from "@/lib/brain";
+import { tidy } from "@/lib/brain/clean";
 import type { ChatMessage, MachineMode, MachinePhase, Source } from "@/lib/machine/types";
 import { useMachineSupport } from "@/lib/machine/useMachineSupport";
 import { DotMatrix } from "@/components/hero/DotMatrix";
 
 const HOME_SUGGESTIONS = [
   "What is H.A.L.O?",
-  "How does Susurrus work?",
-  "What did BioRadar prove?",
-  "How do you test your systems?",
+  "Why should I hire Parth?",
+  "What are COSTA's results?",
+  "What has Parth built?",
 ];
 
 const PAGE_SUGGESTIONS = [
   "What is H.A.L.O?",
   "How does Susurrus work?",
   "What did BioRadar prove?",
-  "How does COSTA find the beacon?",
-  "What is this page running?",
-  "What client work have you done?",
+  "Why should I hire Parth?",
+  "Where does Parth study?",
+  "How do I contact him?",
 ];
 
-/** Undo the 135M tokenizer's habit of spacing out acronyms. */
-function cleanAnswer(text: string): string {
-  return text
-    .replace(/\bH\.\s*A\.\s*L\.\s*O\.?/gi, "H.A.L.O ")
-    .replace(/\bY\.\s*O\.\s*L\.\s*O\.?/gi, "YOLO ")
-    .replace(/\bR\.\s*F\s*-\s*D\.\s*E\.\s*T\.\s*R\.?/gi, "RF-DETR ")
-    .replace(/\bE\.\s*D\.\s*D\.?/gi, "EDD ")
-    .replace(/\bQ\.\s*WEN3-VL\b/gi, "Qwen3-VL ")
-    .replace(/\s{2,}/g, " ")
-    .replace(/\s+([,.;:!?])/g, "$1");
-}
-
-/** True if the answer is a verbatim span of the notes — then the note itself is the cleaner answer. */
-function notesContain(notes: Array<{ text: string }>, text: string): boolean {
-  const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
-  const t = norm(text);
-  if (t.length < 30) return false;
-  return notes.some((note) => norm(note.text).includes(t));
-}
-
-/**
- * The 135M sometimes treats the prompt as a document to continue and echoes
- * the scaffold back ("KEY FACTS", "[1] …", "OPTIONS:", "END OF QUESTION").
- * Drop those lines so only the answer survives.
- */
-const SCAFFOLD_LINE = /^(?:\[?\d+\]?\s*)?(?:KEY FACTS|NOTES|QUESTION|SUBJECT|OPTIONS?|END OF QUESTION|ANSWER)\b/i;
-const SCAFFOLD_ONLY = /^(?:options|answers?|question|notes|key facts)\s*:?\s*$/i;
-const NOTE_HEADER = /^[^\n—]{0,90}\s—\s[\w .&-]{0,70}$/;
-const PROMPT_ECHO = /^(prefer note \[\d+\]|answer in one or two short sentences|name the project)/i;
-const ENUM_SPAM = /(\[\d+\][^\n]{0,120}){2,}/;
-
-function stripScaffold(text: string): string {
-  return text
-    .split("\n")
-    .filter((raw) => {
-      const line = raw.trim();
-      if (!line) return false;
-      if (SCAFFOLD_ONLY.test(line)) return false;
-      if (SCAFFOLD_LINE.test(line)) return false;
-      if (NOTE_HEADER.test(line)) return false;
-      if (PROMPT_ECHO.test(line)) return false;
-      if (ENUM_SPAM.test(line)) return false;
-      if (/^\[\d+\]\s/.test(line)) return false;
-      return true;
-    })
-    .join("\n")
-    .replace(/^["“]|["”]$/g, "")
-    .trim();
-}
+/** How many earlier turns the brain may look at for a follow-up. */
+const HISTORY_TURNS = 6;
 
 function newId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `m-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function dedupeSources(sources: Source[]): Source[] {
-  const seen = new Set<string>();
-  return sources.filter((source) => {
-    const key = `${source.label}|${source.url}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }
 
 function formatEta(progress: number, elapsed: number) {
@@ -108,6 +50,27 @@ function formatEta(progress: number, elapsed: number) {
   if (seconds > 120) return "A few minutes left";
   return `~${seconds}s left`;
 }
+
+function SourceChip({ source }: { source: Source }) {
+  const content = (
+    <>
+      {source.label}
+      <ArrowUpRight size={9} aria-hidden="true" />
+    </>
+  );
+  // pages on this site open in place; everything else in a new tab
+  return source.url.startsWith("/") && !source.url.endsWith(".pdf") ? (
+    <Link className="source-chip" href={source.url}>
+      {content}
+    </Link>
+  ) : (
+    <a className="source-chip" href={source.url} target="_blank" rel="noreferrer">
+      {content}
+    </a>
+  );
+}
+
+type MachineHook = { ask: (question: string) => Promise<string>; reset: () => void; mode: () => MachineMode };
 
 export function Machine({
   variant = "home",
@@ -126,9 +89,9 @@ export function Machine({
   compact?: boolean;
   /** start loading the model as soon as support has been detected — the dock mounts on the user's click */
   autoWake?: boolean;
-  /** report engine phase transitions to a parent (the hero's windmill gauge) */
+  /** report engine phase transitions to a parent */
   onPhaseChange?: (phase: MachinePhase) => void;
-  /** report download progress (0-1) so the parent can light its own gauge */
+  /** report download progress (0-1) to a parent */
   onProgress?: (progress: number) => void;
 }) {
   const support = useMachineSupport();
@@ -140,15 +103,23 @@ export function Machine({
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [webEnabled, setWebEnabled] = useState(false);
 
   const workerRef = useRef<Worker | null>(null);
   const engineRef = useRef<WebWorkerMLCEngine | null>(null);
   const cancelledRef = useRef(false);
   const abortedRef = useRef(false);
-  const demoTimerRef = useRef<number | null>(null);
-  const lastProjectRef = useRef<string | null>(null);
+  const busyRef = useRef(false);
+  const typingRef = useRef<number | null>(null);
+  const memoryRef = useRef<Memory>(freshMemory());
+  const historyRef = useRef<Turn[]>([]);
+  const modeRef = useRef<MachineMode>("local");
+  const webRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  modeRef.current = mode;
+  webRef.current = webEnabled;
 
   const suggestions = variant === "page" ? PAGE_SUGGESTIONS : HOME_SUGGESTIONS;
 
@@ -179,7 +150,7 @@ export function Machine({
     return () => {
       cancelledRef.current = true;
       workerRef.current?.terminate();
-      if (demoTimerRef.current) window.clearInterval(demoTimerRef.current);
+      if (typingRef.current) window.clearInterval(typingRef.current);
     };
   }, []);
 
@@ -188,24 +159,29 @@ export function Machine({
     if (element) element.scrollTop = element.scrollHeight;
   }, [messages, phase]);
 
-  const startDemo = () => {
+  const forget = () => {
+    memoryRef.current = freshMemory();
+    historyRef.current = [];
+  };
+
+  const startInstant = () => {
     cancelledRef.current = true;
     workerRef.current?.terminate();
     workerRef.current = null;
     engineRef.current = null;
-    if (demoTimerRef.current) window.clearInterval(demoTimerRef.current);
-    setMode("demo");
+    if (typingRef.current) window.clearInterval(typingRef.current);
+    setMode("instant");
     setPhase("ready");
     setError(null);
     setMessages([]);
-    lastProjectRef.current = null;
+    forget();
     setInput("");
     window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 40);
   };
 
   const wake = async () => {
-    if (support === "demo") {
-      startDemo();
+    if (support === "instant") {
+      startInstant();
       return;
     }
     if (support !== "webgpu" || phase === "loading") return;
@@ -219,9 +195,7 @@ export function Machine({
     setElapsed(0);
 
     try {
-      const { CreateWebWorkerMLCEngine, prebuiltAppConfig } = await import(
-        "@mlc-ai/web-llm"
-      );
+      const { CreateWebWorkerMLCEngine } = await import("@mlc-ai/web-llm");
       if (cancelledRef.current) return;
 
       const worker = new Worker(new URL("../../lib/machine/worker.ts", import.meta.url), {
@@ -229,6 +203,8 @@ export function Machine({
       });
       workerRef.current = worker;
 
+      // Qwen2.5-0.5B-Instruct-q4f16_1-MLC ships in web-llm's prebuilt list,
+      // so the engine resolves it from the default app config.
       const engine = await CreateWebWorkerMLCEngine(worker, MODEL_ID, {
         initProgressCallback: (report) => {
           if (cancelledRef.current) return;
@@ -236,12 +212,21 @@ export function Machine({
           setStatusText(report.text);
           setElapsed(report.timeElapsed);
         },
-        appConfig: {
-          ...prebuiltAppConfig,
-          model_list: [...prebuiltAppConfig.model_list, BROWSER_MODEL],
-        },
       });
 
+      if (cancelledRef.current) {
+        await engine.unload().catch(() => undefined);
+        worker.terminate();
+        return;
+      }
+
+      // The first generation compiles the GPU pipelines (tens of seconds on
+      // some machines). Pay that here, behind the loader, not on the
+      // visitor's first question.
+      setStatusText("Warming up the GPU…");
+      await engine.chat.completions
+        .create({ messages: [{ role: "user", content: "Hi" }], max_tokens: 2, temperature: 0 })
+        .catch(() => undefined);
       if (cancelledRef.current) {
         await engine.unload().catch(() => undefined);
         worker.terminate();
@@ -256,11 +241,7 @@ export function Machine({
     } catch (cause) {
       if (cancelledRef.current) return;
       setPhase("error");
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "The model could not start on this device.",
-      );
+      setError(cause instanceof Error ? cause.message : "The model could not start on this device.");
     }
   };
 
@@ -279,209 +260,132 @@ export function Machine({
   const retry = () => {
     setError(null);
     setPhase("idle");
-    if (support === "demo") startDemo();
+    if (support === "instant") startInstant();
     else void wake();
   };
 
   const stop = () => {
-    if (mode === "demo") {
-      if (demoTimerRef.current) window.clearInterval(demoTimerRef.current);
-      demoTimerRef.current = null;
-      setPhase("ready");
-      return;
+    if (typingRef.current) {
+      window.clearInterval(typingRef.current);
+      typingRef.current = null;
     }
     abortedRef.current = true;
     engineRef.current?.interruptGenerate();
+    busyRef.current = false;
     setPhase("ready");
   };
 
   const resetChat = () => {
-    if (demoTimerRef.current) window.clearInterval(demoTimerRef.current);
-    demoTimerRef.current = null;
-    if (mode === "local" && engineRef.current) {
-      engineRef.current.resetChat().catch(() => undefined);
-    }
+    stop();
     setMessages([]);
-    lastProjectRef.current = null;
+    forget();
     setInput("");
-    if (phase !== "idle" && phase !== "loading" && phase !== "error") setPhase("ready");
   };
 
-  const askDemo = (question: string) => {
-    if (demoTimerRef.current) window.clearInterval(demoTimerRef.current);
+  const patch = (id: string, change: Partial<ChatMessage>) =>
+    setMessages((previous) =>
+      previous.map((message) => (message.id === id ? { ...message, ...change } : message)),
+    );
 
-    const user: ChatMessage = { id: newId(), role: "user", content: question };
-    const assistantId = newId();
-    const match = matchDemo(question);
-    const answer = match?.answer ?? REFUSAL;
-    const sources = match?.sources ?? [];
+  /** Reveal a finished answer at reading speed, so instant replies don't just appear. */
+  const typeOut = (id: string, text: string) =>
+    new Promise<void>((resolve) => {
+      let index = 0;
+      typingRef.current = window.setInterval(() => {
+        index = Math.min(text.length, index + 4);
+        patch(id, { content: text.slice(0, index) });
+        if (index >= text.length) {
+          if (typingRef.current) window.clearInterval(typingRef.current);
+          typingRef.current = null;
+          resolve();
+        }
+      }, 12);
+    });
 
-    setMessages((previous) => [
-      ...previous,
-      user,
-      { id: assistantId, role: "assistant", content: "", sources },
-    ]);
-    setInput("");
-    setPhase("generating");
-
-    let index = 0;
-    demoTimerRef.current = window.setInterval(() => {
-      index = Math.min(answer.length, index + 3);
-      setMessages((previous) =>
-        previous.map((message) =>
-          message.id === assistantId ? { ...message, content: answer.slice(0, index) } : message,
-        ),
-      );
-      if (index >= answer.length) {
-        if (demoTimerRef.current) window.clearInterval(demoTimerRef.current);
-        demoTimerRef.current = null;
-        setPhase("ready");
-      }
-    }, 14);
-  };
-
-  const ask = async (raw: string) => {
+  /** Ask the machine. Resolves with the final answer text. */
+  const ask = async (raw: string): Promise<string> => {
     const question = raw.trim();
-    if (!question) return;
-    if (mode === "demo") {
-      askDemo(question);
-      return;
-    }
+    if (!question || busyRef.current) return "";
+    const live = modeRef.current === "local" && engineRef.current !== null;
+    if (modeRef.current === "local" && !live) return "";
 
-    const engine = engineRef.current;
-    if (!engine || phase === "generating") return;
-
+    busyRef.current = true;
     abortedRef.current = false;
-    const user: ChatMessage = { id: newId(), role: "user", content: question };
     const assistantId = newId();
-    const followUp =
-      lastProjectRef.current &&
-      isFollowUpQuestion(question) &&
-      !projectInQuestion(question);
-    const subject = followUp ? (lastProjectRef.current ?? undefined) : undefined;
-    const retrievalQuery = followUp ? `${subject} ${question}` : question;
-    const retrieved = hasPortfolioSignal(question) ? retrieve(retrievalQuery, 3) : [];
-    const sources = dedupeSources(
-      retrieved.map((item) => ({ label: item.chunk.source, url: item.chunk.url })),
-    );
-
-    if (retrieved[0]) lastProjectRef.current = retrieved[0].chunk.project;
-
     setMessages((previous) => [
       ...previous,
-      user,
-      { id: assistantId, role: "assistant", content: "", sources },
+      { id: newId(), role: "user", content: question },
+      { id: assistantId, role: "assistant", content: "", sources: [] },
     ]);
     setInput("");
     setPhase("generating");
-
-    if (retrieved.length === 0) {
-      setMessages((previous) =>
-        previous.map((message) =>
-          message.id === assistantId
-            ? { ...message, content: REFUSAL, sources: [] }
-            : message,
-        ),
-      );
-      setPhase("ready");
-      return;
-    }
-
-    const prompt = buildMessages(
-      question,
-      retrieved.map((item) => item.chunk),
-      subject,
-    );
 
     let answer = "";
     try {
-      const stream = await engine.chat.completions.create({
-        messages: prompt as ChatCompletionMessageParam[],
-        stream: true,
-        temperature: 0,
-        top_p: 0.9,
-        max_tokens: 120,
-        repetition_penalty: 1.12,
+      const next = await plan(question, {
+        memory: memoryRef.current,
+        history: historyRef.current,
+        live,
+        web: webRef.current,
       });
+      memoryRef.current = next.memory;
+      patch(assistantId, { sources: next.sources });
 
-      for await (const chunk of stream) {
-        if (abortedRef.current) break;
-        const delta = chunk.choices[0]?.delta?.content ?? "";
-        if (!delta) continue;
-        answer += delta;
-        setMessages((previous) =>
-          previous.map((message) =>
-            message.id === assistantId
-              ? { ...message, content: stripScaffold(cleanAnswer(answer)) }
-              : message,
-          ),
-        );
-      }
-
-      const topInfo = retrieved[0];
-      const stripped = stripScaffold(answer);
-      if (!stripped && !abortedRef.current) {
-        // The model only echoed the scaffold — fall back to the note itself.
-        const evidence = topInfo && isEvidenceQuestion(question);
-        const fallback = evidence
-          ? `The notes show: ${topInfo.chunk.facts?.replace(/\.?$/, "")}.`
-          : topInfo?.chunk.text.split(/(?<=[.!?])\s+/)[0] ?? REFUSAL;
-        setMessages((previous) =>
-          previous.map((message) =>
-            message.id === assistantId
-              ? { ...message, content: fallback }
-              : message,
-          ),
-        );
-      } else if (topInfo && !abortedRef.current) {
-        const facts = isEvidenceQuestion(question) ? topInfo.chunk.facts : undefined;
-        let replacement: string | null = null;
-        if (facts && !topFactHit(stripped, facts)) {
-          // The 135M latched onto prose instead of the facts — say the facts.
-          replacement = `The notes show: ${facts.replace(/\.?$/, "")}.`;
-        } else if (!facts) {
-          const words = stripped.split(/\s+/).filter((word) => /[a-z]/i.test(word)).length;
-          if (words < 6) {
-            // The model gave up — say note [1] instead.
-            replacement = topInfo.chunk.text.split(/(?<=[.!?])\s+/)[0].trim();
-          } else if (notesContain(retrieved.map((r) => r.chunk), stripped)) {
-            // A verbatim echo of a note — say the note's opening instead.
-            replacement = topInfo.chunk.text.split(/(?<=[.!?])\s+/)[0].trim();
-          } else {
-            replacement = weakAnswerCheck(stripped, topInfo.chunk);
-          }
+      if (next.kind === "reply") {
+        answer = next.text;
+        await typeOut(assistantId, answer);
+      } else {
+        let streamed = "";
+        const stream = await engineRef.current!.chat.completions.create({
+          messages: next.messages as ChatCompletionMessageParam[],
+          stream: true,
+          ...next.sampling,
+        });
+        for await (const chunk of stream) {
+          if (abortedRef.current) break;
+          const delta = chunk.choices[0]?.delta?.content ?? "";
+          if (!delta) continue;
+          streamed += delta;
+          patch(assistantId, { content: tidy(streamed) });
         }
-        if (replacement) {
-          setMessages((previous) =>
-            previous.map((message) =>
-              message.id === assistantId
-                ? { ...message, content: replacement as string }
-                : message,
-            ),
-          );
-        }
+        answer = abortedRef.current ? tidy(streamed).trim() : next.finish(streamed);
+        patch(assistantId, { content: answer });
       }
-      setPhase("ready");
     } catch {
-      if (abortedRef.current) {
-        setPhase("ready");
-        return;
+      if (!abortedRef.current) {
+        answer =
+          "The machine stopped mid-answer. Ask again, or reset the chat if it keeps happening.";
+        patch(assistantId, { content: answer, error: true });
       }
-      setMessages((previous) =>
-        previous.map((message) =>
-          message.id === assistantId
-            ? {
-                ...message,
-                content:
-                  "The machine stopped mid-answer. Try again, or switch to demo mode from the rail.",
-                error: true,
-              }
-            : message,
-        ),
-      );
-      setPhase("ready");
     }
+
+    if (answer && !abortedRef.current) {
+      historyRef.current = [
+        ...historyRef.current,
+        { role: "user" as const, content: question },
+        { role: "assistant" as const, content: answer },
+      ].slice(-HISTORY_TURNS);
+    }
+    busyRef.current = false;
+    setPhase("ready");
+    return answer;
   };
+
+  // development only: lets a test script drive the real chat path
+  const hookRef = useRef<MachineHook | null>(null);
+  hookRef.current = { ask, reset: resetChat, mode: () => modeRef.current };
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const target = window as unknown as { __machine?: MachineHook };
+    target.__machine = {
+      ask: (question) => hookRef.current!.ask(question),
+      reset: () => hookRef.current!.reset(),
+      mode: () => hookRef.current!.mode(),
+    };
+    return () => {
+      delete target.__machine;
+    };
+  }, []);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -498,12 +402,12 @@ export function Machine({
     phase === "loading"
       ? `Loading ${Math.round(progress * 100)}%`
       : phase === "generating"
-        ? "Generating"
+        ? "Thinking"
         : phase === "error"
           ? "Error"
           : phase === "ready"
-            ? mode === "demo"
-              ? "Demo ready"
+            ? mode === "instant"
+              ? "Instant answers"
               : "Ready"
             : "Idle";
 
@@ -513,304 +417,288 @@ export function Machine({
       : phase === "generating"
         ? "generating"
         : phase === "ready"
-          ? mode === "demo"
+          ? mode === "instant"
             ? "demo"
             : "ready"
           : "idle";
 
   const chatFoot =
     phase === "loading"
-      ? "Downloading model shards. You can cancel at any time."
+      ? "Downloading the model once. You can cancel at any time."
       : phase === "error"
-        ? "The machine did not start. Demo mode is still available."
+        ? "The model did not start. Instant answers still work."
         : phase === "idle"
-          ? "The model has not been loaded. Nothing is downloading."
-          : mode === "demo"
-            ? "Demo mode — pre-written answers, not live inference."
-            : phase === "generating"
-              ? "Streaming from your GPU · 0 bytes of this conversation sent."
-              : "Running locally · 0 bytes of this conversation sent.";
+          ? "Nothing is downloading until you wake the machine."
+          : mode === "instant"
+            ? webEnabled
+              ? "Instant answers from Parth's notes · Wikipedia for general questions."
+              : "Instant answers from Parth's notes · no model needed."
+            : webEnabled
+              ? "Running on your GPU · general questions may search Wikipedia."
+              : "Running on your GPU · this conversation never leaves the tab.";
 
   const panel = (
     <>
-        <div className="machine-panel">
-          <div className="machine-head">
-            <div className="machine-title">The machine</div>
-            <div className="machine-head-right">
-              <span className="pill pill--outline">Local</span>
-              <span className="pill pill--outline">SmolLM2 · 135M</span>
-              <span className="pill pill--outline">4K context</span>
-              <span className="pill pill--outline">
-                <span
-                  className={`status-dot ${
-                    phase === "error"
-                      ? "status-dot--coral"
-                      : phase === "ready" || phase === "generating"
-                        ? "status-dot--lime"
-                        : "status-dot--blue"
-                  }`}
-                  aria-hidden="true"
-                />
-                {phaseLabel}
-              </span>
-            </div>
+      <div className="machine-panel">
+        <div className="machine-head">
+          <div className="machine-title">The machine</div>
+          <div className="machine-head-right">
+            {compact ? null : (
+              <>
+                <span className="pill pill--outline">Local</span>
+                <span className="pill pill--outline">Qwen2.5 · 0.5B</span>
+                <span className="pill pill--outline">4K context</span>
+              </>
+            )}
+            <button
+              type="button"
+              className="machine-web"
+              data-on={webEnabled}
+              onClick={() => setWebEnabled((value) => !value)}
+              aria-pressed={webEnabled}
+              title={
+                webEnabled
+                  ? "Web on — general questions can look things up on Wikipedia (only the question is sent)"
+                  : "Web off — the machine never touches the network"
+              }
+              aria-label={
+                webEnabled
+                  ? "Web mode on. Press to turn off."
+                  : "Web mode off. Press to let general questions search Wikipedia."
+              }
+            >
+              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18" />
+                <path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z" />
+              </svg>
+              Web
+            </button>
+            <span className="pill pill--outline">
+              <span
+                className={`status-dot ${
+                  phase === "error"
+                    ? "status-dot--coral"
+                    : phase === "ready" || phase === "generating"
+                      ? "status-dot--lime"
+                      : "status-dot--blue"
+                }`}
+                aria-hidden="true"
+              />
+              {phaseLabel}
+            </span>
           </div>
+        </div>
 
-          <div className="machine-body">
-            <div className="chat-panel">
-              <div
-                className="chat-scroll"
-                ref={scrollRef}
-                aria-live="polite"
-                aria-busy={busy}
-              >
-                {phase === "idle" ? (
-                  <div className="chat-empty">
-                    <div className="chat-empty-orb" aria-hidden="true" data-loop />
-                    <h3>Ask me about the work.</h3>
-                    <p>
-                      {support === "demo"
-                        ? "This browser can't run the local model (WebGPU or f16 shaders missing), so the demo uses pre-written answers. The rest of the site works exactly the same."
-                        : "I answer from Parth's notes, not the internet. The model loads only when you ask it to."}
-                    </p>
-                    <div className="hero-actions" style={{ marginTop: 2, justifyContent: "center" }}>
-                      <button
-                        type="button"
-                        className="btn btn--lime btn--sm"
-                        onClick={() => void wake()}
-                        disabled={support === "checking"}
-                      >
-                        <Sparkles size={14} aria-hidden="true" />
-                        {support === "demo" ? "Try the demo" : "Wake the machine"}
-                      </button>
-                      {support !== "demo" ? (
-                        <button type="button" className="btn btn--white btn--sm" onClick={startDemo}>
-                          Use demo mode
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="suggestions" aria-label="Suggested questions">
-                      {suggestions.map((question) => (
-                        <button
-                          key={question}
-                          type="button"
-                          className="suggestion"
-                          disabled
-                          title="Wake the machine first"
-                        >
-                          {question}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="chat-disclaimer">
-                      ~78 MB one-time download · runs on your GPU · nothing leaves this tab
-                    </p>
-                  </div>
-                ) : null}
-
-                {phase === "loading" ? (
-                  <div className="loader">
-                    <div className="loader-head">
-                      <div>
-                        <div className="loader-title">Waking the machine…</div>
-                        <div className="loader-sub">
-                          SmolLM2 135M · ~78 MB · cached after the first load
-                        </div>
-                      </div>
-                      <span className="pill pill--soft">{Math.round(progress * 100)}%</span>
-                    </div>
-                    <DotMatrix
-                      className="loader-matrix"
-                      lit={Math.round(progress * 55)}
-                      total={55}
-                    />
-                    <div
-                      className="loader-bar"
-                      role="progressbar"
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-valuenow={Math.round(progress * 100)}
-                      aria-label="Model download progress"
+        <div className="machine-body">
+          <div className="chat-panel">
+            <div className="chat-scroll" ref={scrollRef} aria-live="polite" aria-busy={busy}>
+              {phase === "idle" ? (
+                <div className="chat-empty">
+                  <div className="chat-empty-orb" aria-hidden="true" data-loop />
+                  <h3>Ask me about Parth.</h3>
+                  <p>
+                    {support === "instant"
+                      ? "This browser can't run the model (it needs WebGPU), so I'll answer instantly from Parth's notes instead — no download."
+                      : "A real language model, running on your GPU. It knows Parth's projects, skills and story, and loads only when you ask."}
+                  </p>
+                  <div className="hero-actions" style={{ marginTop: 2, justifyContent: "center" }}>
+                    <button
+                      type="button"
+                      className="btn btn--lime btn--sm"
+                      onClick={() => void wake()}
+                      disabled={support === "checking"}
                     >
-                      <div
-                        className="loader-fill"
-                        style={{ width: `${Math.max(2, Math.round(progress * 100))}%` }}
-                      />
-                    </div>
-                    <div className="loader-meta">
-                      <span>{statusText || "Preparing the runtime…"}</span>
-                      <strong>{formatEta(progress, elapsed)}</strong>
-                    </div>
-                    <div className="loader-actions">
-                      <button type="button" className="btn btn--white btn--sm" onClick={cancel}>
-                        Cancel
+                      <Sparkles size={14} aria-hidden="true" />
+                      {support === "instant" ? "Start instant answers" : "Wake the machine"}
+                    </button>
+                    {support !== "instant" ? (
+                      <button type="button" className="btn btn--white btn--sm" onClick={startInstant}>
+                        Instant answers
                       </button>
-                      <button type="button" className="btn btn--ghost btn--sm" onClick={startDemo}>
-                        Use demo instead
-                      </button>
-                    </div>
+                    ) : null}
                   </div>
-                ) : null}
+                  <p className="chat-disclaimer">
+                    ~265 MB one-time download · runs on your GPU · nothing you type leaves this tab
+                  </p>
+                </div>
+              ) : null}
 
-                {phase === "error" ? (
-                  <div className="loader">
-                    <div className="loader-error">
-                      {error || "The model could not start on this device."}
+              {phase === "loading" ? (
+                <div className="loader">
+                  <div className="loader-head">
+                    <div>
+                      <div className="loader-title">Waking the machine…</div>
+                      <div className="loader-sub">Qwen2.5 0.5B · ~265 MB · cached after the first load</div>
                     </div>
-                    <p className="loader-sub">
-                      Your device may not have enough GPU memory, or the download was
-                      interrupted. The demo is a complete, clearly labelled fallback.
-                    </p>
-                    <div className="loader-actions">
-                      <button type="button" className="btn btn--lime btn--sm" onClick={retry}>
-                        Try again
-                      </button>
-                      <button type="button" className="btn btn--white btn--sm" onClick={startDemo}>
-                        Use demo instead
-                      </button>
-                    </div>
+                    <span className="pill pill--soft">{Math.round(progress * 100)}%</span>
                   </div>
-                ) : null}
-
-                {(phase === "ready" || phase === "generating") && messages.length === 0 ? (
-                  <div className="chat-empty">
-                    <div className="chat-empty-orb" aria-hidden="true" data-loop />
-                    <h3>Ask me about the work.</h3>
-                    <p>
-                      {mode === "demo"
-                        ? "Demo mode — the answers are pre-written, not live inference."
-                        : "The model is loaded. Ask about a project, a decision, or how I work."}
-                    </p>
-                    <div className="suggestions" aria-label="Suggested questions">
-                      {suggestions.map((question) => (
-                        <button
-                          key={question}
-                          type="button"
-                          className="suggestion"
-                          onClick={() => void ask(question)}
-                        >
-                          {question}
-                        </button>
-                      ))}
-                    </div>
+                  <DotMatrix className="loader-matrix" lit={Math.round(progress * 55)} total={55} />
+                  <div
+                    className="loader-bar"
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(progress * 100)}
+                    aria-label="Model download progress"
+                  >
+                    <div className="loader-fill" style={{ width: `${Math.max(2, Math.round(progress * 100))}%` }} />
                   </div>
-                ) : null}
+                  <div className="loader-meta">
+                    <span>{statusText || "Preparing the runtime…"}</span>
+                    <strong>{formatEta(progress, elapsed)}</strong>
+                  </div>
+                  <div className="loader-actions">
+                    <button type="button" className="btn btn--white btn--sm" onClick={cancel}>
+                      Cancel
+                    </button>
+                    <button type="button" className="btn btn--ghost btn--sm" onClick={startInstant}>
+                      Instant answers instead
+                    </button>
+                  </div>
+                </div>
+              ) : null}
 
-                {(phase === "ready" || phase === "generating") && messages.length > 0 ? (
-                  <div className="chat-messages">
-                    {messages.map((message) => (
+              {phase === "error" ? (
+                <div className="loader">
+                  <div className="loader-error">{error || "The model could not start on this device."}</div>
+                  <p className="loader-sub">
+                    Your device may not have enough GPU memory, or the download was interrupted.
+                    Instant answers from Parth&apos;s notes always work.
+                  </p>
+                  <div className="loader-actions">
+                    <button type="button" className="btn btn--lime btn--sm" onClick={retry}>
+                      Try again
+                    </button>
+                    <button type="button" className="btn btn--white btn--sm" onClick={startInstant}>
+                      Instant answers instead
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {(phase === "ready" || phase === "generating") && messages.length === 0 ? (
+                <div className="chat-empty">
+                  <div className="chat-empty-orb" aria-hidden="true" data-loop />
+                  <h3>Ask me about Parth.</h3>
+                  <p>
+                    {mode === "instant"
+                      ? "Instant answers, picked from Parth's notes — no model needed."
+                      : "The model is awake. Ask about a project, his skills, or anything else."}
+                  </p>
+                  <div className="suggestions" aria-label="Suggested questions">
+                    {suggestions.map((question) => (
+                      <button
+                        key={question}
+                        type="button"
+                        className="suggestion"
+                        onClick={() => void ask(question)}
+                      >
+                        {question}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {(phase === "ready" || phase === "generating") && messages.length > 0 ? (
+                <div className="chat-messages">
+                  {messages.map((message, index) => {
+                    const streaming =
+                      message.role === "assistant" && phase === "generating" && index === messages.length - 1;
+                    return (
                       <div
                         key={message.id}
                         className={`msg ${message.role === "user" ? "msg--user" : "msg--assistant"}`}
                       >
                         {message.role === "assistant" ? (
                           <div className="msg-role">
-                            <span
-                              className="status-dot status-dot--lime"
-                              aria-hidden="true"
-                            />
-                            Machine · {mode === "demo" ? "demo" : "local"}
+                            <span className="status-dot status-dot--lime" aria-hidden="true" />
+                            Machine · {mode === "instant" ? "instant" : "on your GPU"}
                           </div>
                         ) : null}
                         <div className={`msg-text${message.error ? " msg-text--error" : ""}`}>
                           {message.content ? (
                             <>
                               {message.content}
-                              {message.role === "assistant" && phase === "generating" ? (
-                                <span className="caret" aria-hidden="true" />
-                              ) : null}
+                              {streaming ? <span className="caret" aria-hidden="true" /> : null}
                             </>
                           ) : (
-                            <span className="thinking" aria-label="Generating">
+                            <span className="thinking" aria-label="Thinking">
                               <span />
                               <span />
                               <span />
                             </span>
                           )}
                         </div>
-                        {message.sources && message.sources.length > 0 ? (
+                        {message.sources && message.sources.length > 0 && !streaming ? (
                           <div className="source-chips">
                             {message.sources.map((source) => (
-                              <a
-                                key={`${source.label}-${source.url}`}
-                                className="source-chip"
-                                href={source.url}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                {source.label}
-                                <ArrowUpRight size={9} aria-hidden="true" />
-                              </a>
+                              <SourceChip key={`${source.label}-${source.url}`} source={source} />
                             ))}
                           </div>
                         ) : null}
                       </div>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              <form className="chat-compose" onSubmit={onSubmit}>
-                <input
-                  ref={inputRef}
-                  className="chat-input"
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder={
-                    phase === "idle"
-                      ? "Wake the machine to type…"
-                      : phase === "loading"
-                        ? "Loading the model…"
-                        : phase === "error"
-                          ? "The machine is not running…"
-                          : mode === "demo"
-                            ? "Ask a sample question…"
-                            : "Ask about a project, a decision, or how I work…"
-                  }
-                  aria-label="Ask the machine a question"
-                  disabled={inputDisabled}
-                  autoComplete="off"
-                  spellCheck={false}
-                  enterKeyHint="send"
-                  suppressHydrationWarning
-                />
-                {phase === "generating" ? (
-                  <button
-                    type="button"
-                    className="chat-send chat-send--stop"
-                    onClick={stop}
-                    aria-label="Stop generating"
-                  >
-                    <Square size={13} fill="currentColor" aria-hidden="true" />
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="chat-send"
-                    disabled={inputDisabled || !input.trim()}
-                    aria-label="Send question"
-                  >
-                    <Send size={16} aria-hidden="true" />
-                  </button>
-                )}
-              </form>
-
-              <div className="chat-foot">
-                <span
-                  className={`status-dot ${
-                    phase === "error"
-                      ? "status-dot--coral"
-                      : mode === "demo" || phase === "idle"
-                        ? "status-dot--blue"
-                        : "status-dot--lime"
-                  }`}
-                  aria-hidden="true"
-                />
-                {chatFoot}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
 
-            {compact ? null : (
+            <form className="chat-compose" onSubmit={onSubmit}>
+              <input
+                ref={inputRef}
+                className="chat-input"
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                placeholder={
+                  phase === "idle"
+                    ? "Wake the machine to type…"
+                    : phase === "loading"
+                      ? "Loading the model…"
+                      : phase === "error"
+                        ? "The machine is not running…"
+                        : "Ask about Parth, a project, or anything…"
+                }
+                aria-label="Ask the machine a question"
+                disabled={inputDisabled}
+                autoComplete="off"
+                spellCheck={false}
+                enterKeyHint="send"
+                suppressHydrationWarning
+              />
+              {phase === "generating" ? (
+                <button type="button" className="chat-send chat-send--stop" onClick={stop} aria-label="Stop">
+                  <Square size={13} fill="currentColor" aria-hidden="true" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="chat-send"
+                  disabled={inputDisabled || !input.trim()}
+                  aria-label="Send question"
+                >
+                  <Send size={16} aria-hidden="true" />
+                </button>
+              )}
+            </form>
+
+            <div className="chat-foot">
+              <span
+                className={`status-dot ${
+                  phase === "error"
+                    ? "status-dot--coral"
+                    : mode === "instant" || phase === "idle"
+                      ? "status-dot--blue"
+                      : "status-dot--lime"
+                }`}
+                aria-hidden="true"
+              />
+              {chatFoot}
+            </div>
+          </div>
+
+          {compact ? null : (
             <aside className="machine-rail" aria-label="Machine details">
               <div className="rail-core">
                 <span className="rail-orb" data-state={orbState} aria-hidden="true" />
@@ -821,15 +709,15 @@ export function Machine({
                       : phase === "loading"
                         ? "Loading"
                         : phase === "generating"
-                          ? "Working"
+                          ? "Thinking"
                           : phase === "ready"
-                            ? mode === "demo"
-                              ? "Demo"
+                            ? mode === "instant"
+                              ? "Instant"
                               : "Ready"
                             : "Idle"}
                   </div>
                   <div className="rail-sub">
-                    {phase === "idle" ? "Nothing loaded" : phase === "error" ? "Demo available" : "In your browser"}
+                    {phase === "idle" ? "Nothing loaded" : phase === "error" ? "Notes ready" : "In your browser"}
                   </div>
                 </div>
               </div>
@@ -839,7 +727,7 @@ export function Machine({
               <dl style={{ margin: 0, display: "flex", flexDirection: "column", gap: 7 }}>
                 <div className="rail-row">
                   <dt>Model</dt>
-                  <dd>SmolLM2 · 135M</dd>
+                  <dd>Qwen2.5 · 0.5B</dd>
                 </div>
                 <div className="rail-row">
                   <dt>Runtime</dt>
@@ -851,15 +739,15 @@ export function Machine({
                 </div>
                 <div className="rail-row">
                   <dt>Download</dt>
-                  <dd>~78 MB</dd>
+                  <dd>~265 MB</dd>
                 </div>
               </dl>
 
               <div className="rail-divider" />
 
               <p className="rail-note">
-                The model runs in a Web Worker. Your conversation stays in this tab, and the
-                page never sends it anywhere.
+                Code works out what you&apos;re asking and hands the model the two or three facts that
+                answer it. The model writes the reply on your GPU; nothing you type leaves this tab.
               </p>
 
               <div className="rail-actions">
@@ -879,11 +767,11 @@ export function Machine({
                 </Link>
               </div>
             </aside>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
-        {compact ? null : (
+      {compact ? null : (
         <div className="machine-notes">
           <article className="note-card">
             <h3>
@@ -893,8 +781,8 @@ export function Machine({
               What runs
             </h3>
             <p>
-              SmolLM2 135M, 4-bit, through WebLLM and WebGPU in a Web Worker. About 100 MB
-              of GPU memory and a 4,096-token context.
+              Qwen2.5 0.5B, 4-bit, through WebLLM and WebGPU in a Web Worker. Under a gigabyte of GPU
+              memory and a 4,096-token context.
             </p>
           </article>
           <article className="note-card">
@@ -905,8 +793,8 @@ export function Machine({
               What leaves
             </h3>
             <p>
-              Nothing after the model is cached. No analytics, no cookies, no chat storage.
-              The conversation lives in this tab and disappears on reload.
+              Nothing, once the model is cached. No analytics, no cookies, no chat storage. With Web on,
+              only a general question is sent to Wikipedia.
             </p>
           </article>
           <article className="note-card">
@@ -917,12 +805,12 @@ export function Machine({
               What if it can&apos;t
             </h3>
             <p>
-              If WebGPU or the download fails, the machine switches to a clearly labelled
-              demo. The rest of the site never depends on it.
+              Without WebGPU, the machine answers instantly from the same notes. The rest of the site never
+              depends on it.
             </p>
           </article>
         </div>
-        )}
+      )}
     </>
   );
 
@@ -949,8 +837,8 @@ export function Machine({
                 Wake it up.
               </h2>
               <p className="section-sub">
-                A real 135M language model in your browser. Ask about the work; the answer is grounded
-                in a small set of notes and shows its sources.
+                A real 0.5B language model in your browser. Ask about Parth and his work; every answer
+                shows where it came from.
               </p>
             </div>
             <Link className="section-link" href="/machine">

@@ -8,7 +8,7 @@ import { machineFacts } from "@/content/site";
 export const metadata: Metadata = {
   title: "The Machine",
   description:
-    "A real SmolLM2 135M language model running locally in your browser through WebLLM and WebGPU. No server, no analytics, no chat storage.",
+    "A real Qwen2.5 0.5B language model running locally in your browser through WebLLM and WebGPU. No server, no analytics, no chat storage.",
   alternates: { canonical: "/machine" },
 };
 
@@ -21,12 +21,12 @@ const how = [
   {
     number: "02",
     title: "The model loads",
-    text: "SmolLM2 135M is fetched from a public CDN, quantised to 4-bit, and loaded into GPU memory through WebLLM. The browser caches the weights.",
+    text: "Qwen2.5-0.5B-Instruct-q4f16_1 is fetched from a public CDN, quantised to 4-bit, and loaded into GPU memory through WebLLM. The browser caches the weights.",
   },
   {
     number: "03",
-    title: "Retrieval runs",
-    text: "Your question is matched against a small curated knowledge base using lexical search. The most relevant notes become the context for the answer.",
+    title: "It reads the question",
+    text: "Plain code works out what you're asking — which project, which detail, whether it follows on from the last answer — and hands the model the two or three fact cards that answer it. A small model writes best from a short, focused brief.",
   },
   {
     number: "04",
@@ -45,13 +45,14 @@ export default function MachinePage() {
           your tab.
         </h1>
         <p className="page-sub">
-          This is not a video of a chatbot. It is a real 135M language model running on your
-          own GPU, grounded in a small set of notes about the work. It downloads only when
-          you ask it to, and the conversation never leaves this tab.
+          This is not a video of a chatbot. It is a real 0.5B language model running on your
+          own GPU — about 265 MB, once. It knows Parth&apos;s projects, skills and story; flip
+          Web on and general questions can look things up on Wikipedia. The conversation never
+          leaves this tab unless you ask it to.
         </p>
         <div className="machine-page-meta">
           <MachineStatus />
-          <span className="pill pill--soft">~78 MB once</span>
+          <span className="pill pill--soft">~265 MB once</span>
           <span className="pill pill--soft">4,096 tokens</span>
           <span className="pill pill--soft">No server</span>
         </div>
@@ -68,8 +69,8 @@ export default function MachinePage() {
               happens.
             </h2>
             <p className="section-sub">
-              Four steps, no server in the loop. The only network request is the model
-              download, and it is started by you.
+              Four steps, no server in the loop. The only network requests are the model
+              download and, if you turn it on, the Wikipedia lookups Web mode makes for you.
             </p>
           </div>
         </div>
@@ -91,11 +92,13 @@ export default function MachinePage() {
             What it can do
           </h2>
           <ul className="limit-list">
-            <li>Answer questions about the seven chapters, the person and the stack.</li>
-            <li>Show the notes it used as source chips beside each answer.</li>
-            <li>Say “that&apos;s not in my notes” instead of inventing an answer.</li>
-            <li>Run offline once the model weights are cached.</li>
-            <li>Fall back to a labelled demo when WebGPU is unavailable.</li>
+            <li>Answer questions about all seven chapters, the side projects, Parth&apos;s education, internship, skills and how to reach him.</li>
+            <li>Follow a conversation — “tell me more”, “what about its results?” — without losing the thread.</li>
+            <li>Answer general questions from what the model knows, or from Wikipedia with Web on, citing the page.</li>
+            <li>Show where each answer came from as source chips.</li>
+            <li>Say it doesn&apos;t know instead of inventing a fact about Parth.</li>
+            <li>Run offline once the model weights are cached and Web is off.</li>
+            <li>Answer instantly from the same facts when WebGPU is unavailable.</li>
           </ul>
         </section>
 
@@ -104,11 +107,11 @@ export default function MachinePage() {
             What it cannot do
           </h2>
           <ul className="limit-list limit-list--no">
-            <li>Browse the internet or read pages it was not given.</li>
+            <li>Browse the internet — until you turn Web mode on, which only ever talks to Wikipedia.</li>
             <li>Remember a conversation after you reload the tab.</li>
             <li>Match a large cloud model on open-ended reasoning.</li>
             <li>See images, hear audio or run tools.</li>
-            <li>Send your question anywhere. There is no server to send it to.</li>
+            <li>Send your conversation anywhere — Web mode sends only the search query, and it is off unless you turn it on.</li>
           </ul>
         </section>
       </div>

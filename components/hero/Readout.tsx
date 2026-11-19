@@ -8,7 +8,7 @@ const readouts = [
     lit: 1,
   },
   {
-    value: "~78 MB",
+    value: "~265 MB",
     label: "One-time model download",
     viz: "bars" as const,
     lit: 4,

@@ -5,7 +5,15 @@
     "project": "H.A.L.O",
     "source": "H.A.L.O README",
     "url": "https://github.com/ParthVarekar/H.A.L.O",
-    "tags": ["halo", "space", "iss", "procedure", "offline", "on-board", "astronaut"],
+    "tags": [
+      "halo",
+      "space",
+      "iss",
+      "procedure",
+      "offline",
+      "on-board",
+      "astronaut"
+    ],
     "text": "H.A.L.O is an on-board AI that watches a science procedure in orbit and speaks up when a step is missed or out of order. It is designed to run fully offline on one laptop GPU. It combines a YOLO11 detector trained on real ISS footage with Qwen3-VL for narrow visual questions, then uses a deterministic state machine to decide whether the procedure is on track. The project was built for SIH26174 and has 276 passing tests."
   },
   {
@@ -14,7 +22,14 @@
     "project": "H.A.L.O",
     "source": "H.A.L.O case study",
     "url": "https://github.com/ParthVarekar/H.A.L.O",
-    "tags": ["halo", "space", "sample", "freezer", "procedure", "error"],
+    "tags": [
+      "halo",
+      "space",
+      "sample",
+      "freezer",
+      "procedure",
+      "error"
+    ],
     "text": "A skipped step in orbit can ruin a sample that took months to prepare. The procedure exists as a document, the crew is busy, and the downlink is narrow. Training a single video classifier on the whole procedure produces a black box: it can raise an alert but cannot explain which step was missed or what evidence it saw. In orbit, an unexplainable alert is almost as bad as no alert."
   },
   {
@@ -23,7 +38,13 @@
     "project": "H.A.L.O",
     "source": "H.A.L.O case study",
     "url": "https://github.com/ParthVarekar/H.A.L.O",
-    "tags": ["halo", "state machine", "decision", "architecture", "explainable"],
+    "tags": [
+      "halo",
+      "state machine",
+      "decision",
+      "architecture",
+      "explainable"
+    ],
     "text": "H.A.L.O models the procedure as a deterministic state machine over visual evidence. Each step has a visual precondition and a completion signal. The detector finds objects, Qwen3-VL answers narrow questions about a frame, and the state machine owns the logic. The models are allowed to be uncertain; the procedure is not. That separation is what makes every alert explainable."
   },
   {
@@ -32,7 +53,14 @@
     "project": "H.A.L.O",
     "source": "H.A.L.O README",
     "url": "https://github.com/ParthVarekar/H.A.L.O",
-    "tags": ["halo", "yolo11", "qwen3-vl", "react", "hash chain", "downlink"],
+    "tags": [
+      "halo",
+      "yolo11",
+      "qwen3-vl",
+      "react",
+      "hash chain",
+      "downlink"
+    ],
     "text": "The perception layer is YOLO11 trained on real ISS footage, paired with Qwen3-VL for plain-English questions. A sliding window keeps recent evidence so one ambiguous frame does not trigger an alert. The on-board side writes a hash-chained log and sends a signed report of about one kilobyte over the downlink. A React dashboard lets a ground controller replay the procedure, inspect the evidence and see where the state machine diverged."
   },
   {
@@ -41,7 +69,14 @@
     "project": "H.A.L.O",
     "source": "H.A.L.O verification",
     "url": "https://github.com/ParthVarekar/H.A.L.O",
-    "tags": ["halo", "276 tests", "mAP50", "verification", "false alerts", "evidence"],
+    "tags": [
+      "halo",
+      "276 tests",
+      "mAP50",
+      "verification",
+      "false alerts",
+      "evidence"
+    ],
     "text": "H.A.L.O has 276 passing tests and passed 8 of 8 verification checks. Its detector reaches mAP50 0.79 on real ISS footage. In the recorded procedure it tracked 8 of 8 steps in the correct order with zero false alerts. Qwen3-VL answered nine visual questions in about 0.6 seconds. The downlink report is roughly one kilobyte and is signed. The result that matters most is that the system stayed quiet when it should have and explained itself when it spoke.",
     "facts": "276 passing tests; 8 of 8 verification checks; mAP50 0.79; 8 of 8 procedure steps tracked in order with zero false alerts."
   },
@@ -51,7 +86,13 @@
     "project": "H.A.L.O",
     "source": "H.A.L.O case study",
     "url": "https://github.com/ParthVarekar/H.A.L.O",
-    "tags": ["halo", "lesson", "design", "contract", "inspectable"],
+    "tags": [
+      "halo",
+      "lesson",
+      "design",
+      "contract",
+      "inspectable"
+    ],
     "text": "The lesson from H.A.L.O is that a model is a sensor, not the system. The system is the contract around it: what counts as evidence, what counts as done, and what happens when the evidence is ambiguous. Keep the intelligence narrow, keep the logic inspectable, and make the machine say why. That pattern now runs through Parth's other projects."
   },
   {
@@ -60,7 +101,15 @@
     "project": "Susurrus",
     "source": "Susurrus README",
     "url": "https://github.com/ParthVarekar/Susurrus",
-    "tags": ["susurrus", "dictation", "voice", "speech to text", "windows", "offline", "privacy"],
+    "tags": [
+      "susurrus",
+      "dictation",
+      "voice",
+      "speech to text",
+      "windows",
+      "offline",
+      "privacy"
+    ],
     "text": "Susurrus is offline push-to-talk dictation for Windows. Hold a key, speak, let go, and clean formatted text lands in whatever app you are in. It is a local alternative to cloud dictation tools: no audio leaves the machine and there is no subscription. It uses Qwen3-ASR to hear and Gemma on llama.cpp to edit, and inserts text through the native Windows SendInput API. It has 77 passing tests and is MIT licensed."
   },
   {
@@ -69,7 +118,13 @@
     "project": "Susurrus",
     "source": "Susurrus case study",
     "url": "https://github.com/ParthVarekar/Susurrus",
-    "tags": ["susurrus", "cloud", "privacy", "transcription", "punctuation"],
+    "tags": [
+      "susurrus",
+      "cloud",
+      "privacy",
+      "transcription",
+      "punctuation"
+    ],
     "text": "Cloud dictation sends your audio to someone else's computer and charges monthly. Local alternatives usually stop at transcription: you get lowercase words with no punctuation or casing. That is not writing, so you spend the time you saved fixing the output. Susurrus treats hearing and editing as two separate problems."
   },
   {
@@ -78,7 +133,14 @@
     "project": "Susurrus",
     "source": "Susurrus case study",
     "url": "https://github.com/ParthVarekar/Susurrus",
-    "tags": ["susurrus", "qwen3-asr", "gemma", "llama.cpp", "sendinput", "architecture"],
+    "tags": [
+      "susurrus",
+      "qwen3-asr",
+      "gemma",
+      "llama.cpp",
+      "sendinput",
+      "architecture"
+    ],
     "text": "Susurrus splits the problem in two. Qwen3-ASR turns the microphone buffer into raw text. Gemma on llama.cpp restores punctuation, casing and paragraph breaks, and can rewrite a selection in command mode. The text is inserted with the Win32 SendInput API, so it lands in the focused app without hijacking the clipboard. The app runs as a small Windows tray application and releases the models when idle."
   },
   {
@@ -87,7 +149,14 @@
     "project": "Susurrus",
     "source": "Susurrus tests",
     "url": "https://github.com/ParthVarekar/Susurrus",
-    "tags": ["susurrus", "77 tests", "memory", "disk", "zero cloud", "evidence"],
+    "tags": [
+      "susurrus",
+      "77 tests",
+      "memory",
+      "disk",
+      "zero cloud",
+      "evidence"
+    ],
     "text": "Susurrus has 77 passing tests across eight modules covering audio capture, model lifecycle, cleanup, command mode and insertion. It uses about 1.2 GB of disk and about 2.5 GB of RAM while running. There are zero cloud calls. It runs on Windows 10 and 11 and works without a network connection once installed. The landing page is live at susurrus-xi.vercel.app.",
     "facts": "77 passing tests across eight modules; zero cloud calls; runs offline on Windows 10 and 11."
   },
@@ -97,7 +166,13 @@
     "project": "Susurrus",
     "source": "Susurrus case study",
     "url": "https://github.com/ParthVarekar/Susurrus",
-    "tags": ["susurrus", "lesson", "second model", "privacy", "product"],
+    "tags": [
+      "susurrus",
+      "lesson",
+      "second model",
+      "privacy",
+      "product"
+    ],
     "text": "The quality of a local AI product is often decided by the second model. The first model gets the words; the second makes them usable. Privacy is also a product feature, not a settings toggle: because the audio never leaves the machine, the promise is architectural rather than a policy. That is the standard Parth now uses for local-first tools."
   },
   {
@@ -106,7 +181,14 @@
     "project": "Chumps Lab Studio",
     "source": "Chumps Lab README",
     "url": "https://github.com/ParthVarekar/chumps-lab-studio",
-    "tags": ["chumps lab", "video editor", "tutorial", "remotion", "ai", "local"],
+    "tags": [
+      "chumps lab",
+      "video editor",
+      "tutorial",
+      "remotion",
+      "ai",
+      "local"
+    ],
     "text": "Chumps Lab Studio is an AI video editor for screen-recording tutorials. It turns a raw recording into an edited video with zooms, labels, captions, sound effects and animated graphics, then hands you a real editor and an assistant to change any of it. It is built with TypeScript, React and Remotion, with a Python service for media analysis. The AI runs locally. The project is in progress and has 26 of 26 browser end-to-end checks passing."
   },
   {
@@ -115,7 +197,13 @@
     "project": "Chumps Lab Studio",
     "source": "Chumps Lab case study",
     "url": "https://github.com/ParthVarekar/chumps-lab-studio",
-    "tags": ["chumps lab", "editing", "black box", "tutorial", "repetition"],
+    "tags": [
+      "chumps lab",
+      "editing",
+      "black box",
+      "tutorial",
+      "repetition"
+    ],
     "text": "Tutorial editing is repetitive: cut pauses, zoom into the click, add a label, caption the sentence, add a sound. AI editors promise to do it for you and then hide every decision. If a cut is wrong you cannot see why and cannot fix the part you disagree with. That is a slot machine, not an editor."
   },
   {
@@ -124,7 +212,13 @@
     "project": "Chumps Lab Studio",
     "source": "Chumps Lab case study",
     "url": "https://github.com/ParthVarekar/chumps-lab-studio",
-    "tags": ["chumps lab", "edit decision document", "typed", "draft", "remotion"],
+    "tags": [
+      "chumps lab",
+      "edit decision document",
+      "typed",
+      "draft",
+      "remotion"
+    ],
     "text": "Chumps Lab makes the AI write a typed Edit Decision Document instead of a video. The document describes clips, trims, zooms, labels, captions, sound effects and graphic elements, each with a time range and a reason. The renderer turns the document into video with Remotion. Because the document is typed, the editor can validate it, diff it and apply it. Every AI change is a draft you can accept or reject, and locked edits survive re-planning."
   },
   {
@@ -133,7 +227,14 @@
     "project": "Chumps Lab Studio",
     "source": "Chumps Lab README",
     "url": "https://github.com/ParthVarekar/chumps-lab-studio",
-    "tags": ["chumps lab", "react", "remotion", "python", "lufs", "timeline"],
+    "tags": [
+      "chumps lab",
+      "react",
+      "remotion",
+      "python",
+      "lufs",
+      "timeline"
+    ],
     "text": "The editor is a React application with a Remotion timeline renderer. A Python service handles media analysis. The render path targets minus 14 LUFS so the output is ready for the platforms people publish to. Animated graphic elements come from a safe spec rather than arbitrary code, which keeps the assistant inside a small reviewable vocabulary and keeps the render deterministic."
   },
   {
@@ -142,7 +243,13 @@
     "project": "Chumps Lab Studio",
     "source": "Chumps Lab tests",
     "url": "https://github.com/ParthVarekar/chumps-lab-studio",
-    "tags": ["chumps lab", "26 e2e", "tests", "evidence", "in progress"],
+    "tags": [
+      "chumps lab",
+      "26 e2e",
+      "tests",
+      "evidence",
+      "in progress"
+    ],
     "text": "Chumps Lab Studio has 26 passing browser end-to-end checks. The typed command layer, the draft/apply flow and the render pipeline are all exercised. The editor is usable today; the assistant is still being widened to more tutorial patterns. The project is deliberately marked in progress because the hard part is making the system stay predictable when the recording changes.",
     "facts": "26 passing browser end-to-end checks covering the command layer, draft/apply flow and render pipeline."
   },
@@ -152,7 +259,13 @@
     "project": "Chumps Lab Studio",
     "source": "Chumps Lab case study",
     "url": "https://github.com/ParthVarekar/chumps-lab-studio",
-    "tags": ["chumps lab", "lesson", "schema", "contract", "inspectable"],
+    "tags": [
+      "chumps lab",
+      "lesson",
+      "schema",
+      "contract",
+      "inspectable"
+    ],
     "text": "The most useful part of Chumps Lab is not the model integration. It is the document schema. Once the AI had a typed surface to write to, validation, undo, diffing, tests and the UI all became easier. It is the same lesson as H.A.L.O in a different medium: put the intelligence behind a contract you can inspect."
   },
   {
@@ -161,7 +274,15 @@
     "project": "BioRadar",
     "source": "BioRadar README",
     "url": "https://github.com/omtawde09/BioRadar",
-    "tags": ["bioradar", "edna", "water", "species", "biodiversity", "india", "hindi"],
+    "tags": [
+      "bioradar",
+      "edna",
+      "water",
+      "species",
+      "biodiversity",
+      "india",
+      "hindi"
+    ],
     "text": "BioRadar turns raw environmental DNA reads into a species list, an invasion forecast and a tamper-evident record, in English or Hindi. It was built for SIH25042 with the Ministry of Earth Sciences. The pipeline uses QIIME 2 with DADA2 and vsearch, wrapped in Docker. A React dashboard presents the species list, the invasion-risk view and the evidence behind each call. The project has 76 passing tests."
   },
   {
@@ -170,7 +291,13 @@
     "project": "BioRadar",
     "source": "BioRadar case study",
     "url": "https://github.com/omtawde09/BioRadar",
-    "tags": ["bioradar", "edna", "reads", "decision", "trust"],
+    "tags": [
+      "bioradar",
+      "edna",
+      "reads",
+      "decision",
+      "trust"
+    ],
     "text": "A water sample produces millions of short reads. A decision-maker needs a species list, a risk signal and a record they can trust, not a FASTA file. Most eDNA projects stop at the bioinformatics pipeline because the gap between a read count and a defensible decision is large. BioRadar was built to close that gap."
   },
   {
@@ -179,7 +306,14 @@
     "project": "BioRadar",
     "source": "BioRadar case study",
     "url": "https://github.com/omtawde09/BioRadar",
-    "tags": ["bioradar", "data contract", "coi", "merkle", "ledger", "integrity"],
+    "tags": [
+      "bioradar",
+      "data contract",
+      "coi",
+      "merkle",
+      "ledger",
+      "integrity"
+    ],
     "text": "BioRadar freezes a data contract first, so every stage of the pipeline writes to the same schema. It curates a COI reference for Indian waters instead of relying on a global database that is unevenly sampled. Every result is written into a Merkle ledger, so changing a record changes the root. That lets a non-specialist check integrity without trusting the person who produced the file."
   },
   {
@@ -188,7 +322,14 @@
     "project": "BioRadar",
     "source": "BioRadar README",
     "url": "https://github.com/omtawde09/BioRadar",
-    "tags": ["bioradar", "qiime2", "dada2", "vsearch", "docker", "14 engines"],
+    "tags": [
+      "bioradar",
+      "qiime2",
+      "dada2",
+      "vsearch",
+      "docker",
+      "14 engines"
+    ],
     "text": "The pipeline uses QIIME 2 with DADA2 and vsearch in Docker. The interface is a React dashboard with fourteen intelligence engines that turn the output into readable signals. It works in English and Hindi. The India-curated COI reference covers 33,611 sequences across 8,020 species. The whole run is packaged so a reviewer can follow a species from a read count to a claim."
   },
   {
@@ -197,7 +338,14 @@
     "project": "BioRadar",
     "source": "BioRadar validation",
     "url": "https://github.com/omtawde09/BioRadar",
-    "tags": ["bioradar", "80/80", "false positives", "76 tests", "ncbi", "evidence"],
+    "tags": [
+      "bioradar",
+      "80/80",
+      "false positives",
+      "76 tests",
+      "ncbi",
+      "evidence"
+    ],
     "text": "BioRadar detected 80 of 80 planted species at their exact read counts with zero false positives. It passed 76 tests. During development the validation caught a mislabelled record in NCBI, the kind of error that can quietly propagate through a biodiversity study. That is exactly what the ledger and the checks were built to expose.",
     "facts": "80 of 80 planted species detected at their exact read counts; zero false positives; 76 passing tests."
   },
@@ -207,7 +355,13 @@
     "project": "BioRadar",
     "source": "BioRadar case study",
     "url": "https://github.com/omtawde09/BioRadar",
-    "tags": ["bioradar", "lesson", "trust", "legibility", "decision"],
+    "tags": [
+      "bioradar",
+      "lesson",
+      "trust",
+      "legibility",
+      "decision"
+    ],
     "text": "The science was the easy part to admire and the hard part to make legible. The real work was designing the contract between the pipeline and the person who has to make a decision with it. Trust is a feature you build, not a sentence you add to the report. The ledger, the frozen schema and the visible evidence all let someone check the machine without having to believe it."
   },
   {
@@ -216,7 +370,15 @@
     "project": "COSTA",
     "source": "COSTA README",
     "url": "https://github.com/ishwar-prog/COSTA",
-    "tags": ["costa", "optical", "beacon", "tracking", "gimbal", "space", "laser"],
+    "tags": [
+      "costa",
+      "optical",
+      "beacon",
+      "tracking",
+      "gimbal",
+      "space",
+      "laser"
+    ],
     "text": "COSTA stands for Coarse Optical Tracking and Alignment System. It finds the partner terminal's beacon by how it blinks and holds it on bore-sight. It is built for a free-space optical link, where the receiver has to centre the beacon before data can flow. The system uses PySide6, OpenCV and NumPy, with a Kalman tracker and a pan/tilt gimbal. It was built for SIH26169 and has 28 of 28 validation cases passing."
   },
   {
@@ -225,7 +387,14 @@
     "project": "COSTA",
     "source": "COSTA case study",
     "url": "https://github.com/ishwar-prog/COSTA",
-    "tags": ["costa", "beacon", "stars", "decoys", "brightness", "acquisition"],
+    "tags": [
+      "costa",
+      "beacon",
+      "stars",
+      "decoys",
+      "brightness",
+      "acquisition"
+    ],
     "text": "A free-space optical link needs the beacon centred before data can flow. The frame is full of stars, street lights, reflections and deliberate decoys. The partner terminal cannot make its beacon the brightest thing in the sky, but it can make it blink in a pattern. The hard part is not finding a bright spot; it is finding the right one."
   },
   {
@@ -234,7 +403,14 @@
     "project": "COSTA",
     "source": "COSTA case study",
     "url": "https://github.com/ishwar-prog/COSTA",
-    "tags": ["costa", "fourier", "blink signature", "kalman", "geometry", "no training data"],
+    "tags": [
+      "costa",
+      "fourier",
+      "blink signature",
+      "kalman",
+      "geometry",
+      "no training data"
+    ],
     "text": "COSTA identifies the beacon by its blink signature. A window of frames is transformed into the frequency domain; the modulation frequency and duty cycle become a fingerprint that survives brightness changes, motion blur and clutter. Geometry gives a coarse pointing estimate and a Kalman filter holds the track. The controller drives a pan/tilt gimbal at 60 Hz while vision runs at 30 Hz. There is no training dataset and no deep model in the loop."
   },
   {
@@ -243,7 +419,14 @@
     "project": "COSTA",
     "source": "COSTA README",
     "url": "https://github.com/ishwar-prog/COSTA",
-    "tags": ["costa", "pyside6", "opencv", "numpy", "state machine", "interface"],
+    "tags": [
+      "costa",
+      "pyside6",
+      "opencv",
+      "numpy",
+      "state machine",
+      "interface"
+    ],
     "text": "The application is a PySide6 desktop tool with a live camera view, a beacon-identity panel, an acquisition state machine and a tracking view. OpenCV handles capture and geometry; NumPy handles the Fourier analysis; the Kalman filter smooths the track between vision frames. Every acquisition state is visible in the interface, so an operator can see why the system chose a target."
   },
   {
@@ -252,7 +435,14 @@
     "project": "COSTA",
     "source": "COSTA validation",
     "url": "https://github.com/ishwar-prog/COSTA",
-    "tags": ["costa", "28/28", "acquisition", "pixel error", "94-100%", "evidence"],
+    "tags": [
+      "costa",
+      "28/28",
+      "acquisition",
+      "pixel error",
+      "94-100%",
+      "evidence"
+    ],
     "text": "All 28 validation cases pass across six targets. Acquisition takes between 0.83 and 1.60 seconds, with a pointing error between 0.02 and 3.28 pixels. On real footage the system holds lock between 94% and 100% of the run. The results come from difficult cases: moving backgrounds, decoys, variable exposure and real camera noise.",
     "facts": "28 of 28 validation cases pass across six targets; acquisition 0.83–1.60 seconds; pointing error 0.02–3.28 pixels; 94–100% real-footage lock."
   },
@@ -262,7 +452,14 @@
     "project": "COSTA",
     "source": "COSTA case study",
     "url": "https://github.com/ishwar-prog/COSTA",
-    "tags": ["costa", "lesson", "invariant", "rhythm", "interface", "trust"],
+    "tags": [
+      "costa",
+      "lesson",
+      "invariant",
+      "rhythm",
+      "interface",
+      "trust"
+    ],
     "text": "The lesson from COSTA is to look for the invariant that the other side controls. In a noisy environment, brightness, colour and position all drift. A deliberate modulation pattern is a signal the partner owns. The second lesson is about interfaces: an operator will not trust a system that jumps to a lock without showing its reasoning, so the candidate scores are visible."
   },
   {
@@ -271,7 +468,15 @@
     "project": "RoboForge",
     "source": "RoboForge README",
     "url": "https://github.com/college-hack24-nov26/hack-odyssey",
-    "tags": ["roboforge", "rover", "robot", "simulation", "mujoco", "webots", "esp32"],
+    "tags": [
+      "roboforge",
+      "rover",
+      "robot",
+      "simulation",
+      "mujoco",
+      "webots",
+      "esp32"
+    ],
     "text": "RoboForge is a chat-first machine builder. You describe a rover, it designs it, simulates it in MuJoCo or Webots, then checks the real one against the simulation and diagnoses the gap. It uses an ESP32 and ESP32-CAM for the rover and RF-DETR for vision. The project has more than 900 tests that run without Webots or hardware. It was built with Team Odyssey and archived after the hackathon."
   },
   {
@@ -280,7 +485,13 @@
     "project": "RoboForge",
     "source": "RoboForge case study",
     "url": "https://github.com/college-hack24-nov26/hack-odyssey",
-    "tags": ["roboforge", "reality gap", "simulation", "motors", "sensors"],
+    "tags": [
+      "roboforge",
+      "reality gap",
+      "simulation",
+      "motors",
+      "sensors"
+    ],
     "text": "Simulation never matches the real machine. Motors differ, sensors drift, and the floor is not the floor in the simulator. Most toolchains treat that gap as a failure. RoboForge treats it as the most useful measurement in the project."
   },
   {
@@ -289,7 +500,13 @@
     "project": "RoboForge",
     "source": "RoboForge case study",
     "url": "https://github.com/college-hack24-nov26/hack-odyssey",
-    "tags": ["roboforge", "reality gap engine", "gyro", "router", "unknowns"],
+    "tags": [
+      "roboforge",
+      "reality gap engine",
+      "gyro",
+      "router",
+      "unknowns"
+    ],
     "text": "RoboForge measures the reality gap with gyro data. It compares the simulated behaviour with the real rover and turns the difference into a trim, a calibration or a diagnosis. A deterministic router handles known jobs; the language model is used only for new jobs where a plan needs to be invented. Every result says what was not tested, so the system never pretends to more confidence than it has."
   },
   {
@@ -298,7 +515,14 @@
     "project": "RoboForge",
     "source": "RoboForge README",
     "url": "https://github.com/college-hack24-nov26/hack-odyssey",
-    "tags": ["roboforge", "900 tests", "rf-detr", "92% precision", "16/16", "evidence"],
+    "tags": [
+      "roboforge",
+      "900 tests",
+      "rf-detr",
+      "92% precision",
+      "16/16",
+      "evidence"
+    ],
     "text": "RoboForge has more than 900 tests that run without Webots or hardware. RF-DETR reaches 92% precision and 85% recall. The reality-gap engine found all 16 planted defects in the test rig. The repository is archived after the hackathon, and the README is honest that first contact with the real rover is still pending.",
     "facts": "900+ tests without Webots or hardware; RF-DETR 92% precision and 85% recall; all 16 planted defects found."
   },
@@ -308,7 +532,13 @@
     "project": "RoboForge",
     "source": "RoboForge case study",
     "url": "https://github.com/college-hack24-nov26/hack-odyssey",
-    "tags": ["roboforge", "lesson", "boundary", "confidence", "honesty"],
+    "tags": [
+      "roboforge",
+      "lesson",
+      "boundary",
+      "confidence",
+      "honesty"
+    ],
     "text": "RoboForge taught Parth to design for the gap instead of pretending it away. A system that can say 'this part is simulated, this part is measured, this part is unknown' is more useful than one that reports a single confident number. Every result should carry its own boundary."
   },
   {
@@ -317,7 +547,15 @@
     "project": "Client work",
     "source": "ProtoVinci client work",
     "url": "https://github.com/ProtoVinci",
-    "tags": ["client", "agency", "website", "protovinci", "theartevents", "socialxbrand", "gully culture"],
+    "tags": [
+      "client",
+      "agency",
+      "website",
+      "protovinci",
+      "theartevents",
+      "socialxbrand",
+      "gully culture"
+    ],
     "text": "Parth built three live client sites at ProtoVinci: TheArtEvents, SocialxBrand Pilot and Gully Culture. TheArtEvents is an editorial portfolio for a Mumbai event décor studio. SocialxBrand Pilot is a motion-led site for an Indian digital marketing agency, built with Next.js 16, React 19, GSAP and Tailwind 4, with 94 passing tests and 18 services. Gully Culture is a responsive storefront for thrifted football jerseys and streetwear with Instagram DM ordering."
   },
   {
@@ -326,7 +564,14 @@
     "project": "TheArtEvents",
     "source": "TheArtEvents live site",
     "url": "https://theartevents.vercel.app",
-    "tags": ["theartevents", "event decor", "balloons", "mumbai", "client", "website"],
+    "tags": [
+      "theartevents",
+      "event decor",
+      "balloons",
+      "mumbai",
+      "client",
+      "website"
+    ],
     "text": "TheArtEvents is a live site for a Mumbai celebration décor studio. It presents themed stages, balloon architecture, baby showers and birthday installations through an editorial gallery. The build is HTML, CSS and JavaScript with occasion filters and a direct enquiry path. The design is warm and photographic, letting the client's installations carry the page."
   },
   {
@@ -335,7 +580,15 @@
     "project": "SocialxBrand Pilot",
     "source": "SocialxBrand live site",
     "url": "https://www.socialxbrandpilot.com",
-    "tags": ["socialxbrand", "agency", "marketing", "gsap", "next.js", "94 tests", "client"],
+    "tags": [
+      "socialxbrand",
+      "agency",
+      "marketing",
+      "gsap",
+      "next.js",
+      "94 tests",
+      "client"
+    ],
     "text": "SocialxBrand Pilot is a live site for an Indian digital marketing agency. It is motion-led, with real client reels in the headline, 18 services across four groups, and a project brief flow. It is built with Next.js 16, React 19, GSAP 3.15 and Tailwind 4, and has 94 passing tests plus a complete reduced-motion pass. The site presents strategy, creative, technology and execution."
   },
   {
@@ -344,7 +597,15 @@
     "project": "Gully Culture",
     "source": "Gully Culture live site",
     "url": "https://gullyculture.vercel.app/index.html",
-    "tags": ["gully culture", "streetwear", "jerseys", "thrift", "instagram", "storefront", "client"],
+    "tags": [
+      "gully culture",
+      "streetwear",
+      "jerseys",
+      "thrift",
+      "instagram",
+      "storefront",
+      "client"
+    ],
     "text": "Gully Culture is a live storefront for thrifted football jerseys and streetwear. It presents handpicked, rare pieces in a streetwear lookbook, with category tiles for football jerseys, tees, jackets and vintage pieces. Orders happen through Instagram DM, and the site ships worldwide. It is a responsive HTML, CSS and JavaScript build designed to feel like the brand, not a generic shop template."
   },
   {
@@ -353,7 +614,14 @@
     "project": "Parth",
     "source": "The work",
     "url": "https://parthvarekar.in/work",
-    "tags": ["projects", "portfolio", "built", "work", "overview", "seven chapters"],
+    "tags": [
+      "projects",
+      "portfolio",
+      "built",
+      "work",
+      "overview",
+      "seven chapters"
+    ],
     "text": "Parth has built seven chapters of work. H.A.L.O is an on-board procedure monitor for the space station. Susurrus is offline push-to-talk dictation for Windows. Chumps Lab Studio is an AI video editor for tutorials. BioRadar turns environmental DNA into a species list for Indian waters. COSTA acquires and tracks an optical beacon by its blink signature. RoboForge is a chat-first machine builder. The seventh chapter is three live client sites: TheArtEvents, SocialxBrand Pilot and Gully Culture."
   },
   {
@@ -362,7 +630,14 @@
     "project": "Parth",
     "source": "About",
     "url": "https://parthvarekar.in/about",
-    "tags": ["parth", "bio", "mumbai", "student", "computer engineering", "about"],
+    "tags": [
+      "parth",
+      "bio",
+      "mumbai",
+      "student",
+      "computer engineering",
+      "about"
+    ],
     "text": "Parth Varekar is an AI systems builder from Mumbai, India. He studies Computer Engineering at Excelsior KC College of Engineering (Thane), University of Mumbai, class of 2028. He builds local-first AI: offline procedure monitors, zero-cloud dictation, biodiversity intelligence, optical tracking and browser labs. He has completed a 120-hour data-science internship at Imarticus Learning with an A+ grade and a Full-Stack Java certification through EduSkills, also with an A+ grade."
   },
   {
@@ -371,7 +646,17 @@
     "project": "Parth",
     "source": "About",
     "url": "https://parthvarekar.in/about",
-    "tags": ["approach", "method", "research", "prototype", "verify", "ship", "process", "test", "testing"],
+    "tags": [
+      "approach",
+      "method",
+      "research",
+      "prototype",
+      "verify",
+      "ship",
+      "process",
+      "test",
+      "testing"
+    ],
     "text": "Parth works in four steps: research, prototype, verify, ship. Research means reading the actual constraint, not the brief. Prototype means building the smallest version that can be wrong. Verify means writing the test, the validation case or the evidence check before trusting the result. Ship means making the thing legible and putting it in front of a real user. The through-line is inspectability: a model is a sensor, and the system around it has to explain itself."
   },
   {
@@ -380,7 +665,17 @@
     "project": "Parth",
     "source": "About",
     "url": "https://parthvarekar.in/about",
-    "tags": ["tools", "python", "typescript", "pytorch", "webgpu", "llama.cpp", "react", "next.js", "docker"],
+    "tags": [
+      "tools",
+      "python",
+      "typescript",
+      "pytorch",
+      "webgpu",
+      "llama.cpp",
+      "react",
+      "next.js",
+      "docker"
+    ],
     "text": "Parth works mostly in Python and TypeScript. His AI stack includes PyTorch, YOLO, Qwen models, llama.cpp and WebGPU. On the web he uses React, Next.js, Tailwind CSS and GSAP. For systems work he uses Docker, Linux, OpenCV, PySide6 and ESP32 firmware. He cares more about choosing the smallest tool that can prove the result than about collecting frameworks."
   },
   {
@@ -389,7 +684,14 @@
     "project": "Parth",
     "source": "Contact",
     "url": "https://parthvarekar.in/contact",
-    "tags": ["contact", "email", "github", "linkedin", "hire", "internship"],
+    "tags": [
+      "contact",
+      "email",
+      "github",
+      "linkedin",
+      "hire",
+      "internship"
+    ],
     "text": "You can reach Parth by email at parthvarekar27@gmail.com, on GitHub at github.com/ParthVarekar, or on LinkedIn. He is based in Mumbai and works in IST. He is open to internships, collaborations and local-first AI projects. There is no contact form and no tracking on this site; email is the direct path."
   },
   {
@@ -398,8 +700,17 @@
     "project": "This site",
     "source": "Colophon",
     "url": "https://parthvarekar.in/colophon",
-    "tags": ["machine", "local model", "webllm", "webgpu", "privacy", "qwen", "browser", "this page"],
-    "text": "This site runs SmolLM2-135M-Instruct-q4f16_1-MLC locally through WebLLM and WebGPU, inside a Web Worker. The model is about 78 MB and downloads only when you click Wake the machine. It needs roughly 100 MB of GPU memory and has a 4,096-token context. Answers are grounded in a small curated knowledge base with lexical retrieval. Nothing in the conversation is sent to a server. If WebGPU or f16 shaders are unavailable, the site offers a clearly labelled demo mode instead."
+    "tags": [
+      "machine",
+      "local model",
+      "webllm",
+      "webgpu",
+      "privacy",
+      "qwen",
+      "browser",
+      "this page"
+    ],
+    "text": "This site runs Qwen2.5-0.5B-Instruct-q4f16_1-MLC locally through WebLLM and WebGPU, inside a Web Worker. The model is about 265 MB, downloads only when you click Wake the machine, and needs under a gigabyte of GPU memory. It has a 4,096-token context. Before the model answers, plain code works out what the question is about and hands it the two or three most relevant fact cards about Parth, so a small model can answer like a much larger one. The conversation is never sent to a server. Without WebGPU, the site answers instantly from the same fact cards. When Web mode is on, only a general question goes to Wikipedia; questions about Parth always answer from his facts."
   },
   {
     "id": "portfolio-privacy",
@@ -407,7 +718,402 @@
     "project": "This site",
     "source": "Colophon",
     "url": "https://parthvarekar.in/colophon",
-    "tags": ["privacy", "analytics", "cookies", "tracking", "local", "data"],
-    "text": "This site has no analytics, no cookies and no chat persistence. Fonts are self-hosted. The only network request beyond the page itself is the one-time model download, which you start explicitly. The conversation lives in React state and disappears when you reload. The model weights are cached by the browser; the chat is not."
+    "tags": [
+      "privacy",
+      "analytics",
+      "cookies",
+      "tracking",
+      "local",
+      "data"
+    ],
+    "text": "This site has no analytics, no cookies and no chat persistence. Fonts are self-hosted. The one-time model weights are cached by the browser; the chat is not. The conversation disappears when you reload. When Web mode is off, the machine never touches the network. When Web mode is on, the search question alone — never the whole conversation — is sent to Wikipedia to fetch an answer excerpt, and the answer cites the page."
+  },
+  {
+    "id": "eka-overview",
+    "title": "Enterprise Knowledge Assistant overview",
+    "project": "Enterprise Knowledge Assistant",
+    "source": "Enterprise Knowledge Assistant README",
+    "url": "https://github.com/ParthVarekar/enterprise_knowledge_assistance",
+    "tags": [
+      "enterprise",
+      "rag",
+      "slack",
+      "acl",
+      "zero trust",
+      "knowledge",
+      "assistant"
+    ],
+    "text": "Parth built Enterprise Knowledge Assistant, a Slack-native RAG engine with zero-trust ACLs. Hybrid retrieval fuses BM25 with dense vectors using reciprocal rank fusion and temporal decay. An NLI layer checks every claim against the retrieved context and abstains instead of guessing. Inference runs locally on a CUDA GPU with a small Gemma model, and an autonomous quality platform called Aegis-QA tests the pipeline. It is complete and runnable."
+  },
+  {
+    "id": "eka-details",
+    "title": "Enterprise Knowledge Assistant details",
+    "project": "Enterprise Knowledge Assistant",
+    "source": "Enterprise Knowledge Assistant README",
+    "url": "https://github.com/ParthVarekar/enterprise_knowledge_assistance",
+    "tags": [
+      "enterprise",
+      "rag",
+      "aegis",
+      "audit",
+      "qa",
+      "slack"
+    ],
+    "text": "The ACL is two layers: static allow-lists plus a live permission gate at query time. Aegis-QA runs property invariants, mutation testing, a fuzzer and benchmarks over the retrieval and grounding pipeline. Every answer carries a trace ID in an audit ledger, so a bad answer can be replayed and explained.",
+    "facts": "two-layer zero-trust ACL (static + live gate); BM25 + vectors + RRF + temporal decay; NLI grounding with abstention; Aegis-QA: invariants, mutation testing, fuzzing, benchmarks."
+  },
+  {
+    "id": "codeframe-overview",
+    "title": "Codeframe overview",
+    "project": "Codeframe",
+    "source": "Codeframe README",
+    "url": "https://github.com/ParthVarekar/frigshwar",
+    "tags": [
+      "codeframe",
+      "design",
+      "figma",
+      "canvas",
+      "react",
+      "tailwind",
+      "yjs",
+      "Konva"
+    ],
+    "text": "Codeframe is a Figma-style design canvas whose frames export as a real Vite, React and Tailwind project. One scene graph drives the Konva canvas, the live preview and the code exporter; shadcn/ui components are vendored verbatim into the export. A Yjs CRDT scene graph gives it multiplayer presence and deterministic repair of merged states. The core editor and the export pipeline work today; it is in progress."
+  },
+  {
+    "id": "agent-safety-net-overview",
+    "title": "Agent Safety Net overview",
+    "project": "Agent Safety Net",
+    "source": "Agent Safety Net README",
+    "url": "https://github.com/ParthVarekar/agent_safety_net",
+    "tags": [
+      "agent",
+      "safety",
+      "browser",
+      "chrome",
+      "mv3",
+      "extension",
+      "prompt injection",
+      "pii"
+    ],
+    "text": "Parth built Agent Safety Net, a Chrome MV3 extension that is a runtime safety layer for AI browser agents. It injects into the MAIN JavaScript world to monkey-patch fetch and XHR, detects PII leaks and prompt injection patterns in about 0.011 ms per request, and intervenes with a four-tier UI: Allow, Warn, Confirm or Block. A Gemini model is only used for asynchronous post-block explanations, never for the hot path.",
+    "facts": "about 0.011 ms per request (~90,000 requests/sec); four-tier UI; intent-drift detection: sensitive DOM read followed by a POST within 5 seconds."
+  },
+  {
+    "id": "nexus-overview",
+    "title": "Nexus-AI overview",
+    "project": "Nexus-AI",
+    "source": "Nexus-AI README",
+    "url": "https://github.com/ParthVarekar/coding_game",
+    "tags": [
+      "nexus",
+      "game",
+      "python",
+      "pyodide",
+      "wasm",
+      "education",
+      "coding"
+    ],
+    "text": "Nexus-AI is a 2D sci-fi game where the player writes real Python in the browser. The code compiles in WebAssembly with Pyodide and is validated on program state, not regex. A custom zero-dependency Canvas engine runs a fixed timestep, campaigns are laid out as an n8n-style node graph, and a tile editor builds the levels. It is complete and playable locally."
+  },
+  {
+    "id": "shorts-overview",
+    "title": "Shorts Intelligence OS overview",
+    "project": "Shorts Intelligence OS",
+    "source": "Shorts Intelligence OS README",
+    "url": "https://github.com/ParthVarekar/shorts-intelligence-os",
+    "tags": [
+      "shorts",
+      "youtube",
+      "retention",
+      "viral",
+      "cli",
+      "fastapi",
+      "analytics"
+    ],
+    "text": "Shorts Intelligence OS is a multi-agent CLI and FastAPI backend that turns transcripts and analytics into short-form video intelligence: viral scoring, retention forecasts at 3, 10 and 20 seconds and at completion, competitor analysis and scene scripts. It defines 15 metrics with formulas, units and confidence levels, streams progress over SSE and can run against NVIDIA NIM behind a paced scheduler with caching."
+  },
+  {
+    "id": "studyos-overview",
+    "title": "StudyOS overview",
+    "project": "StudyOS",
+    "source": "StudyOS README",
+    "url": "https://github.com/ParthVarekar/studyos",
+    "tags": [
+      "studyos",
+      "gate",
+      "pwa",
+      "exam",
+      "prep",
+      "offline",
+      "prisma"
+    ],
+    "text": "StudyOS is a local-first PWA that runs GATE 2027 prep like a SaaS product: 13 Prisma models on SQLite, eight interconnected modules, a full timed test-runner state machine, a PDF.js canvas document viewer and full offline support through a service worker. It is deployed and Parth dogfoods it daily.",
+    "facts": "13 Prisma models; 18 subjects and 91 GATE topics seeded; full offline PWA; PDF.js viewer."
+  },
+  {
+    "id": "secondbrain-overview",
+    "title": "2nd Brain overview",
+    "project": "2'nd Brain",
+    "source": "2nd Brain README",
+    "url": "https://github.com/ParthVarekar/2-nd_Brain",
+    "tags": [
+      "second brain",
+      "rag",
+      "chromadb",
+      "knowledge",
+      "memory",
+      "obsidian"
+    ],
+    "text": "2'nd Brain is a local-first RAG knowledge base: SQLite holds metadata and ChromaDB holds vectors, with a streaming SSE answer pipeline and a knowledge-graph endpoint built from keyword-overlap edges. A Playwright stealth scraper ingests JavaScript-heavy pages, and Gemini or Ollama can power the answers. React 19 and Vite on the front, and the project is complete."
+  },
+  {
+    "id": "fileintel-overview",
+    "title": "Local File Intelligence overview",
+    "project": "Local File Intelligence",
+    "source": "Local File Intelligence README",
+    "url": "https://github.com/ParthVarekar/semantic_file_system",
+    "tags": [
+      "files",
+      "semantic",
+      "file intelligence",
+      "search",
+      "duplicates",
+      "cleanup",
+      "desktop"
+    ],
+    "text": "Local File Intelligence (semantic_file_system) is a private, local-first Windows desktop app that indexes chosen folders and finds files by meaning. It fuses natural-language and keyword search, finds near-duplicate images, explains every cleanup suggestion it makes, and only changes things you approve — changes go through a write-ahead journal with quarantine and undo. A Flow Launcher-style quick search opens with Alt+Shift+Space. No cloud, no telemetry."
+  },
+  {
+    "id": "poco-overview",
+    "title": "Parth Operating Assistant overview",
+    "project": "Parth Operating Assistant",
+    "source": "Parth Operating Assistant README",
+    "url": "https://github.com/ParthVarekar/parth-operating-assistant",
+    "tags": [
+      "operating assistant",
+      "telegram",
+      "assistant",
+      "scheduler",
+      "productivity"
+    ],
+    "text": "Parth built a personal AI operating assistant that lives on Telegram. Scheduling is deterministic interval math, never an LLM, so it cannot hallucinate a calendar. Submissions move through an eight-stage state machine with failure-aware re-planning, and a behavioural-learning layer adjusts optimism multipliers per task category. It costs about zero dollars a month on the Gemini free tier with SQLite in WAL mode.",
+    "facts": "$0/month; deterministic interval scheduler; 8-stage submission pipeline; 15 unit/integration tests in under 500 ms."
+  },
+  {
+    "id": "client-wmc",
+    "title": "WMC Virtual Lab",
+    "project": "WMC Virtual Lab",
+    "source": "WMC Virtual Lab repository",
+    "url": "https://github.com/ProtoVinci/wmc-virtual-lab",
+    "tags": [
+      "wmc",
+      "virtual lab",
+      "communications",
+      "client",
+      "protovinci",
+      "education"
+    ],
+    "text": "wmc-virtual-lab is a browser application for performing Wireless and Mobile Communication laboratory experiments, built at ProtoVinci as a client deliverable. It is the most starred repository in the ProtoVinci organisation at 29 stars."
+  },
+  {
+    "id": "client-firdosh",
+    "title": "Firdosh Marble Arts",
+    "project": "Firdosh Marble Arts",
+    "source": "Firdosh Marble Arts repository",
+    "url": "https://github.com/ProtoVinci/Firdosh_Marble_Arts",
+    "tags": [
+      "firdosh",
+      "marble",
+      "client",
+      "protovinci",
+      "website"
+    ],
+    "text": "Firdosh Marble Arts is a client portfolio site Parth built at ProtoVinci for a marble works vendor and craftsman."
+  },
+  {
+    "id": "client-protovinci",
+    "title": "ProtoVinci",
+    "project": "ProtoVinci",
+    "source": "ProtoVinci on GitHub",
+    "url": "https://github.com/ProtoVinci",
+    "tags": [
+      "protovinci",
+      "agency",
+      "client",
+      "work"
+    ],
+    "text": "ProtoVinci is the agency Parth worked with on client projects. The shipped work includes TheArtEvents, SocialxBrand Pilot, Gully Culture, the WMC Virtual Lab and Firdosh Marble Arts."
+  },
+  {
+    "id": "credence-overview",
+    "title": "Credence overview",
+    "project": "Credence",
+    "source": "Credence repository",
+    "url": "https://github.com/ParthVarekar/credence_final",
+    "tags": [
+      "credence",
+      "codebyte",
+      "hackathon",
+      "team"
+    ],
+    "text": "Credence is a CodeByte 2.0 team project — a hackathon submission built with a team, not solo work."
+  },
+  {
+    "id": "colorvision-overview",
+    "title": "Color Vision Assistant overview",
+    "project": "Color Vision Assistant",
+    "source": "portfolio research notes",
+    "url": "https://github.com/ParthVarekar",
+    "tags": [
+      "color vision",
+      "team",
+      "2025"
+    ],
+    "text": "Color Vision Assistant was a 2025 team project that shipped. The repository could not be located during portfolio research, so its details are unverified."
+  },
+  {
+    "id": "parth-education",
+    "title": "Education",
+    "project": "Parth",
+    "source": "About",
+    "url": "https://parthvarekar.in/about",
+    "tags": [
+      "education",
+      "college",
+      "school",
+      "degree",
+      "cgpa",
+      "mht-cet",
+      "mumbai",
+      "class of 2028"
+    ],
+    "text": "Parth is a Bachelor of Engineering student in Computer Engineering at Excelsior KC College of Engineering, Thane, University of Mumbai. He was admitted via MHT-CET and expects to graduate in 2028. His CGPA is 8.31 out of 10.",
+    "facts": "BE Computer Engineering, KC College of Engineering (Thane), University of Mumbai, class of 2028; CGPA 8.31/10."
+  },
+  {
+    "id": "parth-internship",
+    "title": "Internship",
+    "project": "Parth",
+    "source": "About",
+    "url": "https://parthvarekar.in/about",
+    "tags": [
+      "internship",
+      "imarticus",
+      "data analytics",
+      "power bi",
+      "sql",
+      "experience"
+    ],
+    "text": "Parth completed a data analytics internship at Imarticus Learning in Mumbai from February to March 2026. He wrote SQL to extract and transform over 50,000 records, and delivered five interactive Power BI dashboards that cut weekly reporting time by 15 percent. He graded A+ for the data-science internship portion.",
+    "facts": "50,000+ records transformed; five Power BI dashboards; reporting time down 15%; Feb-Mar 2026; A+ grade."
+  },
+  {
+    "id": "parth-certifications",
+    "title": "Certifications",
+    "project": "Parth",
+    "source": "About",
+    "url": "https://parthvarekar.in/about",
+    "tags": [
+      "certifications",
+      "eduskills",
+      "java",
+      "certified"
+    ],
+    "text": "Parth holds a Full-Stack Java Development certification through EduSkills, grade A+."
+  },
+  {
+    "id": "parth-hire",
+    "title": "Open to",
+    "project": "Parth",
+    "source": "Contact",
+    "url": "https://parthvarekar.in/contact",
+    "tags": [
+      "hire",
+      "open",
+      "internship",
+      "collaboration",
+      "work with",
+      "collaborate"
+    ],
+    "text": "Parth is open to internships, collaborations and local-first AI projects. Email is the direct path. He is based in Mumbai and works in IST."
+  },
+  {
+    "id": "parth-links",
+    "title": "Links",
+    "project": "Parth",
+    "source": "Contact",
+    "url": "https://parthvarekar.in",
+    "tags": [
+      "github",
+      "linkedin",
+      "links",
+      "online",
+      "profile",
+      "portfolio"
+    ],
+    "text": "Parth on the web: parthvarekar.in; GitHub at github.com/ParthVarekar; LinkedIn at linkedin.com/in/parth-varekar-601432344."
+  },
+  {
+    "id": "parth-github-profile",
+    "title": "GitHub profile",
+    "project": "Parth",
+    "source": "GitHub profile README",
+    "url": "https://github.com/ParthVarekar",
+    "tags": [
+      "github",
+      "profile",
+      "focus",
+      "open source"
+    ],
+    "text": "On GitHub, Parth describes himself as building local-first AI: retrieval (RAG), speech and LLM tooling that runs on your own hardware. The pinned work includes a permission-aware RAG engine for Slack, offline dictation, a design-to-code canvas and a safety layer for AI browser agents, plus the Smart India Hackathon builds."
+  },
+  {
+    "id": "parth-verification",
+    "title": "Testing evidence",
+    "project": "Parth",
+    "source": "The work",
+    "url": "https://parthvarekar.in/work",
+    "tags": [
+      "testing",
+      "tests",
+      "verification",
+      "evidence",
+      "quality"
+    ],
+    "text": "Every chapter of Parth's work ships with an evidence check: H.A.L.O has 276 tests and 8 of 8 verification checks, Susurrus has 77 tests, Chumps Lab has 26 browser end-to-end checks, BioRadar detected 80 of 80 planted species, COSTA passes 28 of 28 validation cases, and RoboForge has more than 900 tests. He writes the check before trusting the result.",
+    "facts": "H.A.L.O 276 tests / 8 of 8 checks; Susurrus 77 tests; Chumps Lab 26 e2e checks; BioRadar 80 of 80 detections; COSTA 28 of 28 cases; RoboForge 900+ tests; Parth writes the evidence check first."
+  },
+  {
+    "id": "portfolio-web",
+    "title": "Web mode on this site",
+    "project": "This site",
+    "source": "Colophon",
+    "url": "https://parthvarekar.in/colophon",
+    "tags": [
+      "web",
+      "web mode",
+      "wikipedia",
+      "internet",
+      "search",
+      "toggle",
+      "privacy"
+    ],
+    "text": "Web mode is an opt-in toggle in the machine — the globe pill in the machine header. It is off by default. When on, a general question that is not about Parth is sent, as a search query only, to Wikipedia; the summary it returns is what the model answers from, and the answer cites the page. Questions about Parth always answer from his facts. No other site is contacted, and toggling it off returns the machine to fully local behaviour."
+  },
+  {
+    "id": "portfolio-web-offline",
+    "title": "Offline behaviour",
+    "project": "This site",
+    "source": "Colophon",
+    "url": "https://parthvarekar.in/colophon",
+    "tags": [
+      "offline",
+      "network",
+      "local",
+      "privacy",
+      "no internet"
+    ],
+    "text": "With Web mode off — the default — the machine never touches the network after the one-time model download. Answers about Parth come from the fact cards built into the site, and nothing about the conversation leaves the tab."
   }
 ]

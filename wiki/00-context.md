@@ -32,7 +32,7 @@ Sub: *"A real language model, inside your browser. Ask it about the systems I bu
 
 ## Locked decisions
 
-- **Model:** SmolLM2-135M-Instruct-q4f16_1-MLC via WebLLM, WebGPU, Web Worker. ~78 MB, ~100 MB VRAM, 4K context. Custom model record (not in WebLLM's prebuilt list). No model picker.
+- **Model:** Qwen2.5-0.5B-Instruct-q4f16_1-MLC via WebLLM, WebGPU, Web Worker. ~265 MB, ~945 MB VRAM, 4K context. Prebuilt in web-llm's config — no custom record (`lib/machine/model.ts`). No model picker. Knowledge: 69 curated chunks with lexical retrieval and noise blocklist; opt-in Web mode (Wikipedia, default off); deterministic small talk layer.
 - **Retrieval:** lexical BM25 / MiniSearch over ~40 curated chunks. No embedding model, no second download.
 - **Theme:** "Periwinkle Lab" — canvas `#C8D1E1`, white cards, lime `#DBEE4D`, blue `#589CFF`, ink `#101218`.
 - **Type:** Geist Sans body/UI; Geist Pixel Square for display/headings/chapter numbers; Geist Mono for code only.
@@ -52,7 +52,7 @@ Sub: *"A real language model, inside your browser. Ask it about the systems I bu
 ## Non-negotiables
 
 - The model must never auto-download. It loads only after an explicit click, with size disclosure and cancel.
-- Unsupported browsers get a clearly labelled demo mode, never a fake live model.
+- Unsupported browsers get an instant answering system over the curated notes (no model), never a fake live model. Unlabeled “demo mode” (12 canned answers) was retired 2026-11-17.
 - The site must be excellent without the model.
 - Every claim in project copy must trace to a repository, README, live site, or Parth's direct statement.
 - `prefers-reduced-motion` is respected everywhere.

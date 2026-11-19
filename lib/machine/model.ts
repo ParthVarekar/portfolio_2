@@ -1,24 +1,15 @@
-import type { ModelRecord } from "@mlc-ai/web-llm";
-
 /**
- * SmolLM2-135M-Instruct (q4f16_1) via MLC — the smallest real language model
- * that loads in a browser today. ~78 MB total on the wire (72 MB weights,
- * ~6 MB WebGPU library, tokenizer files) and roughly 100 MB of GPU memory.
- * Not part of WebLLM's prebuilt list, so the record is defined here and
- * merged into prebuiltAppConfig at load time. Weights are Apache 2.0,
- * hosted by mlc-ai on Hugging Face.
+ * Qwen2.5-0.5B-Instruct (q4f16_1) via MLC — the in-browser model.
+ * Chosen 2026-11-17 after SmolLM2-135M failed at even simple questions:
+ * 0.5B parameters instruct-tuned, Apache 2.0 weights hosted by mlc-ai on
+ * Hugging Face. ~265 MB on the wire (config, tokenizer, 8 param shards),
+ * ~945 MB GPU memory per web-llm's prebuilt record, 4,096-token context
+ * by default. This model ships inside web-llm's prebuiltAppConfig, so no
+ * custom ModelRecord is needed — the engine passes the prebuilt id.
  */
-export const MODEL_ID = "SmolLM2-135M-Instruct-q4f16_1-MLC";
+export const MODEL_ID = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
 
-export const BROWSER_MODEL: ModelRecord = {
-  model: "https://huggingface.co/mlc-ai/SmolLM2-135M-Instruct-q4f16_1-MLC",
-  model_id: MODEL_ID,
-  model_lib:
-    "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_87/base/SmolLM2-135M-Instruct-q4f16_1_cs1k-webgpu.wasm",
-  vram_required_MB: 100,
-  low_resource_required: true,
-  required_features: ["shader-f16"],
-  overrides: {
-    context_window_size: 4096,
-  },
-};
+/** One-time download size, shown in the UI. */
+export const MODEL_DOWNLOAD = "~265 MB";
+/** GPU memory web-llm reports for the prebuilt record. */
+export const MODEL_VRAM = "~945 MB";

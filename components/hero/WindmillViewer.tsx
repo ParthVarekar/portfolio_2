@@ -24,6 +24,30 @@ const FRAME = { centerY: 2.5, halfWidth: 2.25, halfHeight: 2.72, depth: 1.5 };
 const CAMERA_ELEVATION = 0.15;
 const REST_YAW = -0.26;
 
+/* ---------- the drifting paper clouds behind the mill ---------- */
+
+const CLOUD_WRAP = 4.6;
+
+type CloudSpec = {
+  scale: number;
+  x: number;
+  y: number;
+  z: number;
+  speed: number;
+  yaw: number;
+  bob: number;
+  bobRate: number;
+  phase: number;
+};
+
+/** four depths of parallax: nearer, faster, lower; farther, slower, higher */
+const CLOUD_SPECS: CloudSpec[] = [
+  { scale: 1.35, x: -3.3, y: 4.7, z: -2.6, speed: 0.78, yaw: 0.14, bob: 0.12, bobRate: 0.5, phase: 0 },
+  { scale: 0.95, x: 1.1, y: 5.6, z: -3.8, speed: 0.58, yaw: -0.18, bob: 0.18, bobRate: 0.38, phase: 1.7 },
+  { scale: 0.7, x: 3.6, y: 4.05, z: -1.9, speed: 1.05, yaw: 0.22, bob: 0.09, bobRate: 0.62, phase: 3.1 },
+  { scale: 1.8, x: -0.9, y: 6.2, z: -5.2, speed: 0.4, yaw: -0.08, bob: 0.22, bobRate: 0.32, phase: 4.4 },
+];
+
 /* ---------- Motion ---------- */
 
 const IDLE_SPEED = 1; // rad/s, about 10 rpm
@@ -232,6 +256,61 @@ function buildWindmill(THREE: Three) {
   };
 }
 
+/** load the paper cloud and stand up four parallax copies */
+async function buildClouds(THREE: Three) {
+  const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+  const loader = new GLTFLoader();
+  const gltf = await loader.loadAsync("/models/cloud.glb");
+  const source = gltf.scene;
+
+  source.traverse((child) => {
+    const mesh = child as import("three").Mesh;
+    if (!mesh.isMesh) return;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+  });
+
+  const group = new THREE.Group();
+  const movers: import("three").Object3D[] = [];
+  for (const spec of CLOUD_SPECS) {
+    const instance = source.clone(true);
+    instance.position.set(spec.x, spec.y, spec.z);
+    instance.scale.setScalar(spec.scale);
+    instance.rotation.y = spec.yaw;
+    instance.userData.cloud = { ...spec };
+    group.add(instance);
+    movers.push(instance);
+  }
+
+  const update = (delta: number, elapsed: number) => {
+    for (const mover of movers) {
+      const cloud = mover.userData.cloud as CloudSpec;
+      cloud.x += cloud.speed * delta;
+      if (cloud.x > CLOUD_WRAP) cloud.x = -CLOUD_WRAP;
+      mover.position.x = cloud.x;
+      mover.position.y = cloud.y + Math.sin(elapsed * cloud.bobRate + cloud.phase) * cloud.bob;
+      mover.rotation.z = Math.sin(elapsed * 0.35 + cloud.phase) * 0.04;
+    }
+  };
+
+  const dispose = () => {
+    const geometries = new Set<BufferGeometry>();
+    const materials = new Set<Material>();
+    group.traverse((child) => {
+      const mesh = child as import("three").Mesh;
+      if (!mesh.isMesh) return;
+      geometries.add(mesh.geometry);
+      const material = mesh.material as Material | Material[];
+      if (Array.isArray(material)) material.forEach((item) => materials.add(item));
+      else materials.add(material);
+    });
+    geometries.forEach((geometry) => geometry.dispose());
+    materials.forEach((material) => material.dispose());
+  };
+
+  return { group, update, dispose };
+}
+
 export function WindmillViewer() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -312,6 +391,18 @@ export function WindmillViewer() {
         floor.receiveShadow = true;
         scene.add(floor);
 
+        // The cloud paper the wind is made of: four parallax copies behind the mill.
+        let updateClouds = (_delta: number, _elapsed: number) => {};
+        let disposeClouds: (() => void) | undefined;
+        try {
+          const clouds = await buildClouds(THREE);
+          scene.add(clouds.group);
+          updateClouds = clouds.update;
+          disposeClouds = clouds.dispose;
+        } catch (error) {
+          console.warn("Unable to load the drifting cloud backdrop.", error);
+        }
+
         const glowBase = windmill.glow.color.clone();
 
         const resize = () => {
@@ -376,6 +467,7 @@ export function WindmillViewer() {
           windmill.doorLight.intensity = 0.5 + power * 0.9;
           windmill.windowLight.intensity = 0.22 + power * 0.4;
 
+          updateClouds(delta, elapsed);
           renderer.render(scene, camera);
           frameId = window.requestAnimationFrame(tick);
         };
@@ -441,6 +533,7 @@ export function WindmillViewer() {
           canvas.removeEventListener("click", gust);
           resizeObserver.disconnect();
           intersectionObserver.disconnect();
+          disposeClouds?.();
           windmill.dispose();
           floorGeometry.dispose();
           floorMaterial.dispose();

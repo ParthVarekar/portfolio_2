@@ -53,8 +53,13 @@ export function HeroBento() {
     <section className="hero shell" aria-labelledby="hero-title">
       <div className="hero-stage">
         <div className="hero-card settle" style={{ animationDelay: "30ms" }}>
-          {/* the welcome face — the card before the machine is awake */}
-          <div className="hero-face" hidden={machineOpen} aria-hidden={machineOpen}>
+          {/* the welcome face — the card before the machine is awake.
+              It stays in the layout, invisible, while the machine is open so
+              the card never changes size. */}
+          <div
+            className={machineOpen ? "hero-face hero-face--away" : "hero-face"}
+            aria-hidden={machineOpen}
+          >
             <h1 className="hero-title" id="hero-title" aria-label="This page runs a machine.">
               <span className="hero-title-line" aria-hidden="true">
                 This page

@@ -14,4 +14,5 @@ export type ChatMessage = {
 };
 
 export type MachinePhase = "idle" | "loading" | "ready" | "generating" | "error";
-export type MachineMode = "local" | "demo";
+/** "local" runs the model on the GPU; "instant" answers from the notes without it. */
+export type MachineMode = "local" | "instant";

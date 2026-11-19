@@ -23,10 +23,12 @@ import { useEffect, useRef } from "react";
  *     than the waves, and where a fish crosses a wave it keeps its colour
  *     while the water passes back over it, so it looks like it is being
  *     seen through the surface.
- *  5. Hover leaves a trail: every recent pointer position keeps a fading
- *     lobe of light, so the cursor drags a short comet through the field.
- *     The change is *tone only* — glyphs lift toward the paper and step up a
- *     band into a heavier character. Nothing turns a different colour.
+ *  5. Hover is a ribbon, not a spotlight. A small lobe sits under the
+ *     cursor — just wider than the pointer — and the path behind it is kept
+ *     as a continuous, tapering strip. Older parts of the strip thin out and
+ *     break into specks, so a drag reads like a snake or a ribbon in the
+ *     air. Hovered glyphs shift from the ink toward a dark, faded green:
+ *     the site's lime pulled down so the tint never competes with the cards.
  *
  * The density field is evaluated on a coarse grid and interpolated, so the
  * cost per frame is flat no matter how small the cells get.
@@ -56,12 +58,16 @@ const FIELD_STEP = 6;
 /** below this the cell is bare paper */
 const EMPTY_BELOW = 0.11;
 
-/** how far the cursor reaches, px */
-const RADIUS = 124;
-/** how long a hover lobe lives, ms */
-const TRAIL_MS = 620;
+/** the head of the hover trail: just wider than the cursor, px */
+const HEAD_RADIUS = 24;
+/** the tail narrows to this as it ages, px */
+const TAIL_RADIUS = 7;
+/** how long a hover trail lives, ms */
+const TRAIL_MS = 1300;
 /** how many pointer samples the trail keeps */
-const TRAIL_MAX = 18;
+const TRAIL_MAX = 64;
+/** only sample the pointer after it has moved this far, px */
+const TRAIL_STEP = 2.4;
 /** idle repaint interval — the wave is slow, so 12fps is plenty */
 const IDLE_MS = 1000 / 12;
 
@@ -76,13 +82,15 @@ const LUM_MIN = 198; // thin areas — barely off the paper
 const LUM_MAX = 44; // dense plateaus
 const ALPHA_MIN = 0.2;
 const ALPHA_MAX = 0.95;
-/** the paper's own luminance, so hover can lift a glyph without vanishing */
-const PAPER_LUM = 214;
-
-/** how far a hovered glyph lifts toward the paper */
-const HOVER_LIFT = 0.5;
 /** how far a hovered glyph steps up into a heavier band */
-const HOVER_BAND = 0.42;
+const HOVER_BAND = 0.45;
+/**
+ * The hover tint. `#4fee9e` pulled down toward the ink so it reads as a dark,
+ * faded green rather than neon; the per-cell density keeps it from ever
+ * becoming one flat colour.
+ */
+const HOVER_GREEN = [56, 178, 116] as const;
+const HOVER_GREEN_MIX = 0.95;
 
 const clamp = (v: number, lo = 0, hi = 1) => (v < lo ? lo : v > hi ? hi : v);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -311,6 +319,12 @@ export function AsciiField() {
 
     /** the fading hover trail */
     const trail: { x: number; y: number; t: number }[] = [];
+    /** the ribbon's influence on each cell, rebuilt every paint */
+    let hoverMask = new Float32Array(0);
+    /** the live cursor, so the head stays lit while the pointer is still */
+    let pointerX = -1;
+    let pointerY = -1;
+    let pointerInside = false;
 
     /** the school */
     const critters: Critter[] = [];
@@ -393,22 +407,77 @@ export function AsciiField() {
       return { d, slope: { dx: sx, dy: sy, mag: Math.hypot(sx, sy) } };
     };
 
-    /** the strongest influence any trail lobe has on a cell */
-    const trailInfluence = (x: number, y: number, now: number) => {
-      let best = 0;
-      for (let i = 0; i < trail.length; i++) {
-        const p = trail[i];
-        const age = (now - p.t) / TRAIL_MS;
-        if (age > 1) continue;
-        const d = Math.hypot(x - p.x, y - p.y);
-        if (d > RADIUS) continue;
-        const f = 1 - d / RADIUS;
-        const radial = f * f * (3 - 2 * f);
-        const fade = (1 - age) * (1 - age);
-        const v = radial * fade;
-        if (v > best) best = v;
+    /**
+     * Stamp one capsule of the ribbon into the cell mask. The capsule narrows
+     * from the cursor's radius down to the tail radius as it ages, and the
+     * oldest third drops cells out by a per-cell hash — that is the part that
+     * makes the trail disintegrate instead of fading as a whole.
+     */
+    const stampCapsule = (ax: number, ay: number, bx: number, by: number, ageA: number, ageB: number) => {
+      const pad = HEAD_RADIUS + CELL_W;
+      const minX = Math.min(ax, bx) - pad;
+      const maxX = Math.max(ax, bx) + pad;
+      const minY = Math.min(ay, by) - pad;
+      const maxY = Math.max(ay, by) + pad;
+
+      const cx0 = Math.max(0, Math.floor(minX / CELL_W));
+      const cx1 = Math.min(cols - 1, Math.floor(maxX / CELL_W));
+      const cy0 = Math.max(0, Math.floor(minY / CELL_H));
+      const cy1 = Math.min(rows - 1, Math.floor(maxY / CELL_H));
+      if (cx0 > cx1 || cy0 > cy1) return;
+
+      const vx = bx - ax;
+      const vy = by - ay;
+      const len2 = vx * vx + vy * vy;
+
+      for (let cy = cy0; cy <= cy1; cy++) {
+        const py = cy * CELL_H + CELL_H / 2;
+        for (let cx = cx0; cx <= cx1; cx++) {
+          const px = cx * CELL_W + CELL_W / 2;
+
+          const u = len2 === 0 ? 0 : clamp(((px - ax) * vx + (py - ay) * vy) / len2);
+          const dist = Math.hypot(px - (ax + vx * u), py - (ay + vy * u));
+          const age = ageA + (ageB - ageA) * u;
+          const half = lerp(HEAD_RADIUS, TAIL_RADIUS, age);
+          if (dist >= half) continue;
+
+          const f = 1 - dist / half;
+          const radial = f * f * (3 - 2 * f);
+          const fade = Math.pow(1 - age, 0.7);
+
+          // the oldest part of the ribbon breaks into specks
+          const breakup = clamp((age - 0.45) / 0.55);
+          let grain = 1;
+          if (breakup > 0) {
+            grain = (hash(cx + 31, cy + 67) % 1000) / 1000;
+            if (grain < breakup * 0.92) continue;
+          }
+
+          const v = radial * fade * (breakup > 0 ? 0.7 + grain * 0.3 : 1);
+          const key = cy * cols + cx;
+          if (v > hoverMask[key]) hoverMask[key] = v;
+        }
       }
-      return best;
+    };
+
+    /** rebuild the hover ribbon for this frame */
+    const stampHover = (now: number) => {
+      hoverMask.fill(0);
+
+      // the head is steady: it stays under the cursor even when it stops
+      if (pointerInside) {
+        stampCapsule(pointerX, pointerY, pointerX, pointerY, 0, 0);
+      }
+
+      // the body follows every sampled segment, so a fast drag stays joined
+      for (let i = 0; i < trail.length - 1; i++) {
+        const a = trail[i];
+        const b = trail[i + 1];
+        const ageA = clamp((now - a.t) / TRAIL_MS);
+        const ageB = clamp((now - b.t) / TRAIL_MS);
+        if (ageB >= 1) continue;
+        stampCapsule(a.x, a.y, b.x, b.y, ageA, ageB);
+      }
     };
 
     /* ---------- move the school ---------- */
@@ -470,6 +539,7 @@ export function AsciiField() {
     const paint = (now: number) => {
       const t = reduceMotion ? 0 : (now - startTime) / 1000;
       buildField(t);
+      stampHover(now);
 
       ctx.clearRect(0, 0, w, h);
       ctx.textAlign = "center";
@@ -478,13 +548,16 @@ export function AsciiField() {
       for (let cy = 0; cy < rows; cy++) {
         for (let cx = 0; cx < cols; cx++) {
           const { d, slope } = sampleField(cx, cy);
-          if (d < EMPTY_BELOW) continue; // bare paper
+          const key = cy * cols + cx;
+          const near = hoverMask[key];
+
+          // bare paper stays bare unless the ribbon is passing through it
+          if (d < EMPTY_BELOW && near < 0.12) continue;
 
           const x = cx * CELL_W + CELL_W / 2;
           const y = cy * CELL_H + CELL_H / 2;
 
-          // a fish in this cell takes priority over the wave
-          const key = cy * cols + cx;
+          // a fish in this cell takes priority over the wave and the ribbon
           const critter = critterAt.get(key);
           if (critter) {
             const color = critterColor.get(key) ?? CREATURE_CYAN;
@@ -499,30 +572,34 @@ export function AsciiField() {
             continue;
           }
 
-          // how strongly the trail reaches this cell
-          const near = trail.length ? trailInfluence(x, y, now) : 0;
+          // the ribbon gives a cell a floor of presence, so hover reads even
+          // in the thin gaps where the wave normally leaves bare paper
+          const presence = clamp(Math.max(d, near * 0.52));
 
           // hover steps the cell into a heavier band, so the character changes
           const band = near * HOVER_BAND;
           const glyph = glyphFor(cx, cy, d, slope, band);
 
-          // tone: darker where denser, lifted toward the paper where hovered
           const jitter = 0.9 + ((hash(cx + 7, cy + 3) % 100) / 100) * 0.18;
-          const baseLum = lerp(LUM_MIN, LUM_MAX, clamp(d + band * 0.5)) * jitter;
-          const baseAlpha = lerp(ALPHA_MIN, ALPHA_MAX, clamp(d + band * 0.5));
+          const baseLum = lerp(LUM_MIN, LUM_MAX, presence) * jitter;
+          const baseAlpha = lerp(ALPHA_MIN, ALPHA_MAX, presence);
 
-          const lum = lerp(baseLum, Math.min(PAPER_LUM, baseLum + 104), near * HOVER_LIFT);
-          const alpha = clamp(baseAlpha * (1 - near * 0.1) + near * 0.22, 0, 0.97);
+          // shift the glyph's own tone toward the dark green, by proximity;
+          // the jitter keeps neighbouring cells from landing on one flat hue
+          const green = clamp(near * (HOVER_GREEN_MIX + (jitter - 0.9) * 0.18));
+          const l = Math.round(baseLum);
+          const r = Math.round(lerp(l, HOVER_GREEN[0], green));
+          const g = Math.round(lerp(l * 1.03, HOVER_GREEN[1], green));
+          const b = Math.round(lerp(l * 1.16, HOVER_GREEN[2], green));
+          const alpha = clamp(baseAlpha + near * 0.42, 0, 0.97);
 
-          // a hovered glyph also grows, so it holds its own in a busy field
-          const size = FONT_PX + near * 1.9;
+          // a hovered glyph grows a little, but stays part of the ribbon
+          const size = FONT_PX + near * 1.4;
           ctx.font =
-            size > FONT_PX + 0.15 ? `600 ${size.toFixed(2)}px ${mono}` : `400 ${FONT_PX}px ${mono}`;
+            size > FONT_PX + 0.15 ? `700 ${size.toFixed(2)}px ${mono}` : `400 ${FONT_PX}px ${mono}`;
 
-          const l = Math.round(lum);
-          ctx.fillStyle = `rgba(${l},${Math.round(l * 1.03)},${Math.round(l * 1.16)},${alpha.toFixed(3)})`;
-
-          ctx.fillText(glyph, x, y - near * 0.8);
+          ctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+          ctx.fillText(glyph, x, y - near * 0.55);
         }
       }
       ctx.font = `400 ${FONT_PX}px ${mono}`;
@@ -570,6 +647,7 @@ export function AsciiField() {
       fieldSX = new Float32Array(fw * fh);
       fieldSY = new Float32Array(fw * fh);
       fieldMag = new Float32Array(fw * fh);
+      hoverMask = new Float32Array(cols * rows);
 
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
@@ -592,19 +670,33 @@ export function AsciiField() {
 
     /* ---------- pointer ---------- */
     const onMove = (event: PointerEvent) => {
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      pointerInside = true;
+
       const now = performance.now();
       const last = trail[trail.length - 1];
-      // only sample when the pointer has actually moved
-      if (!last || Math.hypot(event.clientX - last.x, event.clientY - last.y) > 3) {
-        trail.push({ x: event.clientX, y: event.clientY, t: now });
+      // only sample when the pointer has actually moved, so slow drags still
+      // produce a dense, continuous ribbon
+      if (!last || Math.hypot(pointerX - last.x, pointerY - last.y) > TRAIL_STEP) {
+        trail.push({ x: pointerX, y: pointerY, t: now });
         if (trail.length > TRAIL_MAX) trail.shift();
       }
       kick();
     };
 
     const onLeave = () => {
-      trail.length = 0;
+      // let the ribbon age out instead of snapping off the screen
+      pointerInside = false;
       kick();
+    };
+
+    const onOut = (event: PointerEvent) => {
+      // only treat it as a leave when the pointer actually exits the document
+      if (event.relatedTarget === null) {
+        pointerInside = false;
+        kick();
+      }
     };
 
     let resizeTimer = 0;
@@ -618,6 +710,7 @@ export function AsciiField() {
         if (raf) cancelAnimationFrame(raf);
         raf = 0;
         trail.length = 0;
+        pointerInside = false;
       } else {
         kick();
       }
@@ -629,6 +722,8 @@ export function AsciiField() {
     if (finePointer && !reduceMotion) {
       window.addEventListener("pointermove", onMove, { passive: true });
       document.addEventListener("pointerleave", onLeave);
+      window.addEventListener("pointerout", onOut);
+      window.addEventListener("blur", onLeave);
     }
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
@@ -638,6 +733,8 @@ export function AsciiField() {
       window.clearTimeout(resizeTimer);
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("pointerout", onOut);
+      window.removeEventListener("blur", onLeave);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
