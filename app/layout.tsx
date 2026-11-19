@@ -6,6 +6,7 @@ import { Footer } from "@/components/shell/Footer";
 import { CommandPalette } from "@/components/shell/CommandPalette";
 import { AsciiField } from "@/components/shell/AsciiField";
 import { LoopGuard } from "@/components/shell/LoopGuard";
+import { GoatCounter } from "@/components/shell/GoatCounter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         <CommandPalette />
         <LoopGuard />
+        <GoatCounter />
       </body>
     </html>
   );
