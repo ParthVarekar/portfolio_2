@@ -8,7 +8,7 @@ import { machineFacts } from "@/content/site";
 export const metadata: Metadata = {
   title: "The Machine",
   description:
-    "A real Qwen2.5 0.5B language model running locally in your browser through WebLLM and WebGPU. No server, no analytics, no chat storage.",
+    "A real Qwen2.5 0.5B language model running locally in your browser through WebLLM and WebGPU. No server, no cookies, no chat storage.",
   alternates: { canonical: "/machine" },
 };
 

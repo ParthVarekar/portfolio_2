@@ -54,8 +54,17 @@ cursor, and a green trail of glyphs that follows the pointer and breaks up behin
 from a pre-rendered atlas and only changed cells are redrawn (~2 ms a frame at 1440×900).
 
 **The rest.** A 3D windmill with drifting paper clouds (Three.js), seven case studies, a ⌘K command
-palette, a retro CRT contact desk, reduced-motion support throughout. No analytics, no cookies, no chat
+palette, a retro CRT contact desk, reduced-motion support throughout. Cookieless visit counts (GoatCounter), no cookies, no chat
 storage, no backend.
+
+## Visit analytics
+
+Unique visits are counted with [GoatCounter](https://www.goatcounter.com): cookieless, no personal data, and the
+visitor count comes from a one-way hash that rotates daily. The component is `components/shell/GoatCounter.tsx`
+(it also counts in-app route changes). The dashboard is at `https://<site-code>.goatcounter.com`.
+
+To point it at your own GoatCounter site, create one at goatcounter.com/signup with the site code `parthvarekar`,
+or set `NEXT_PUBLIC_GOATCOUNTER_URL=https://<your-code>.goatcounter.com/count` on the host and redeploy.
 
 ## Stack
 

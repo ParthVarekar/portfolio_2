@@ -726,7 +726,7 @@
       "local",
       "data"
     ],
-    "text": "This site has no analytics, no cookies and no chat persistence. Fonts are self-hosted. The one-time model weights are cached by the browser; the chat is not. The conversation disappears when you reload. When Web mode is off, the machine never touches the network. When Web mode is on, the search question alone — never the whole conversation — is sent to Wikipedia to fetch an answer excerpt, and the answer cites the page."
+    "text": "This site uses cookieless GoatCounter to count visits, and has no cookies and no chat persistence. The machine's conversation is never counted. Fonts are self-hosted. The one-time model weights are cached by the browser; the chat is not. The conversation disappears when you reload. When Web mode is off, the machine never touches the network. When Web mode is on, the search question alone — never the whole conversation — is sent to Wikipedia to fetch an answer excerpt, and the answer cites the page."
   },
   {
     "id": "eka-overview",

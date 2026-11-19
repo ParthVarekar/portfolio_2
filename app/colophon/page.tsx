@@ -116,7 +116,12 @@ export default function ColophonPage() {
             Privacy
           </h2>
           <ul className="limit-list">
-            <li>No analytics, no cookies, no tracking pixels, no third-party scripts.</li>
+            <li>
+              Visits are counted with GoatCounter: cookieless, no personal data stored, no
+              tracking across sites, and it only sees the page and a one-way daily hash for
+              unique-visit counts. It is the one third-party script on the site.
+            </li>
+            <li>No cookies and no tracking pixels. Nothing you type into the machine is counted.</li>
             <li>No chat persistence. Reload the tab and the conversation is gone.</li>
             <li>No contact form and no email address harvesting.</li>
             <li>Fonts are self-hosted through Next.js; no font CDN request.</li>
@@ -125,8 +130,8 @@ export default function ColophonPage() {
               Wikipedia — the conversation itself never does.
             </li>
             <li>
-              The only requests beyond the page are the explicit model download and, with Web
-              mode on, the Wikipedia lookup you asked for.
+              The only requests beyond the page are the GoatCounter visit count, the explicit model
+              download and, with Web mode on, the Wikipedia lookup you asked for.
             </li>
             <li>Model weights are cached by your browser; the conversation is not.</li>
           </ul>

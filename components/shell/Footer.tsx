@@ -33,7 +33,7 @@ export function Footer() {
             </div>
             <span className="footer-colophon">
               <span className="status-dot status-dot--lime" aria-hidden="true" />
-              Next.js · WebLLM · Geist — no analytics, no cookies
+              Next.js · WebLLM · Geist — cookieless visit counts, no cookies
             </span>
           </div>
 

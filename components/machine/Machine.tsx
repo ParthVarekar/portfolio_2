@@ -811,7 +811,7 @@ export function Machine({
               What leaves
             </h3>
             <p>
-              Nothing, once the model is cached. No analytics, no cookies, no chat storage. With Web on,
+              Nothing you type, once the model is cached. No cookies, no chat storage. With Web on,
               only a general question is sent to Wikipedia.
             </p>
           </article>
