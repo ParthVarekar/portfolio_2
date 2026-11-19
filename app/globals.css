@@ -3674,8 +3674,11 @@ button,
 }
 
 .crt-icons {
-  display: flex;
-  gap: 10px;
+  /* five apps share the screen's width, so they shrink with it instead of spilling off the edge */
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  max-width: 300px;
 }
 
 .crt-app {
@@ -3683,7 +3686,8 @@ button,
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  width: 52px;
+  width: 100%;
+  min-width: 0;
   padding: 0;
   border: 0;
   background: none;
@@ -3740,7 +3744,7 @@ button,
 
 .crt-app-label {
   font-family: var(--font-mono), monospace;
-  font-size: 8px;
+  font-size: clamp(6px, 1.9vw, 8px);
   letter-spacing: 0.03em;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 1px 2px rgba(12, 22, 52, 0.5);
